@@ -5,6 +5,7 @@ import {
   CalendarDays,
   History,
   LineChart,
+  LogOut,
   Settings,
   UtensilsCrossed,
 } from 'lucide-react';
@@ -14,8 +15,10 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { ComponentType, ReactNode } from 'react';
 
+import { LanguageToggle } from '@/components/layout/language-toggle';
 import { Logo } from '@/components/layout/logo';
 import { ThemeToggle } from '@/components/layout/theme-toggle';
+import { useAuth } from '@/lib/auth/auth-provider';
 import { cn } from '@/lib/utils/cn';
 
 type NavKey = 'today' | 'food' | 'activity' | 'progress' | 'history' | 'settings';
@@ -45,6 +48,8 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname();
   const t = useTranslations('nav');
   const app = useTranslations('app');
+  const account = useTranslations('settings');
+  const { user, logout } = useAuth();
 
   return (
     <div className="min-h-dvh lg:flex">
@@ -86,8 +91,26 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
           </ul>
         </nav>
 
-        <div className="px-1">
-          <ThemeToggle />
+        {/* Language and signing out belong where they are reached, not three
+            clicks into settings. The theme sits with them but is chosen once. */}
+        <div className="border-border space-y-2 border-t pt-3">
+          {user?.email ? (
+            <p className="text-foreground-subtle truncate px-3 text-[0.6875rem]">{user.email}</p>
+          ) : null}
+
+          <button
+            type="button"
+            onClick={() => void logout()}
+            className="press text-foreground-muted hover:bg-surface-muted hover:text-foreground flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-left text-sm"
+          >
+            <LogOut className="size-4 shrink-0" aria-hidden />
+            <span className="min-w-0 flex-1 truncate">{account('signOut')}</span>
+          </button>
+
+          <div className="flex items-center justify-between gap-2 px-1 pt-1">
+            <LanguageToggle />
+            <ThemeToggle />
+          </div>
         </div>
       </aside>
 
