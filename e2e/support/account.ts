@@ -6,8 +6,25 @@ export const PASSWORD = 'playwright-password';
 export const registerAccount = async (page: Page, prefix: string): Promise<void> => {
   await page.goto('/register');
   await page.getByLabel('Email').fill(`${prefix}-${Date.now()}@sport-calorie.test`);
-  await page.getByLabel('Password').fill(PASSWORD);
+  // The field carries a "Show password" toggle, whose label also says Password.
+  await page.getByLabel('Password', { exact: true }).fill(PASSWORD);
   await page.getByRole('button', { name: 'Create account' }).click();
+};
+
+/**
+ * Answers the date of birth. It is a calendar popover rather than a native date
+ * input, so the month and year come off its selects and the day off the grid.
+ */
+export const pickBirthDate = async (page: Page, label = 'Date of birth'): Promise<void> => {
+  await page.getByLabel(label).click();
+  // The calendar's month and year are the only native selects the wizard puts on
+  // screen, so they can be taken in order and the language does not matter.
+  const selects = page.locator('select');
+
+  await selects.nth(1).selectOption('1994');
+  // Month options are indexed from zero: June is 5 in every language.
+  await selects.nth(0).selectOption('5');
+  await page.getByRole('gridcell').filter({ hasText: /^15$/ }).click();
 };
 
 /** Answers the first-run wizard with body data every screen can work from. */
@@ -17,7 +34,7 @@ export const completeOnboarding = async (page: Page): Promise<void> => {
 
   await page.getByRole('combobox', { name: 'Sex' }).click();
   await page.getByRole('option', { name: 'Male', exact: true }).click();
-  await page.getByLabel('Date of birth').fill('1994-06-15');
+  await pickBirthDate(page);
   await page.getByRole('spinbutton', { name: 'Height' }).fill('180');
   await page.getByRole('spinbutton', { name: 'Current weight' }).fill('80');
   await page.getByRole('button', { name: 'Next', exact: true }).click();

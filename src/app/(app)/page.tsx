@@ -9,6 +9,7 @@ import { ActivityDialog } from '@/components/activity/activity-dialog';
 import { FoodEntryDialog } from '@/components/food/food-entry-dialog';
 import { Column, Columns } from '@/components/layout/columns';
 import { DateHeading, DateNav } from '@/components/layout/date-nav';
+import { useFirstRunPending } from '@/components/onboarding/onboarding-presence';
 import { ErrorState } from '@/components/states/error-state';
 import { ActivityList } from '@/components/today/activity-list';
 import { CalorieSummary } from '@/components/today/calorie-summary';
@@ -59,6 +60,7 @@ const TodayView = () => {
     queryKey: queryKeys.dashboard(date),
     queryFn: () => summaryApi.dashboard(date),
   });
+  const firstRunPending = useFirstRunPending();
 
   const weekFrom = addDays(date, -6);
   const week = useQuery({
@@ -196,7 +198,7 @@ const TodayView = () => {
         currentWeightKg={dashboard.data?.weight?.weightKg ?? null}
       />
 
-      {date === today && dashboard.isSuccess ? (
+      {date === today && dashboard.isSuccess && !firstRunPending ? (
         <WeightPrompt
           date={today}
           logged={dashboard.data.weight !== null}

@@ -5,6 +5,7 @@ import { useEffect, type ReactNode } from 'react';
 
 import { AppShell } from '@/components/layout/app-shell';
 import { OnboardingGate } from '@/components/onboarding/onboarding-gate';
+import { OnboardingPresenceProvider } from '@/components/onboarding/onboarding-presence';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/lib/auth/auth-provider';
 
@@ -29,10 +30,12 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
   }
 
   return (
-    <AppShell>
-      {children}
-      <OnboardingGate />
-    </AppShell>
+    <OnboardingPresenceProvider>
+      <AppShell>
+        {children}
+        <OnboardingGate />
+      </AppShell>
+    </OnboardingPresenceProvider>
   );
 };
 
