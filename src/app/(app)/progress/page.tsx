@@ -4,8 +4,10 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
-import { DailyBarChart, DailyLineChart } from '@/components/charts/daily-chart';
+import { DailyAreaChart, DailyBarChart } from '@/components/charts/daily-chart';
 import { Columns } from '@/components/layout/columns';
+import { ActivityBreakdown } from '@/components/progress/activity-breakdown';
+import { PeriodStats } from '@/components/progress/period-stats';
 import { EmptyState } from '@/components/states/empty-state';
 import { ErrorState } from '@/components/states/error-state';
 import { Section } from '@/components/ui/section';
@@ -15,10 +17,8 @@ import { summaryApi } from '@/lib/api/endpoints';
 import { useAuth } from '@/lib/auth/auth-provider';
 import { addDays, todayIn } from '@/lib/format/dates';
 import { metresToKilometres } from '@/lib/format/units';
-import { useActivityTypeName } from '@/lib/format/use-activity-name';
 import { useFormat } from '@/lib/format/use-format';
 import { queryKeys } from '@/lib/query/query-keys';
-import { cn } from '@/lib/utils/cn';
 
 const RANGES = [
   { value: '7', key: 'days7' },
@@ -35,18 +35,26 @@ const ChartPanel = ({ children }: { children: React.ReactNode }) => (
 const ProgressPage = () => {
   const t = useTranslations('progress');
   const units = useTranslations('units');
-  const today = useTranslations('today');
   const { timezone } = useAuth();
   const format = useFormat();
-  const activityName = useActivityTypeName();
   const [range, setRange] = useState<RangeValue>('30');
 
+  const rangeDays = Number(range);
   const to = todayIn(timezone);
-  const from = addDays(to, -(Number(range) - 1));
+  const from = addDays(to, -(rangeDays - 1));
 
   const progress = useQuery({
     queryKey: queryKeys.progress(from, to),
     queryFn: () => summaryApi.progress(from, to),
+  });
+
+  // The window of the same length ending the day before, to say which way the
+  // averages moved rather than leaving them without a reference.
+  const previousTo = addDays(from, -1);
+  const previousFrom = addDays(previousTo, -(rangeDays - 1));
+  const previous = useQuery({
+    queryKey: queryKeys.progress(previousFrom, previousTo),
+    queryFn: () => summaryApi.progress(previousFrom, previousTo),
   });
 
   const rangeOptions = RANGES.map(({ value, key }) => ({ value, label: t(key) }));
@@ -80,37 +88,15 @@ const ProgressPage = () => {
       ) : (
         <>
           <Section title={t('averages')}>
-            <dl className="border-border bg-surface grid grid-cols-2 gap-x-4 gap-y-4 rounded-lg border px-4 py-4 sm:grid-cols-4">
-              <div>
-                <dt className="label-caps">{t('consumed')}</dt>
-                <dd className="metric-md mt-1.5">
-                  {format.kcal(progress.data.averages.avgConsumedKcal)}
-                </dd>
-              </div>
-              <div>
-                <dt className="label-caps">{t('activity')}</dt>
-                <dd className="metric-md mt-1.5">
-                  {format.kcal(progress.data.averages.avgActivityKcal)}
-                </dd>
-              </div>
-              <div>
-                <dt className="label-caps">{t('balance')}</dt>
-                <dd
-                  className={cn(
-                    'metric-md mt-1.5',
-                    progress.data.averages.avgBalanceKcal > 0 ? 'text-danger' : 'text-accent',
-                  )}
-                >
-                  {format.signedKcal(progress.data.averages.avgBalanceKcal)}
-                </dd>
-              </div>
-              <div>
-                <dt className="label-caps">{t('walking')}</dt>
-                <dd className="metric-md mt-1.5">
-                  {format.distance(progress.data.averages.avgWalkingDistanceM)}
-                </dd>
-              </div>
-            </dl>
+            <PeriodStats
+              current={progress.data.averages}
+              previous={
+                previous.data && previous.data.averages.daysLogged > 0
+                  ? previous.data.averages
+                  : undefined
+              }
+              rangeDays={rangeDays}
+            />
           </Section>
 
           <Columns>
@@ -139,6 +125,7 @@ const ProgressPage = () => {
                     value: day.activityKcal,
                   }))}
                   seriesName={t('burned')}
+                  color="var(--chart-3)"
                   formatValue={format.kcal}
                   formatAxisValue={format.axisKcal}
                   formatDate={format.shortDate}
@@ -154,6 +141,7 @@ const ProgressPage = () => {
                     value: metresToKilometres(day.walkingDistanceM),
                   }))}
                   seriesName={t('distance')}
+                  color="var(--chart-2)"
                   formatValue={(value) => `${format.decimal(value)} ${units('kilometre')}`}
                   formatAxisValue={format.decimal}
                   formatDate={format.shortDate}
@@ -164,7 +152,7 @@ const ProgressPage = () => {
             {progress.data.weights.length >= 2 ? (
               <Section title={t('weight')}>
                 <ChartPanel>
-                  <DailyLineChart
+                  <DailyAreaChart
                     data={progress.data.weights.map((point) => ({
                       date: point.date,
                       value: point.weightKg,
@@ -178,29 +166,8 @@ const ProgressPage = () => {
             ) : null}
 
             {progress.data.activityBreakdown.length > 0 ? (
-              <Section title={t('breakdown')}>
-                <ul className="divide-border border-border bg-surface divide-y overflow-hidden rounded-lg border">
-                  {progress.data.activityBreakdown.map((activity, index) => (
-                    <li
-                      key={activity.activityTypeId}
-                      className="animate-row flex items-center justify-between gap-3 px-4 py-3"
-                      style={{ animationDelay: `${Math.min(index, 6) * 30}ms` }}
-                    >
-                      <div>
-                        <p className="text-sm">{activityName(activity)}</p>
-                        <p className="numeric text-foreground-subtle mt-0.5 text-xs">
-                          {today('sessions', { count: activity.sessions })}
-                          {activity.durationSec > 0
-                            ? ` · ${format.duration(activity.durationSec)}`
-                            : ''}
-                        </p>
-                      </div>
-                      <p className="numeric text-sm">
-                        {format.kcal(activity.energyKcal)} {units('kcal')}
-                      </p>
-                    </li>
-                  ))}
-                </ul>
+              <Section title={t('breakdown')} className="xl:col-span-2">
+                <ActivityBreakdown activities={progress.data.activityBreakdown} />
               </Section>
             ) : null}
           </Columns>

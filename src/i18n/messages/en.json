@@ -353,7 +353,9 @@
     "nothingYet": "Nothing to chart yet",
     "nothingYetHint": "Log a few days of food and activity and the trends will appear here.",
     "burned": "Burned",
-    "distance": "Distance"
+    "distance": "Distance",
+    "vsPrevious": "vs previous period",
+    "daysLogged": "{logged} of {total} days logged"
   },
   "history": {
     "title": "History",
