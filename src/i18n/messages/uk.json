@@ -183,7 +183,8 @@
     "estimateNote": "Калорії від активності розраховані приблизно.",
     "estimateLink": "Уточніть ціль і дані тіла",
     "estimateNoteEnd": "щоб оцінка була точнішою.",
-    "proteinInline": "білка"
+    "proteinInline": "білка",
+    "lastDays": "Останні 7 днів"
   },
   "quickAdd": {
     "food": "Їжа",

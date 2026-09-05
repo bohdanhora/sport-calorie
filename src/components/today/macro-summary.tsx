@@ -11,10 +11,11 @@ interface MacroSummaryProps {
   target: MacroAmount;
 }
 
+/** One colour per macro, so the three bars stop reading as one repeated bar. */
 const MACROS = [
-  { key: 'proteinG', label: 'protein' },
-  { key: 'carbsG', label: 'carbs' },
-  { key: 'fatG', label: 'fat' },
+  { key: 'proteinG', label: 'protein', bar: 'bg-chart-1' },
+  { key: 'carbsG', label: 'carbs', bar: 'bg-chart-2' },
+  { key: 'fatG', label: 'fat', bar: 'bg-chart-3' },
 ] as const;
 
 export const MacroSummary = ({ consumed, target }: MacroSummaryProps) => {
@@ -24,8 +25,8 @@ export const MacroSummary = ({ consumed, target }: MacroSummaryProps) => {
 
   return (
     <Section title={t('macros')}>
-      <dl className="grid grid-cols-3 gap-x-4 gap-y-2">
-        {MACROS.map(({ key, label }, index) => {
+      <dl className="border-border bg-surface grid grid-cols-3 divide-x divide-[var(--border)] rounded-lg border">
+        {MACROS.map(({ key, label, bar }, index) => {
           const eaten = consumed[key];
           const goal = target[key];
           const progress = goal > 0 ? Math.min(eaten / goal, 1) : 0;
@@ -33,7 +34,7 @@ export const MacroSummary = ({ consumed, target }: MacroSummaryProps) => {
           return (
             <div
               key={key}
-              className="animate-row space-y-2"
+              className="animate-row space-y-2 px-4 py-3.5"
               style={{ animationDelay: `${index * 40}ms` }}
             >
               <dt className="label-caps">{t(label)}</dt>
@@ -44,9 +45,9 @@ export const MacroSummary = ({ consumed, target }: MacroSummaryProps) => {
                     / {format.kcal(goal)} {units('gram')}
                   </span>
                 </p>
-                <div className="bg-surface-muted mt-2 h-1 overflow-hidden rounded-full" aria-hidden>
+                <div className="bg-surface-muted mt-2.5 h-1.5 overflow-hidden rounded-full" aria-hidden>
                   <div
-                    className="bg-accent h-full rounded-full transition-[width] duration-500 ease-out"
+                    className={`${bar} h-full rounded-full transition-[width] duration-500 ease-out`}
                     style={{ width: `${progress * 100}%` }}
                   />
                 </div>

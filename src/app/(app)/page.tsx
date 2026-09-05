@@ -16,12 +16,14 @@ import { MacroSummary } from '@/components/today/macro-summary';
 import { MealList } from '@/components/today/meal-list';
 import { QuickAdd, type QuickAction } from '@/components/today/quick-add';
 import { WalkingSummary } from '@/components/today/walking-summary';
+import { WeekStrip } from '@/components/today/week-strip';
 import { Skeleton } from '@/components/ui/skeleton';
 import { WeightDialog } from '@/components/weight/weight-dialog';
 import { useSelectedDate } from '@/hooks/use-selected-date';
 import { summaryApi } from '@/lib/api/endpoints';
 import type { ActivityCategory, MealType } from '@/lib/api/types';
 import { useAuth } from '@/lib/auth/auth-provider';
+import { addDays } from '@/lib/format/dates';
 import { useFormat } from '@/lib/format/use-format';
 import { queryKeys } from '@/lib/query/query-keys';
 
@@ -55,6 +57,12 @@ const TodayView = () => {
   const dashboard = useQuery({
     queryKey: queryKeys.dashboard(date),
     queryFn: () => summaryApi.dashboard(date),
+  });
+
+  const weekFrom = addDays(date, -6);
+  const week = useQuery({
+    queryKey: queryKeys.history(weekFrom, date),
+    queryFn: () => summaryApi.history(weekFrom, date),
   });
 
   const handleQuickAction = (action: QuickAction) => {
@@ -103,6 +111,8 @@ const TodayView = () => {
             />
 
             <WalkingSummary walking={dashboard.data.walking} />
+
+            <WeekStrip days={week.data ?? []} selected={date} onSelect={setDate} />
           </Column>
 
           <Column>

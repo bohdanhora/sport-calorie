@@ -183,7 +183,8 @@
     "estimateNote": "Calories burned by activities are estimates.",
     "estimateLink": "Adjust your goal and body data",
     "estimateNoteEnd": "to make them more accurate.",
-    "proteinInline": "protein"
+    "proteinInline": "protein",
+    "lastDays": "Last 7 days"
   },
   "quickAdd": {
     "food": "Food",

@@ -183,7 +183,8 @@
     "estimateNote": "Калории от активности рассчитаны приблизительно.",
     "estimateLink": "Уточните цель и данные тела",
     "estimateNoteEnd": "чтобы оценка была точнее.",
-    "proteinInline": "белка"
+    "proteinInline": "белка",
+    "lastDays": "Последние 7 дней"
   },
   "quickAdd": {
     "food": "Еда",

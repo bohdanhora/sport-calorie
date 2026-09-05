@@ -31,9 +31,11 @@ export const QuickAdd = ({
           key={id}
           type="button"
           onClick={() => onSelect(id)}
-          className="press border-border bg-surface text-foreground-muted hover:border-border-strong hover:text-foreground flex flex-col items-center gap-1.5 rounded-lg border px-2 py-3 text-xs font-medium"
+          className="press border-border bg-surface text-foreground-muted hover:border-accent hover:text-foreground group flex flex-col items-center gap-2 rounded-lg border px-2 py-3.5 text-xs font-medium"
         >
-          <Icon className="size-[1.125rem]" aria-hidden />
+          <span className="bg-accent-soft text-accent flex size-9 items-center justify-center rounded-md transition-transform duration-150 group-hover:scale-105">
+            <Icon className="size-[1.125rem]" aria-hidden />
+          </span>
           {t(id)}
         </button>
       ))}
