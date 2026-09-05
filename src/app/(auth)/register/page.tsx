@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { GoogleSignIn } from '@/components/auth/google-sign-in';
+import { PasswordInput } from '@/components/auth/password-input';
 import { Button } from '@/components/ui/button';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
@@ -66,8 +67,8 @@ const RegisterPage = () => {
   });
 
   return (
-    <div className="animate-rise space-y-6">
-      <div className="space-y-1">
+    <div className="space-y-6">
+      <div className="space-y-1.5">
         <h1 className="page-title">{t('registerTitle')}</h1>
         <p className="text-foreground-muted text-sm">{t('registerSubtitle')}</p>
       </div>
@@ -104,13 +105,7 @@ const RegisterPage = () => {
           hint={t('passwordHint', { min: MIN_PASSWORD_LENGTH })}
         >
           {(props) => (
-            <Input
-              {...props}
-              {...register('password')}
-              type="password"
-              autoComplete="new-password"
-              className="font-sans"
-            />
+            <PasswordInput {...props} {...register('password')} autoComplete="new-password" />
           )}
         </Field>
 
@@ -130,7 +125,7 @@ const RegisterPage = () => {
 
       <GoogleSignIn />
 
-      <p className="text-foreground-muted text-center text-[0.8125rem]">
+      <p className="text-foreground-muted border-border border-t pt-5 text-center text-[0.8125rem]">
         {t('haveAccount')}{' '}
         <Link href="/login" className="text-accent font-medium underline-offset-4 hover:underline">
           {t('signIn')}

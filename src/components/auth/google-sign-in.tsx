@@ -4,12 +4,15 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { Skeleton } from '@/components/ui/skeleton';
 import { ApiError } from '@/lib/api/client';
 import { useAuth } from '@/lib/auth/auth-provider';
-import { Skeleton } from '@/components/ui/skeleton';
 
 const GSI_SRC = 'https://accounts.google.com/gsi/client';
 const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? '';
+
+/** Google refuses to render its button any wider than this. */
+const MAX_BUTTON_WIDTH = 400;
 
 interface CredentialResponse {
   credential?: string;
@@ -31,6 +34,7 @@ interface GoogleIdentityApi {
           size?: 'large' | 'medium' | 'small';
           shape?: 'rectangular' | 'pill';
           text?: 'signin_with' | 'signup_with' | 'continue_with';
+          logo_alignment?: 'left' | 'center';
           width?: number;
         },
       ) => void;
@@ -80,13 +84,19 @@ const loadGsiScript = (locale: string): Promise<void> => {
  * Renders Google's own button, which is what their branding rules ask for, and
  * hands the ID token it returns to the API. Without a client id there is nothing
  * to render, so the whole block disappears.
+ *
+ * Google draws the button into an iframe of a width it is told once, so the
+ * frame is measured first and the button redrawn whenever that width changes.
+ * A frame the card has outgrown is what makes the button look pasted on.
  */
 export const GoogleSignIn = () => {
   const t = useTranslations('auth');
   const locale = useLocale();
   const { resolvedTheme } = useTheme();
   const { signInWithGoogle } = useAuth();
+  const frameRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(0);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -106,8 +116,38 @@ export const GoogleSignIn = () => {
     [locale, signInWithGoogle, t],
   );
 
+  /**
+   * initialize binds the callback for good, so it runs once per library load and
+   * reads the current callback through a ref. Calling it again on every theme or
+   * width change is what Google warns about.
+   */
+  const latestCredentialHandler = useRef(handleCredential);
+  const initializedFor = useRef<string | null>(null);
+
   useEffect(() => {
-    if (!CLIENT_ID) {
+    latestCredentialHandler.current = handleCredential;
+  }, [handleCredential]);
+
+  useEffect(() => {
+    const frame = frameRef.current;
+
+    if (!CLIENT_ID || !frame) {
+      return;
+    }
+
+    const observer = new ResizeObserver(([entry]) => {
+      setWidth(Math.min(Math.round(entry.contentRect.width), MAX_BUTTON_WIDTH));
+    });
+
+    observer.observe(frame);
+
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    // resolvedTheme is undefined until the theme is known; rendering before then
+    // would draw the button twice, in the wrong colours first.
+    if (!CLIENT_ID || width === 0 || !resolvedTheme) {
       return;
     }
 
@@ -131,15 +171,23 @@ export const GoogleSignIn = () => {
         return;
       }
 
+      if (initializedFor.current !== locale) {
+        identity.initialize({
+          client_id: CLIENT_ID,
+          callback: (response) => latestCredentialHandler.current(response),
+        });
+        initializedFor.current = locale;
+      }
+
       parent.replaceChildren();
-      identity.initialize({ client_id: CLIENT_ID, callback: handleCredential });
       identity.renderButton(parent, {
         type: 'standard',
         theme: resolvedTheme === 'dark' ? 'filled_black' : 'outline',
         size: 'large',
         shape: 'rectangular',
         text: 'continue_with',
-        width: parent.clientWidth || undefined,
+        logo_alignment: 'center',
+        width,
       });
 
       setReady(true);
@@ -149,9 +197,10 @@ export const GoogleSignIn = () => {
 
     return () => {
       active = false;
-      window.google?.accounts.id.cancel();
     };
-  }, [handleCredential, locale, resolvedTheme, t]);
+  }, [locale, resolvedTheme, t, width]);
+
+  useEffect(() => () => window.google?.accounts.id.cancel(), []);
 
   if (!CLIENT_ID) {
     return null;
@@ -165,9 +214,13 @@ export const GoogleSignIn = () => {
         <span className="bg-border h-px flex-1" />
       </div>
 
-      <div className="min-h-11">
-        <div ref={containerRef} className="flex justify-center" />
-        {ready ? null : <Skeleton className="h-11 w-full" />}
+      {/* The border and radius are ours; Google's own edges are clipped to them. */}
+      <div
+        ref={frameRef}
+        className="border-border-strong bg-surface relative min-h-10 overflow-hidden rounded-md border"
+      >
+        <div ref={containerRef} className={ready ? undefined : 'invisible'} />
+        {ready ? null : <Skeleton className="absolute inset-0 rounded-none" />}
       </div>
 
       {error ? (

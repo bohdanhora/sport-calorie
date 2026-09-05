@@ -97,7 +97,14 @@
     "registerFailed": "Could not create the account. Try again in a moment.",
     "or": "or",
     "googleFailed": "Could not sign in with Google. Try again in a moment.",
-    "googleUnavailable": "Google sign-in could not be loaded."
+    "googleUnavailable": "Google sign-in could not be loaded.",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "pitchTitle": "Everything you ate and burned today, on one screen.",
+    "pitchBalance": "The day’s calorie balance the moment you open the app.",
+    "pitchLog": "Food, walks and workouts logged in seconds.",
+    "pitchProgress": "Weight and progress charts that show the trend, not the noise.",
+    "pitchFooter": "Energy in kcal, nutrition in grams, weight in kilograms."
   },
   "onboarding": {
     "welcomeTitle": "Welcome to Sport Calorie",

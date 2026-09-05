@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { GoogleSignIn } from '@/components/auth/google-sign-in';
+import { PasswordInput } from '@/components/auth/password-input';
 import { Button } from '@/components/ui/button';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
@@ -53,8 +54,8 @@ const LoginPage = () => {
   });
 
   return (
-    <div className="animate-rise space-y-6">
-      <div className="space-y-1">
+    <div className="space-y-6">
+      <div className="space-y-1.5">
         <h1 className="page-title">{t('signInTitle')}</h1>
         <p className="text-foreground-muted text-sm">{t('signInSubtitle')}</p>
       </div>
@@ -77,13 +78,7 @@ const LoginPage = () => {
 
         <Field label={t('password')} error={errors.password?.message}>
           {(props) => (
-            <Input
-              {...props}
-              {...register('password')}
-              type="password"
-              autoComplete="current-password"
-              className="font-sans"
-            />
+            <PasswordInput {...props} {...register('password')} autoComplete="current-password" />
           )}
         </Field>
 
@@ -103,7 +98,7 @@ const LoginPage = () => {
 
       <GoogleSignIn />
 
-      <p className="text-foreground-muted text-center text-[0.8125rem]">
+      <p className="text-foreground-muted border-border border-t pt-5 text-center text-[0.8125rem]">
         {t('noAccount')}{' '}
         <Link
           href="/register"
