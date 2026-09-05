@@ -2,7 +2,8 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useTranslations } from 'next-intl';
+import { Sparkle } from 'lucide-react';
+import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -15,9 +16,18 @@ import { Segmented } from '@/components/ui/segmented';
 import { Select } from '@/components/ui/select';
 import { useToast } from '@/components/ui/toast';
 import { ApiError } from '@/lib/api/client';
-import { activitiesApi, type ActivityEstimateInput } from '@/lib/api/endpoints';
+import {
+  activitiesApi,
+  nutritionProviderApi,
+  type ActivityEstimateInput,
+} from '@/lib/api/endpoints';
 import type { ActivityType, Intensity } from '@/lib/api/types';
-import { kilometresToMetres, minutesToSeconds } from '@/lib/format/units';
+import {
+  kilometresToMetres,
+  metresToKilometres,
+  minutesToSeconds,
+  secondsToMinutes,
+} from '@/lib/format/units';
 import { useActivityTypeName } from '@/lib/format/use-activity-name';
 import { useFormat } from '@/lib/format/use-format';
 import { queryKeys } from '@/lib/query/query-keys';
@@ -112,11 +122,22 @@ export const ActivityDialog = ({
     [t],
   );
 
+  const locale = useLocale();
+  const [description, setDescription] = useState('');
+
+  const provider = useQuery({
+    queryKey: queryKeys.nutritionProvider,
+    queryFn: nutritionProviderApi.get,
+    enabled: open,
+    staleTime: 5 * 60_000,
+  });
+
   const {
     register,
     handleSubmit,
     watch,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<ActivityValues>({
     resolver: zodResolver(schema),
@@ -131,6 +152,7 @@ export const ActivityDialog = ({
     reset(EMPTY_VALUES);
     setIntensity('MODERATE');
     setOverrideEnergy(false);
+    setDescription('');
   }, [open, reset]);
 
   useEffect(() => {
@@ -226,6 +248,32 @@ export const ActivityDialog = ({
     label: activityName(type),
   }));
 
+  const parse = useMutation({
+    mutationFn: () => activitiesApi.parse(description.trim(), locale),
+    onSuccess: (parsed) => {
+      // The API answers in seconds and metres; the form is minutes and km.
+      setTypeId(parsed.activityTypeId);
+      setValue('title', parsed.title ?? '');
+      setValue('durationMin', parsed.durationSec ? secondsToMinutes(parsed.durationSec) : Number.NaN);
+      setValue('distanceKm', parsed.distanceM ? metresToKilometres(parsed.distanceM) : Number.NaN);
+      setValue('avgSpeedKmh', parsed.avgSpeedKmh ?? Number.NaN);
+      setValue('inclinePercent', parsed.inclinePercent ?? Number.NaN);
+      setValue('sets', parsed.sets ?? Number.NaN);
+      setValue('reps', parsed.reps ?? Number.NaN);
+
+      if (parsed.intensity) {
+        setIntensity(parsed.intensity);
+      }
+    },
+    onError: (error: unknown) => {
+      showToast({
+        title: t('parseFailed'),
+        description: error instanceof ApiError ? error.message : undefined,
+        tone: 'danger',
+      });
+    },
+  });
+
   const intensityOptions = INTENSITY_VALUES.map((value) => ({
     value,
     label: intensityNames(value),
@@ -234,6 +282,37 @@ export const ActivityDialog = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange} title={t('title')}>
       <form onSubmit={onSubmit} noValidate className="space-y-4">
+        {provider.data?.isConfigured ? (
+          <div className="border-border bg-surface-muted space-y-2 rounded-md border p-3">
+            <div className="flex gap-2">
+              <Input
+                value={description}
+                onChange={(event) => setDescription(event.target.value)}
+                placeholder={t('describePlaceholder')}
+                aria-label={t('describe')}
+                autoComplete="off"
+                className="bg-surface font-sans"
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' && description.trim().length > 1) {
+                    event.preventDefault();
+                    parse.mutate();
+                  }
+                }}
+              />
+              <Button
+                type="button"
+                className="shrink-0"
+                onClick={() => parse.mutate()}
+                disabled={parse.isPending || description.trim().length < 2}
+              >
+                <Sparkle className="size-4" aria-hidden />
+                {parse.isPending ? t('parsing') : t('parseDescription')}
+              </Button>
+            </div>
+            <p className="text-foreground-subtle text-xs">{t('describeHint')}</p>
+          </div>
+        ) : null}
+
         <Field label={t('activity')}>
           {(props) => (
             <Select

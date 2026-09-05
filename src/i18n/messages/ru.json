@@ -328,7 +328,13 @@
     "caloriesNegative": "Калории не могут быть отрицательными",
     "setsAndReps": "{sets} подх., {reps} повт.",
     "repsOnly": "{reps} повт.",
-    "inclineValue": "наклон {value}%"
+    "inclineValue": "наклон {value}%",
+    "describe": "Опишите тренировку",
+    "describePlaceholder": "прыжки на скакалке 700 раз с передышками",
+    "describeHint": "Модель подбирает активность и числа, калории по-прежнему считаются здесь.",
+    "parseDescription": "Разобрать",
+    "parsing": "Читаю",
+    "parseFailed": "Не получилось разобрать тренировку. Попробуйте ещё раз."
   },
   "weightForm": {
     "title": "Записать вес",

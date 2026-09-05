@@ -275,6 +275,22 @@ export interface NutritionProviderCheck {
   message: string | null;
 }
 
+export interface ParsedActivity {
+  activityTypeId: string;
+  activityTypeName: string;
+  title: string | null;
+  durationSec: number | null;
+  distanceM: number | null;
+  avgSpeedKmh: number | null;
+  inclinePercent: number | null;
+  sets: number | null;
+  reps: number | null;
+  intensity: Intensity | null;
+  /** Calculated by the same estimator the form uses, not by the model. */
+  energyKcal: number;
+  effectiveDurationSec: number;
+}
+
 export interface ParsedFood {
   foodId: string;
   name: string;

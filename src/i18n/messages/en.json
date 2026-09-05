@@ -328,7 +328,13 @@
     "caloriesNegative": "Calories cannot be negative",
     "setsAndReps": "{sets} sets, {reps} reps",
     "repsOnly": "{reps} reps",
-    "inclineValue": "{value}% incline"
+    "inclineValue": "{value}% incline",
+    "describe": "Describe the workout",
+    "describePlaceholder": "700 skips with rests",
+    "describeHint": "The model picks the activity and the numbers; the calories are still worked out here.",
+    "parseDescription": "Work it out",
+    "parsing": "Reading",
+    "parseFailed": "Could not read that workout. Try again in a moment."
   },
   "weightForm": {
     "title": "Record weight",

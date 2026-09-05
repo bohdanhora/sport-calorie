@@ -328,7 +328,13 @@
     "caloriesNegative": "Калорії не можуть бути відʼємними",
     "setsAndReps": "{sets} підх., {reps} повт.",
     "repsOnly": "{reps} повт.",
-    "inclineValue": "нахил {value}%"
+    "inclineValue": "нахил {value}%",
+    "describe": "Опишіть тренування",
+    "describePlaceholder": "стрибки на скакалці 700 разів із перепочинками",
+    "describeHint": "Модель добирає активність і числа, калорії, як і раніше, рахуються тут.",
+    "parseDescription": "Розібрати",
+    "parsing": "Читаю",
+    "parseFailed": "Не вдалося розібрати тренування. Спробуйте ще раз."
   },
   "weightForm": {
     "title": "Записати вагу",

@@ -14,6 +14,7 @@ import type {
   CatalogProvider,
   NutritionProvider,
   NutritionProviderCheck,
+  ParsedActivity,
   ProviderModels,
   Paginated,
   ParsedFood,
@@ -190,6 +191,11 @@ export type ActivityEstimateInput = Omit<ActivityEntryInput, 'title' | 'notes' |
 export const activitiesApi = {
   types: () => apiRequest<ActivityType[]>('/activity-types'),
   list: (date: string) => apiRequest<ActivityEntry[]>('/activity-entries', { query: { date } }),
+  parse: (text: string, locale: string) =>
+    apiRequest<ParsedActivity>('/activity-entries/parse', {
+      method: 'POST',
+      body: { text, locale },
+    }),
   estimate: (input: ActivityEstimateInput) =>
     apiRequest<ActivityEnergyEstimate>('/activity-entries/estimate', {
       method: 'POST',
