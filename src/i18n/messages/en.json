@@ -482,5 +482,14 @@
     "strength-training": "Strength training",
     "stretching": "Stretching",
     "other": "Other"
+  },
+  "weightPrompt": {
+    "title": "Record today’s weight",
+    "subtitle": "One number a day is what makes the trend worth reading.",
+    "sameAsYesterday": "Same as yesterday, {weight}",
+    "sameAsLast": "Same as {date}, {weight}",
+    "enter": "Enter weight",
+    "enterAnother": "Enter another number",
+    "notToday": "Not today"
   }
 }

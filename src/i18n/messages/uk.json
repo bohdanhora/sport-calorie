@@ -482,5 +482,14 @@
     "strength-training": "Силове тренування",
     "stretching": "Розтяжка",
     "other": "Інше"
+  },
+  "weightPrompt": {
+    "title": "Записати вагу за сьогодні",
+    "subtitle": "Одне число на день, і графіку ваги є що показати.",
+    "sameAsYesterday": "Як учора, {weight}",
+    "sameAsLast": "Як {date}, {weight}",
+    "enter": "Ввести вагу",
+    "enterAnother": "Ввести інше число",
+    "notToday": "Не сьогодні"
   }
 }

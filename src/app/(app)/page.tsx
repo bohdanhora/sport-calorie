@@ -19,11 +19,12 @@ import { WalkingSummary } from '@/components/today/walking-summary';
 import { WeekStrip } from '@/components/today/week-strip';
 import { Skeleton } from '@/components/ui/skeleton';
 import { WeightDialog } from '@/components/weight/weight-dialog';
+import { WeightPrompt } from '@/components/weight/weight-prompt';
 import { useSelectedDate } from '@/hooks/use-selected-date';
 import { summaryApi } from '@/lib/api/endpoints';
 import type { ActivityCategory, MealType } from '@/lib/api/types';
 import { useAuth } from '@/lib/auth/auth-provider';
-import { addDays } from '@/lib/format/dates';
+import { addDays, todayIn } from '@/lib/format/dates';
 import { useFormat } from '@/lib/format/use-format';
 import { queryKeys } from '@/lib/query/query-keys';
 
@@ -64,6 +65,15 @@ const TodayView = () => {
     queryKey: queryKeys.history(weekFrom, date),
     queryFn: () => summaryApi.history(weekFrom, date),
   });
+
+  const today = todayIn(timezone);
+  // The week already on screen carries the earlier weigh-ins, so the prompt's
+  // "same as yesterday" costs no extra request.
+  const previousWeight =
+    week.data
+      ?.filter((day) => day.date < today && day.weightKg !== null)
+      .map((day) => ({ date: day.date, weightKg: day.weightKg as number }))
+      .at(-1) ?? null;
 
   const handleQuickAction = (action: QuickAction) => {
     if (action === 'food') {
@@ -185,6 +195,14 @@ const TodayView = () => {
         date={date}
         currentWeightKg={dashboard.data?.weight?.weightKg ?? null}
       />
+
+      {date === today && dashboard.isSuccess ? (
+        <WeightPrompt
+          date={today}
+          logged={dashboard.data.weight !== null}
+          previous={previousWeight}
+        />
+      ) : null}
     </div>
   );
 };

@@ -482,5 +482,14 @@
     "strength-training": "Силовая тренировка",
     "stretching": "Растяжка",
     "other": "Другое"
+  },
+  "weightPrompt": {
+    "title": "Записать вес за сегодня",
+    "subtitle": "Одно число в день, и графику веса есть что показать.",
+    "sameAsYesterday": "Как вчера, {weight}",
+    "sameAsLast": "Как {date}, {weight}",
+    "enter": "Ввести вес",
+    "enterAnother": "Ввести другое число",
+    "notToday": "Не сегодня"
   }
 }
