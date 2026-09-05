@@ -60,6 +60,19 @@ test('logs a food straight from the library grid', async () => {
   await expect(page.getByText('Egg', { exact: true })).toBeVisible();
 });
 
+test('moves an entry to another meal', async () => {
+  await page.goto(`/?date=${dayOffsetFromToday(-2)}`);
+
+  await page.getByRole('button', { name: 'Move Porridge to another meal' }).click();
+  await page.getByRole('button', { name: 'Dinner', exact: true }).click();
+
+  await expect(page.getByText('Moved to Dinner', { exact: true })).toBeVisible();
+
+  // The entry now sits in Dinner, so Breakfast is the one it can go back to.
+  await page.getByRole('button', { name: 'Move Porridge to another meal' }).click();
+  await expect(page.getByRole('button', { name: 'Breakfast', exact: true })).toBeVisible();
+});
+
 test('records a treadmill session and derives the average speed', async () => {
   await page.goto(`/?date=${dayOffsetFromToday(-3)}`);
 

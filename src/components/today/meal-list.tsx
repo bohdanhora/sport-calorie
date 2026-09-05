@@ -1,8 +1,10 @@
 'use client';
 
+import * as PopoverPrimitive from '@radix-ui/react-popover';
 import { useMutation } from '@tanstack/react-query';
-import { Plus, Trash2 } from 'lucide-react';
+import { ArrowLeftRight, Plus, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Section } from '@/components/ui/section';
@@ -48,7 +50,18 @@ export const MealList = ({ meals, onAdd, columns = false }: MealListProps) => {
     onError: () => showToast({ title: entryText('removeFailed'), tone: 'danger' }),
   });
 
+  const moveEntry = useMutation({
+    mutationFn: ({ id, meal }: { id: string; meal: MealType }) =>
+      foodEntriesApi.update(id, { meal }),
+    onSuccess: async (_entry, { meal }) => {
+      await invalidateDay();
+      showToast({ title: entryText('moved', { meal: mealNames(meal) }) });
+    },
+    onError: () => showToast({ title: entryText('moveFailed'), tone: 'danger' }),
+  });
+
   const total = meals.reduce((sum, meal) => sum + meal.energyKcal, 0);
+  const mealOrder = meals.map((meal) => meal.meal);
   const isEmpty = meals.every((meal) => meal.entries.length === 0);
 
   return (
@@ -123,8 +136,10 @@ export const MealList = ({ meals, onAdd, columns = false }: MealListProps) => {
                       key={entry.id}
                       entry={entry}
                       index={entryIndex}
+                      mealOrder={mealOrder}
+                      onMove={(target) => moveEntry.mutate({ id: entry.id, meal: target })}
                       onRemove={() => removeEntry.mutate(entry.id)}
-                      disabled={removeEntry.isPending}
+                      disabled={removeEntry.isPending || moveEntry.isPending}
                     />
                   ))}
                 </ul>
@@ -137,21 +152,30 @@ export const MealList = ({ meals, onAdd, columns = false }: MealListProps) => {
   );
 };
 
+const ACTION_CLASS =
+  'text-foreground-subtle opacity-0 transition-opacity duration-150 group-hover:opacity-100 focus-visible:opacity-100 max-sm:opacity-100';
+
 const FoodEntryRow = ({
   entry,
   index,
+  mealOrder,
+  onMove,
   onRemove,
   disabled,
 }: {
   entry: FoodEntry;
   index: number;
+  mealOrder: MealType[];
+  onMove: (meal: MealType) => void;
   onRemove: () => void;
   disabled: boolean;
 }) => {
   const t = useTranslations('foodEntry');
   const today = useTranslations('today');
+  const mealNames = useTranslations('meals');
   const units = useTranslations('units');
   const format = useFormat();
+  const [movePickerOpen, setMovePickerOpen] = useState(false);
 
   const unitLabels: Record<FoodEntry['unit'], string> = {
     GRAM: units('gram'),
@@ -177,16 +201,58 @@ const FoodEntryRow = ({
 
       <span className="numeric text-sm">{format.kcal(entry.energyKcal)}</span>
 
-      <Button
-        variant="ghost"
-        size="icon"
-        aria-label={t('removeEntry', { name: entry.name })}
-        disabled={disabled}
-        onClick={onRemove}
-        className="text-foreground-subtle opacity-0 transition-opacity duration-150 group-hover:opacity-100 focus-visible:opacity-100 max-sm:opacity-100"
-      >
-        <Trash2 className="size-4" aria-hidden />
-      </Button>
+      <div className="flex shrink-0 items-center">
+        <PopoverPrimitive.Root open={movePickerOpen} onOpenChange={setMovePickerOpen}>
+          <PopoverPrimitive.Trigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label={t('moveEntry', { name: entry.name })}
+              disabled={disabled}
+              className={cn(ACTION_CLASS, movePickerOpen && 'opacity-100')}
+            >
+              <ArrowLeftRight className="size-4" aria-hidden />
+            </Button>
+          </PopoverPrimitive.Trigger>
+
+          <PopoverPrimitive.Portal>
+            <PopoverPrimitive.Content
+              align="end"
+              sideOffset={6}
+              collisionPadding={12}
+              className="border-border bg-surface-raised shadow-soft z-[60] min-w-40 animate-[fade-in_140ms_ease-out] rounded-lg border p-1"
+            >
+              <p className="text-foreground-subtle px-2 pt-1 pb-1.5 text-xs">{t('moveTo')}</p>
+              {mealOrder
+                .filter((meal) => meal !== entry.meal)
+                .map((meal) => (
+                  <button
+                    key={meal}
+                    type="button"
+                    className="hover:bg-surface-muted focus-visible:bg-surface-muted w-full rounded-md px-2 py-2 text-left text-sm transition-colors duration-150 focus-visible:outline-none"
+                    onClick={() => {
+                      setMovePickerOpen(false);
+                      onMove(meal);
+                    }}
+                  >
+                    {mealNames(meal)}
+                  </button>
+                ))}
+            </PopoverPrimitive.Content>
+          </PopoverPrimitive.Portal>
+        </PopoverPrimitive.Root>
+
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={t('removeEntry', { name: entry.name })}
+          disabled={disabled}
+          onClick={onRemove}
+          className={ACTION_CLASS}
+        >
+          <Trash2 className="size-4" aria-hidden />
+        </Button>
+      </div>
     </li>
   );
 };
