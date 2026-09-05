@@ -9,6 +9,7 @@ import { useMemo, useState, type ComponentType } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { LanguageToggle } from '@/components/layout/language-toggle';
 import { Button } from '@/components/ui/button';
 import { DateField } from '@/components/ui/date-field';
 import { Dialog } from '@/components/ui/dialog';
@@ -90,7 +91,11 @@ export const OnboardingDialog = ({
     profile?.activityLevel ?? 'LIGHT',
   );
   const [goal, setGoal] = useState<FitnessGoal>(profile?.goal ?? 'MAINTAIN_WEIGHT');
-  const [language, setLanguage] = useState<Locale>(locale);
+  // Left unset until the user says otherwise, so that switching language on the
+  // opening screen - which reloads the app in the new one - carries through to
+  // what gets saved, rather than being overruled by the state's first value.
+  const [language, setLanguage] = useState<Locale | null>(null);
+  const chosenLanguage = language ?? locale;
   const [zone, setZone] = useState(profile?.timezone ?? timezone);
   const [formError, setFormError] = useState<string | null>(null);
   const [saved, setSaved] = useState<Profile | null>(null);
@@ -187,7 +192,7 @@ export const OnboardingDialog = ({
         activityLevel,
         goal,
         timezone: zone,
-        locale: language,
+        locale: chosenLanguage,
       });
     }
   };
@@ -249,25 +254,37 @@ export const OnboardingDialog = ({
         )}
 
         {step === 'guide' ? (
-          <ul className="space-y-3">
-            {GUIDE_POINTS.map((point) => {
-              const Icon = GUIDE_ICONS[point];
+          <div className="space-y-4">
+            <div className="border-border flex items-center justify-between gap-3 rounded-md border px-3 py-2.5">
+              <div className="min-w-0">
+                <p className="text-sm font-medium">{settings('language')}</p>
+                <p className="text-foreground-muted mt-0.5 text-[0.8125rem]">
+                  {settings('languageHint')}
+                </p>
+              </div>
+              <LanguageToggle />
+            </div>
 
-              return (
-                <li key={point} className="flex gap-3">
-                  <span className="bg-surface-muted text-accent flex size-9 shrink-0 items-center justify-center rounded-md">
-                    <Icon className="size-4" aria-hidden />
-                  </span>
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium">{t(`guide.${point}.title`)}</p>
-                    <p className="text-foreground-muted mt-0.5 text-[0.8125rem]">
-                      {t(`guide.${point}.body`)}
-                    </p>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+            <ul className="space-y-3">
+              {GUIDE_POINTS.map((point) => {
+                const Icon = GUIDE_ICONS[point];
+
+                return (
+                  <li key={point} className="flex gap-3">
+                    <span className="bg-surface-muted text-accent flex size-9 shrink-0 items-center justify-center rounded-md">
+                      <Icon className="size-4" aria-hidden />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium">{t(`guide.${point}.title`)}</p>
+                      <p className="text-foreground-muted mt-0.5 text-[0.8125rem]">
+                        {t(`guide.${point}.body`)}
+                      </p>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
         ) : null}
 
         {step === 'body' ? (
@@ -407,7 +424,7 @@ export const OnboardingDialog = ({
               {(props) => (
                 <Select
                   {...props}
-                  value={language}
+                  value={chosenLanguage}
                   onValueChange={setLanguage}
                   options={LOCALES.map((value) => ({ value, label: LOCALE_NAMES[value] }))}
                 />
