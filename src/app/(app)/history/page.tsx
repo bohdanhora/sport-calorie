@@ -15,6 +15,7 @@ import { useAuth } from '@/lib/auth/auth-provider';
 import { addDays, todayIn } from '@/lib/format/dates';
 import { useFormat } from '@/lib/format/use-format';
 import { queryKeys } from '@/lib/query/query-keys';
+import { cn } from '@/lib/utils/cn';
 
 const RANGES = [
   { value: '14', key: 'weeks2' },
@@ -78,11 +79,19 @@ const HistoryPage = () => {
           {loggedDays.map((day, index) => {
             const balance = day.netKcal - day.targetKcal;
             const label = format.dayLabel(day.date, timezone);
+            const isOver = balance > 0;
+            // Same reading as the ring on the day screen: what was eaten against
+            // the goal plus whatever the day's activity earned back.
+            const allowance = Math.max(day.targetKcal + day.activityKcal, 1);
+            const consumedShare = Math.min(day.consumedKcal / allowance, 1);
 
             return (
               <li
                 key={day.date}
-                className="animate-row xl:border-border xl:bg-surface xl:overflow-hidden xl:rounded-lg xl:border"
+                className={cn(
+                  'animate-row border-l-2 xl:border-border xl:bg-surface xl:overflow-hidden xl:rounded-lg xl:border xl:border-l-2',
+                  isOver ? 'border-l-danger xl:border-l-danger' : 'border-l-accent xl:border-l-accent',
+                )}
                 style={{ animationDelay: `${Math.min(index, 8) * 25}ms` }}
               >
                 <Link
@@ -113,12 +122,23 @@ const HistoryPage = () => {
                         ? ` · ${format.weight(day.weightKg)} ${units('kilogram')}`
                         : ''}
                     </p>
+
+                    <div
+                      className="bg-surface-muted mt-2 h-1 overflow-hidden rounded-full"
+                      aria-hidden
+                    >
+                      <div
+                        className={cn('h-full rounded-full', isOver ? 'bg-danger/70' : 'bg-accent/70')}
+                        style={{ width: `${consumedShare * 100}%` }}
+                      />
+                    </div>
                   </div>
 
                   <span
-                    className={`numeric shrink-0 text-sm ${
-                      balance > 0 ? 'text-danger' : 'text-accent'
-                    }`}
+                    className={cn(
+                      'numeric shrink-0 text-sm',
+                      isOver ? 'text-danger' : 'text-accent',
+                    )}
                   >
                     {format.signedKcal(balance)}
                   </span>
