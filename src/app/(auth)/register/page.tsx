@@ -7,6 +7,7 @@ import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { GoogleSignIn } from '@/components/auth/google-sign-in';
 import { Button } from '@/components/ui/button';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
@@ -126,6 +127,8 @@ const RegisterPage = () => {
           {isSubmitting ? t('creatingAccount') : t('createAccount')}
         </Button>
       </form>
+
+      <GoogleSignIn />
 
       <p className="text-foreground-muted text-center text-[0.8125rem]">
         {t('haveAccount')}{' '}

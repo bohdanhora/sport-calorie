@@ -1,7 +1,8 @@
 import { expect, test, type Page } from '@playwright/test';
 
+import { completeOnboarding, registerAccount } from './support/account';
+
 const MS_PER_DAY = 86_400_000;
-const PASSWORD = 'playwright-password';
 
 const dayOffsetFromToday = (offset: number): string =>
   new Date(Date.now() + offset * MS_PER_DAY).toISOString().slice(0, 10);
@@ -17,10 +18,8 @@ test.beforeAll(async ({ browser }) => {
 
   page = await context.newPage();
 
-  await page.goto('/register');
-  await page.getByLabel('Email').fill(`e2e-${Date.now()}@sport-calorie.test`);
-  await page.getByLabel('Password').fill(PASSWORD);
-  await page.getByRole('button', { name: 'Create account' }).click();
+  await registerAccount(page, 'e2e');
+  await completeOnboarding(page);
 
   await expect(page.getByRole('heading', { name: 'Today' })).toBeVisible();
 });

@@ -33,11 +33,19 @@ export interface LoginInput {
   password: string;
 }
 
+export interface GoogleSignInInput {
+  idToken: string;
+  timezone?: string;
+  locale?: string;
+}
+
 export const authApi = {
   register: (input: RegisterInput) =>
     apiRequest<AuthResponse>('/auth/register', { method: 'POST', body: input }),
   login: (input: LoginInput) =>
     apiRequest<AuthResponse>('/auth/login', { method: 'POST', body: input }),
+  google: (input: GoogleSignInInput) =>
+    apiRequest<AuthResponse>('/auth/google', { method: 'POST', body: input }),
   logout: () => apiRequest<void>('/auth/logout', { method: 'POST', skipAuthRetry: true }),
 };
 
@@ -54,6 +62,21 @@ export interface UpdateProfileInput {
   locale?: string;
 }
 
+export interface CompleteOnboardingInput {
+  displayName?: string | null;
+  sex: NonNullable<Profile['sex']>;
+  birthDate: string;
+  heightCm: number;
+  currentWeightKg: number;
+  targetWeightKg?: number | null;
+  activityLevel: Profile['activityLevel'];
+  goal: Profile['goal'];
+  unitSystem?: Profile['unitSystem'];
+  timezone?: string;
+  locale?: string;
+  calorieTargetKcal?: number | null;
+}
+
 export interface UpdateCalorieTargetInput {
   calorieTargetKcal?: number | null;
   proteinTargetG?: number | null;
@@ -67,6 +90,8 @@ export const profileApi = {
     apiRequest<Profile>('/profile', { method: 'PATCH', body: input }),
   updateCalorieTarget: (input: UpdateCalorieTargetInput) =>
     apiRequest<Profile>('/profile/calorie-target', { method: 'PUT', body: input }),
+  completeOnboarding: (input: CompleteOnboardingInput) =>
+    apiRequest<Profile>('/profile/onboarding', { method: 'POST', body: input }),
 };
 
 export const targetsApi = {

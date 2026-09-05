@@ -27,7 +27,8 @@
     "new": "New",
     "notSet": "Not set",
     "update": "Update",
-    "record": "Record"
+    "record": "Record",
+    "open": "Open"
   },
   "units": {
     "kcal": "kcal",
@@ -93,7 +94,56 @@
     "passwordRequired": "Enter your password",
     "passwordTooShort": "Use at least {min} characters",
     "signInFailed": "Could not sign in. Try again in a moment.",
-    "registerFailed": "Could not create the account. Try again in a moment."
+    "registerFailed": "Could not create the account. Try again in a moment.",
+    "or": "or",
+    "googleFailed": "Could not sign in with Google. Try again in a moment.",
+    "googleUnavailable": "Google sign-in could not be loaded."
+  },
+  "onboarding": {
+    "welcomeTitle": "Welcome to Sport Calorie",
+    "welcomeSubtitle": "A minute of setup now, and logging takes seconds later.",
+    "guide": {
+      "food": {
+        "title": "Log what you eat",
+        "body": "Quick actions on Today, a food library you build once, and a description you can turn into an entry."
+      },
+      "activity": {
+        "title": "Walking and workouts",
+        "body": "Enter any two of duration, distance and speed. The third one and the energy burned follow."
+      },
+      "weight": {
+        "title": "Weigh in when it suits you",
+        "body": "Every entry feeds the trend on Progress and keeps the estimates honest."
+      },
+      "goal": {
+        "title": "A daily calorie target",
+        "body": "Worked out from your body data and how active you are, and yours to override at any time."
+      }
+    },
+    "bodyTitle": "About you",
+    "bodySubtitle": "The calorie target is calculated from these numbers.",
+    "goalTitle": "Your goal",
+    "goalSubtitle": "Where you are heading, and how active an ordinary day is.",
+    "preferencesTitle": "Preferences",
+    "preferencesSubtitle": "Language and time zone decide how dates and numbers read.",
+    "summaryTitle": "You are set",
+    "summarySubtitle": "This is the daily target we worked out. Change it whenever you like.",
+    "currentWeight": "Current weight",
+    "dailyTarget": "Daily target",
+    "derivedFrom": "BMR {bmr} · TDEE {tdee}",
+    "adjustTarget": "Set your own target",
+    "adjustTargetHint": "Leave it as it is to keep the recommendation.",
+    "targetNote": "When you finish, the daily calorie target is calculated from what you entered.",
+    "next": "Next",
+    "finish": "Finish",
+    "start": "Start logging",
+    "finished": "Setup complete",
+    "progress": "Setup progress",
+    "sexRequired": "Choose one so the estimate is right",
+    "birthDateRequired": "Enter your date of birth",
+    "heightRequired": "Enter your height in centimetres",
+    "weightRequired": "Enter your current weight",
+    "saveFailed": "Could not save your answers. Try again in a moment."
   },
   "today": {
     "remaining": "Remaining",
@@ -353,7 +403,10 @@
     "signOut": "Sign out",
     "heightInvalid": "Enter a height in centimetres",
     "targetWeightInvalid": "Enter a target weight in kilograms",
-    "theme": "Theme"
+    "theme": "Theme",
+    "help": "Help",
+    "showGuide": "Open the guide",
+    "showGuideHint": "A reminder of what each screen is for."
   },
   "activityLevels": {
     "SEDENTARY": "Sedentary, mostly sitting",

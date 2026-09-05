@@ -27,6 +27,7 @@ interface AuthContextValue {
   timezone: string;
   login: (input: LoginInput) => Promise<void>;
   register: (input: RegisterInput) => Promise<void>;
+  signInWithGoogle: (idToken: string, locale?: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -113,6 +114,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     [applySession, router],
   );
 
+  const signInWithGoogle = useCallback(
+    async (idToken: string, locale?: string) => {
+      applySession(await authApi.google({ idToken, timezone: detectTimeZone(), locale }));
+      router.replace('/');
+    },
+    [applySession, router],
+  );
+
   const logout = useCallback(async () => {
     try {
       await authApi.logout();
@@ -129,9 +138,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       timezone: user?.timezone ?? detectTimeZone(),
       login,
       register,
+      signInWithGoogle,
       logout,
     }),
-    [status, user, login, register, logout],
+    [status, user, login, register, signInWithGoogle, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

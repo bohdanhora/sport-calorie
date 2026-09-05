@@ -9,6 +9,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { ThemeToggle } from '@/components/layout/theme-toggle';
+import { OnboardingDialog } from '@/components/onboarding/onboarding-dialog';
 import { NutritionProviderSection } from '@/components/settings/nutrition-provider-section';
 import { ErrorState } from '@/components/states/error-state';
 import { Button } from '@/components/ui/button';
@@ -39,11 +40,13 @@ const GOALS: FitnessGoal[] = ['LOSE_WEIGHT', 'MAINTAIN_WEIGHT', 'GAIN_WEIGHT'];
 
 const SettingsPage = () => {
   const t = useTranslations('settings');
+  const common = useTranslations('common');
   const { user, logout, timezone } = useAuth();
   const format = useFormat();
   const units = useTranslations('units');
   const profile = useQuery({ queryKey: queryKeys.profile, queryFn: profileApi.get });
   const [weightDialogOpen, setWeightDialogOpen] = useState(false);
+  const [guideOpen, setGuideOpen] = useState(false);
 
   return (
     <div className="space-y-8">
@@ -92,6 +95,18 @@ const SettingsPage = () => {
 
           <NutritionProviderSection />
 
+          <Section title={t('help')}>
+            <div className="border-border bg-surface flex items-center justify-between gap-3 rounded-lg border px-4 py-3">
+              <div className="min-w-0">
+                <p className="text-sm">{t('showGuide')}</p>
+                <p className="text-foreground-subtle mt-0.5 text-xs">{t('showGuideHint')}</p>
+              </div>
+              <Button variant="secondary" size="sm" onClick={() => setGuideOpen(true)}>
+                {common('open')}
+              </Button>
+            </div>
+          </Section>
+
           <Section title={t('appearance')}>
             <div className="border-border bg-surface flex items-center justify-between gap-3 rounded-lg border px-4 py-3">
               <p className="text-sm">{t('theme')}</p>
@@ -110,6 +125,12 @@ const SettingsPage = () => {
               </Button>
             </div>
           </Section>
+          <OnboardingDialog
+            open={guideOpen}
+            onOpenChange={setGuideOpen}
+            profile={profile.data}
+            guideOnly
+          />
 
           <WeightDialog
             open={weightDialogOpen}

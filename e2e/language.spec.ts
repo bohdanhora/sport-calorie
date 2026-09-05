@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 
-const PASSWORD = 'playwright-password';
+import { completeOnboarding, registerAccount } from './support/account';
 
 test.describe.configure({ mode: 'serial' });
 
@@ -32,10 +32,8 @@ test('the sign in screen can switch language before signing in', async () => {
 });
 
 test('the language chosen in settings is applied and remembered', async () => {
-  await page.goto('/register');
-  await page.getByLabel('Email').fill(`lang-${Date.now()}@sport-calorie.test`);
-  await page.getByLabel('Password').fill(PASSWORD);
-  await page.getByRole('button', { name: 'Create account' }).click();
+  await registerAccount(page, 'lang');
+  await completeOnboarding(page);
   await expect(page.getByRole('heading', { name: 'Today' })).toBeVisible();
 
   await page.goto('/settings');

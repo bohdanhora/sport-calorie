@@ -52,6 +52,7 @@ export interface Profile {
   manualProteinTargetG: number | null;
   manualCarbsTargetG: number | null;
   manualFatTargetG: number | null;
+  onboardingCompletedAt: string | null;
   energy: EnergyProfile;
 }
 
