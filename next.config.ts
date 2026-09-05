@@ -13,6 +13,14 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react', 'recharts', 'date-fns'],
   },
+  // Google's sign-in popup talks back to the page it was opened from. Without
+  // this the browser refuses that postMessage, and the credential never lands.
+  headers: async () => [
+    {
+      source: '/:path*',
+      headers: [{ key: 'Cross-Origin-Opener-Policy', value: 'same-origin-allow-popups' }],
+    },
+  ],
 };
 
 export default withNextIntl(nextConfig);
