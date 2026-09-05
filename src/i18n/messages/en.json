@@ -256,7 +256,11 @@
     "estimateFromCache": "Reused a previous estimate",
     "estimateFailed": "Could not estimate this dish",
     "providerMissing": "Set up nutrition estimation in settings first",
-    "openSettings": "Open settings"
+    "openSettings": "Open settings",
+    "scanPhoto": "Scan a photo",
+    "scanning": "Reading the photo…",
+    "estimateOrPhotoHint": "Describe the portion, or photograph it. Anything you type is used as a hint for the photo.",
+    "photoUnavailable": "Photos are off: the model you chose does not accept them. Pick one for photos in settings."
   },
   "foodForm": {
     "newTitle": "New food",
@@ -463,7 +467,20 @@
     "urlInvalid": "Enter a full URL including https",
     "modelRequired": "Enter the model name",
     "keyRequired": "Enter the API key",
-    "privacyNote": "Dish descriptions you submit are sent to the provider you configure. Nothing else from your diary is sent."
+    "privacyNote": "Dish descriptions you submit are sent to the provider you configure. Nothing else from your diary is sent.",
+    "provider": "Provider",
+    "customProvider": "Custom",
+    "whereToGetKey": "Where to get a {provider} key",
+    "keyOptional": "Leave empty to keep it.",
+    "typeItIn": "Type an id by hand",
+    "modelPlaceholder": "model id",
+    "modelsUnavailable": "The provider would not list its models; type the id by hand.",
+    "visionModel": "Model for photos",
+    "visionModelHint": "Leave it off and the camera stays hidden.",
+    "visionOff": "Photos off",
+    "visionUnknown": "This app does not know {model} as a model that accepts photos. The list here is ours and trails new releases.",
+    "visionOverrideLabel": "It does accept photos, use it anyway",
+    "visionReady": "Photo scanning is on."
   },
   "errors": {
     "loadFailed": "Could not load this",

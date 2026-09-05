@@ -11,8 +11,10 @@ import type {
   FoodEntry,
   FoodUnit,
   MealType,
+  CatalogProvider,
   NutritionProvider,
   NutritionProviderCheck,
+  ProviderModels,
   Paginated,
   ParsedFood,
   Profile,
@@ -139,11 +141,16 @@ export interface FoodEntryInput {
 export interface NutritionProviderInput {
   baseUrl: string;
   modelName: string;
-  apiKey: string;
+  visionModelName?: string | null;
+  visionOverride?: boolean;
+  /** Omit to keep the key already stored; required only the first time. */
+  apiKey?: string;
 }
 
 export const nutritionProviderApi = {
   get: () => apiRequest<NutritionProvider>('/nutrition-provider'),
+  catalog: () => apiRequest<CatalogProvider[]>('/nutrition-provider/catalog'),
+  models: () => apiRequest<ProviderModels>('/nutrition-provider/models'),
   save: (input: NutritionProviderInput) =>
     apiRequest<NutritionProvider>('/nutrition-provider', { method: 'PUT', body: input }),
   remove: () => apiRequest<void>('/nutrition-provider', { method: 'DELETE' }),
@@ -153,6 +160,8 @@ export const nutritionProviderApi = {
 export const foodEntriesApi = {
   parse: (text: string, locale: string) =>
     apiRequest<ParsedFood>('/food-entries/parse', { method: 'POST', body: { text, locale } }),
+  scan: (input: { image: string; hint?: string; locale: string }) =>
+    apiRequest<ParsedFood>('/food-entries/scan', { method: 'POST', body: input }),
   list: (date: string) => apiRequest<FoodEntry[]>('/food-entries', { query: { date } }),
   create: (input: FoodEntryInput) =>
     apiRequest<FoodEntry>('/food-entries', { method: 'POST', body: input }),

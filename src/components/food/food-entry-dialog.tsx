@@ -2,9 +2,9 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { ChevronLeft, Search, Sparkle } from 'lucide-react';
+import { Camera, ChevronLeft, Search, Sparkle } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -19,8 +19,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/toast';
 import { ApiError } from '@/lib/api/client';
 import { foodEntriesApi, foodsApi, nutritionProviderApi } from '@/lib/api/endpoints';
-import type { Food, FoodUnit, MealType } from '@/lib/api/types';
+import type { Food, FoodUnit, MealType, ParsedFood } from '@/lib/api/types';
 import { useFormat } from '@/lib/format/use-format';
+import { downscaleImage } from '@/lib/media/downscale-image';
 import { canLogInUnit, previewPortion } from '@/lib/nutrition/portion';
 import { queryKeys } from '@/lib/query/query-keys';
 import { useInvalidateDay } from '@/lib/query/use-day-mutations';
@@ -91,6 +92,8 @@ export const FoodEntryDialog = ({
     }
   }, [open, defaultMeal, defaultFood]);
 
+  const photoInputRef = useRef<HTMLInputElement>(null);
+
   const provider = useQuery({
     queryKey: queryKeys.nutritionProvider,
     queryFn: nutritionProviderApi.get,
@@ -113,9 +116,8 @@ export const FoodEntryDialog = ({
   const results = search.trim() ? (searchQuery.data?.items ?? []) : (recentQuery.data ?? []);
   const isLoadingList = search.trim() ? searchQuery.isPending : recentQuery.isPending;
 
-  const estimate = useMutation({
-    mutationFn: () => foodEntriesApi.parse(description.trim(), locale),
-    onSuccess: (parsed) => {
+  const applyEstimate = useCallback(
+    (parsed: ParsedFood) => {
       setSelected({
         id: parsed.foodId,
         name: parsed.name,
@@ -133,13 +135,35 @@ export const FoodEntryDialog = ({
       });
       setNotice(parsed.fromCache ? t('estimateFromCache') : t('estimateReady'));
     },
-    onError: (error: unknown) => {
+    [t],
+  );
+
+  const reportEstimateFailure = useCallback(
+    (error: unknown) => {
       showToast({
         title: t('estimateFailed'),
         description: error instanceof ApiError ? error.message : undefined,
         tone: 'danger',
       });
     },
+    [showToast, t],
+  );
+
+  const estimate = useMutation({
+    mutationFn: () => foodEntriesApi.parse(description.trim(), locale),
+    onSuccess: applyEstimate,
+    onError: reportEstimateFailure,
+  });
+
+  const scan = useMutation({
+    mutationFn: async (file: File) =>
+      foodEntriesApi.scan({
+        image: await downscaleImage(file),
+        hint: description.trim() || undefined,
+        locale,
+      }),
+    onSuccess: applyEstimate,
+    onError: reportEstimateFailure,
   });
 
   const createEntry = useMutation({
@@ -240,8 +264,49 @@ export const FoodEntryDialog = ({
                     <Sparkle className="size-4" aria-hidden />
                     {estimate.isPending ? t('estimating') : t('estimateNutrition')}
                   </Button>
+
+                  {provider.data?.supportsVision ? (
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="size-10 shrink-0"
+                      aria-label={t('scanPhoto')}
+                      title={t('scanPhoto')}
+                      disabled={scan.isPending}
+                      onClick={() => photoInputRef.current?.click()}
+                    >
+                      <Camera className="size-4" aria-hidden />
+                    </Button>
+                  ) : null}
                 </div>
-                <p className="text-foreground-subtle text-xs">{t('estimateHint')}</p>
+
+                <input
+                  ref={photoInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  capture="environment"
+                  hidden
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    event.target.value = '';
+
+                    if (file) {
+                      scan.mutate(file);
+                    }
+                  }}
+                />
+
+                <p className="text-foreground-subtle text-xs">
+                  {scan.isPending
+                    ? t('scanning')
+                    : provider.data?.supportsVision
+                      ? t('estimateOrPhotoHint')
+                      : t('estimateHint')}
+                </p>
+
+                {provider.data?.isConfigured && !provider.data.supportsVision ? (
+                  <p className="text-foreground-subtle text-xs">{t('photoUnavailable')}</p>
+                ) : null}
               </div>
             ) : null}
 

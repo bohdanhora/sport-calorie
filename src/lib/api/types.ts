@@ -248,7 +248,26 @@ export interface NutritionProvider {
   isConfigured: boolean;
   baseUrl: string | null;
   modelName: string | null;
+  visionModelName: string | null;
+  /** Whether photos can be sent at all. */
+  supportsVision: boolean;
+  /** Whether the catalog, rather than the user, is the one saying so. */
+  visionModelKnown: boolean;
+  visionOverride: boolean;
   apiKeyHint: string | null;
+}
+
+export interface CatalogProvider {
+  id: string;
+  label: string;
+  baseUrl: string;
+  apiKeysUrl: string;
+  visionPrefixes: string[];
+}
+
+export interface ProviderModels {
+  models: string[];
+  visionModels: string[];
 }
 
 export interface NutritionProviderCheck {

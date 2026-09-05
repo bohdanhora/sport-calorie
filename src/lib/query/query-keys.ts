@@ -1,6 +1,8 @@
 export const queryKeys = {
   profile: ['profile'] as const,
   nutritionProvider: ['nutrition-provider'] as const,
+  providerCatalog: ['nutrition-provider', 'catalog'] as const,
+  providerModels: ['nutrition-provider', 'models'] as const,
   target: (date: string) => ['target', date] as const,
   dashboard: (date: string) => ['dashboard', date] as const,
   foods: (search: string) => ['foods', search] as const,
