@@ -24,12 +24,14 @@ The interface is mobile-first, theme-aware, and localized for English, Russian, 
 
 - **Today at a glance** - remaining calories as the headline number, consumed against goal and activity, macros, walking totals, meals, workouts, and weight on one screen.
 - **Fast logging** - four quick-add actions, bottom sheets on mobile with the primary action pinned within reach, recently used foods, and smart defaults everywhere.
-- **Reusable food library** - save a food once with any serving unit and log it in one tap, alongside a shared seeded catalog.
+- **Reusable food library** - a card grid of saved and catalog foods with calories and macros on the face of each card; one click opens the portion form already filled in with that food.
 - **Walking and treadmill first** - enter any two of duration, distance, and speed, and the third is derived; incline is part of the estimate.
 - **Live energy estimates** - the calorie burn updates as the activity form is filled, is labelled as an estimate, and can be replaced with a measured value.
 - **Automatic calorie estimation** - describe a dish in words and get a pre-filled draft you confirm before it reaches the diary.
 - **Progress and history** - weight trend, calorie and activity charts, walking distance, weekly averages, an activity breakdown, and every logged day one tap away.
 - **Calorie goal you control** - estimated BMR and TDEE, a recommendation, and a manual target the system never overwrites.
+- **A guided first run** - a short guide and a four-step wizard collect body data, goal, language, and timezone once, then show the calorie target they produce.
+- **Sign in with Google** - Google's own button next to the email form, verified server side, linked to an existing account with the same verified address.
 - **Three languages** - English, Russian, and Ukrainian, including locale-aware numbers, units, plurals, and dates.
 - **Considered visual design** - one accent colour, hairline borders, tabular numerals, purposeful motion, and light and dark themes designed as two palettes rather than one inverted.
 
@@ -75,9 +77,15 @@ Three rules the code follows:
 | `/progress` | Trends and averages over 7, 30, or 90 days |
 | `/history` | Every logged day, opening into that day |
 | `/settings` | Body data, calorie goal, automatic estimation, language, timezone, theme, account |
-| `/login`, `/register` | Session |
+| `/login`, `/register` | Session, with email and Google |
 
 Any screen that shows a single day reads `?date=YYYY-MM-DD`, so a day can be linked to and the browser back button works. History links straight into a day.
+
+## First run
+
+An account that has never answered the wizard opens it over Today, and it cannot be dismissed until it is answered. The guide comes first, then body data, goal and daily activity, and language and timezone. Everything is sent in one `POST /profile/onboarding`, which stores the profile, records the starting weight as a normal weight entry, and stamps `onboardingCompletedAt` so the wizard never returns.
+
+The last step is the payoff rather than another question: the target the API calculated from those answers, with the BMR and TDEE behind it, and a field to override it. The client never calculates any of it. The guide alone can be reopened from Settings.
 
 ## Languages
 
@@ -109,6 +117,7 @@ The interface is meant to feel like a calm, precise health product rather than a
 - The calorie bar shows consumed against the full allowance, with a tick marking where the base goal sits when logged activity has extended it, so the model is visible rather than explained.
 - Motion is limited and purposeful: content rises 8 px into place over 240 ms with a staggered delay for rows, the headline number counts to its new value when the date changes, progress bars and charts ease into their new size, and buttons compress slightly on press. Everything respects `prefers-reduced-motion`.
 - Light and dark themes are designed as two palettes. The theme follows the system by default and can be set explicitly.
+- The layout is mobile-first, but it does not stop there: from `xl` the column widens and every screen splits into two, so a wide display shows a day at a glance instead of a narrow ribbon between two empty margins. Today puts the balance, quick add, macros and walking beside the diary; Activity, Settings and Progress pair their sections; History and the food library become card grids. Source order is the reading order, so keyboard and screen reader navigation is unaffected.
 
 **Accessibility.** Semantic landmarks and headings, labelled fields with error text tied to inputs, visible focus rings that are never removed, accessible dialogs and radio groups from Radix, `aria-current` on navigation, and a live region for toasts.
 
@@ -157,8 +166,11 @@ password  demo12345
 | Variable | Required | Description |
 | --- | :---: | --- |
 | `NEXT_PUBLIC_API_URL` | Yes | API base URL including the `/api` prefix, without a trailing slash. |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | No | OAuth 2.0 Web client ID. Empty hides the Google button; the same value has to be set as `GOOGLE_CLIENT_ID` on the API. |
 
-The API base URL is the only configuration the frontend needs. It is exposed to the browser by design, so no secrets belong in `NEXT_PUBLIC_*` values.
+Both values are exposed to the browser by design, so no secrets belong in `NEXT_PUBLIC_*` values. A Google client ID is public information; the API is what verifies the token it produces.
+
+To enable Google sign-in, create an OAuth 2.0 Web client in the Google Cloud Console, add the frontend origin (`http://localhost:3000` in development) to its authorized JavaScript origins, and put the client ID in both projects.
 
 ## Available scripts
 
@@ -225,7 +237,7 @@ The user's timezone comes from their profile, not from the browser. Every date s
 
 The unit suite covers the logic that would be silently wrong if it broke: number and duration formatting in every locale, distance precision, conversions between what forms collect and what the API stores, timezone-aware day offsets, and the portion preview including the case where a unit conversion would have to be invented.
 
-Playwright drives the real daily flow against a running API and database, on a desktop viewport and a Pixel-sized one: create an account, log food, log a treadmill session and check the derived average speed, log a repetition workout, record weight, set a manual calorie goal and confirm it survives, move between days, and see the days in history. A second suite covers language: switching before signing in, choosing a language in settings and confirming it survives a reload, and checking that numbers and units follow it.
+Playwright drives the real daily flow against a running API and database, on a desktop viewport and a Pixel-sized one: create an account, answer the first-run wizard, log food, log a treadmill session and check the derived average speed, log a repetition workout, record weight, set a manual calorie goal and confirm it survives, move between days, and see the days in history. A second suite covers language: switching before signing in, choosing a language in settings and confirming it survives a reload, and checking that numbers and units follow it. A third walks the first-run wizard: that it refuses to move on without the data the metabolic formula needs, that the answers reach the database and the wizard stays closed afterwards, and that the guide can be reopened from settings.
 
 ```bash
 npm test
@@ -234,7 +246,7 @@ npm run test:e2e
 npm run build
 ```
 
-The Playwright suite starts the dev server itself and registers a throwaway account per run. Each test works on a different date so the tests do not interfere with each other.
+The Playwright suite starts its own dev server on port 3100 with its own build directory (`NEXT_DIST_DIR=.next-e2e`), so it never shares `.next` with a dev server already running - two Next servers writing one build directory leave pages with missing chunks. That origin has to be in the API's `CORS_ORIGINS`. The suite registers a throwaway account per run. Each test works on a different date so the tests do not interfere with each other.
 
 ## Deployment
 
