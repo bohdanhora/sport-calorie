@@ -79,7 +79,7 @@ export const FoodCard = ({ food, index, onLog, onEdit, onArchive, archiving }: F
             <div key={key} className="min-w-0">
               <dt className="label-caps truncate">{macroNames(label)}</dt>
               <dd className="numeric text-foreground-muted mt-1 text-[0.8125rem]">
-                {food[key] === null ? '—' : format.grams(food[key])}
+                {food[key] === null ? '-' : format.grams(food[key])}
               </dd>
             </div>
           ))}

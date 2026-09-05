@@ -526,7 +526,7 @@ const OnboardingSummary = ({
       <div className="border-border bg-surface rounded-lg border px-4 py-4 text-center">
         <p className="label-caps">{t('dailyTarget')}</p>
         <p className="metric-lg mt-1.5">
-          {effective !== null ? format.kcal(effective) : '—'}
+          {effective !== null ? format.kcal(effective) : '-'}
           <span className="text-foreground-subtle ml-1 text-xs font-normal">{units('kcal')}</span>
         </p>
         {profile.energy.isComplete ? (
