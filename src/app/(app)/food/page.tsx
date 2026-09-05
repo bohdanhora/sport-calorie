@@ -24,6 +24,7 @@ import type { Food, MealType } from '@/lib/api/types';
 import { useAuth } from '@/lib/auth/auth-provider';
 import { useFormat } from '@/lib/format/use-format';
 import { queryKeys } from '@/lib/query/query-keys';
+import { cn } from '@/lib/utils/cn';
 
 const FoodView = () => {
   const t = useTranslations('foodPage');
@@ -123,14 +124,34 @@ const DiaryTab = ({
         <ErrorState onRetry={() => void dashboard.refetch()} />
       ) : (
         <>
-          <div className="border-border bg-surface flex items-baseline justify-between rounded-lg border px-4 py-3">
-            <span className="label-caps">{t('consumed')}</span>
-            <span className="metric-lg">
-              {format.kcal(dashboard.data.calories.consumedKcal)}
-              <span className="text-foreground-subtle ml-1 text-xs font-normal">
-                / {format.kcal(dashboard.data.calories.targetKcal)} {units('kcal')}
+          <div className="border-border bg-surface space-y-2.5 rounded-lg border px-4 py-3">
+            <div className="flex items-baseline justify-between">
+              <span className="label-caps">{t('consumed')}</span>
+              <span className="metric-lg">
+                {format.kcal(dashboard.data.calories.consumedKcal)}
+                <span className="text-foreground-subtle ml-1 text-xs font-normal">
+                  / {format.kcal(dashboard.data.calories.targetKcal)} {units('kcal')}
+                </span>
               </span>
-            </span>
+            </div>
+
+            <div className="bg-surface-muted h-1.5 overflow-hidden rounded-full" aria-hidden>
+              <div
+                className={cn(
+                  'h-full rounded-full transition-[width] duration-500 ease-out',
+                  dashboard.data.calories.remainingKcal < 0 ? 'bg-danger' : 'bg-accent',
+                )}
+                style={{
+                  width: `${
+                    Math.min(
+                      dashboard.data.calories.consumedKcal /
+                        Math.max(dashboard.data.calories.targetKcal, 1),
+                      1,
+                    ) * 100
+                  }%`,
+                }}
+              />
+            </div>
           </div>
 
           <MealList meals={dashboard.data.meals} onAdd={onAdd} columns />

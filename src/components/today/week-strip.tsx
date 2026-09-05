@@ -12,6 +12,8 @@ interface WeekStripProps {
   days: DayOverview[];
   selected: string;
   onSelect: (date: string) => void;
+  /** Intake is read against the goal; energy burned has no goal to read against. */
+  metric?: 'intake' | 'burned';
 }
 
 /** Headroom above the tallest bar, so a day over the goal still has the line below it. */
@@ -22,7 +24,7 @@ const SCALE_HEADROOM = 1.15;
  * "is today unusual?" is answered here instead of on Progress. Bars alone would
  * say little - intake rarely swings much - which is what the line is for.
  */
-export const WeekStrip = ({ days, selected, onSelect }: WeekStripProps) => {
+export const WeekStrip = ({ days, selected, onSelect, metric = 'intake' }: WeekStripProps) => {
   const t = useTranslations('today');
   const locale = useLocale();
   const format = useFormat();
@@ -31,9 +33,11 @@ export const WeekStrip = ({ days, selected, onSelect }: WeekStripProps) => {
     return null;
   }
 
-  const targets = days.map((day) => day.targetKcal).filter((target) => target > 0);
+  const intake = metric === 'intake';
+  const valueOf = (day: DayOverview) => (intake ? day.consumedKcal : day.activityKcal);
+  const targets = intake ? days.map((day) => day.targetKcal).filter((target) => target > 0) : [];
   const goal = targets.length > 0 ? targets.reduce((sum, x) => sum + x, 0) / targets.length : 0;
-  const peak = Math.max(...days.map((day) => day.consumedKcal), goal, 1) * SCALE_HEADROOM;
+  const peak = Math.max(...days.map(valueOf), goal, 1) * SCALE_HEADROOM;
 
   return (
     <Section title={t('lastDays')}>
@@ -54,15 +58,16 @@ export const WeekStrip = ({ days, selected, onSelect }: WeekStripProps) => {
           <ol className="flex h-full items-end justify-between gap-2">
             {days.map((day) => {
               const isSelected = day.date === selected;
-              const isOver = day.targetKcal > 0 && day.consumedKcal > day.targetKcal;
-              const logged = day.consumedKcal > 0;
+              const value = valueOf(day);
+              const isOver = intake && day.targetKcal > 0 && value > day.targetKcal;
+              const logged = value > 0;
 
               return (
                 <li key={day.date} className="flex h-full min-w-0 flex-1 items-end justify-center">
                   <button
                     type="button"
                     onClick={() => onSelect(day.date)}
-                    title={`${formatWeekdayDate(day.date, locale)} · ${format.kcal(day.consumedKcal)}`}
+                    title={`${formatWeekdayDate(day.date, locale)} · ${format.kcal(value)}`}
                     aria-current={isSelected ? 'date' : undefined}
                     className="press focus-visible:outline-ring flex h-full w-full max-w-8 items-end justify-center focus-visible:outline-2 focus-visible:outline-offset-2"
                   >
@@ -73,7 +78,7 @@ export const WeekStrip = ({ days, selected, onSelect }: WeekStripProps) => {
                         logged && (isOver ? 'bg-danger/60' : 'bg-accent/55'),
                         logged && isSelected && (isOver ? 'bg-danger' : 'bg-accent'),
                       )}
-                      style={{ height: logged ? `${(day.consumedKcal / peak) * 100}%` : '3px' }}
+                      style={{ height: logged ? `${(value / peak) * 100}%` : '3px' }}
                     />
                   </button>
                 </li>

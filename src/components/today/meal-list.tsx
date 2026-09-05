@@ -27,6 +27,9 @@ const GRID_PANEL_CLASS = `${PANEL_CLASS} xl:grid xl:grid-cols-2 xl:gap-4 xl:over
 const GRID_MEAL_CLASS =
   'xl:border-border xl:overflow-hidden xl:rounded-lg xl:border xl:border-t-0 xl:bg-surface';
 
+/** One colour per meal, so the four headers stop looking interchangeable. */
+const MEAL_BARS = ['bg-chart-1', 'bg-chart-2', 'bg-chart-3', 'bg-chart-4'] as const;
+
 export const MealList = ({ meals, onAdd, columns = false }: MealListProps) => {
   const t = useTranslations('today');
   const entryText = useTranslations('foodEntry');
@@ -100,6 +103,18 @@ export const MealList = ({ meals, onAdd, columns = false }: MealListProps) => {
                   </Button>
                 </div>
               </div>
+
+              {total > 0 ? (
+                <div
+                  className="bg-surface-muted mx-4 mb-2.5 h-1 overflow-hidden rounded-full"
+                  aria-hidden
+                >
+                  <div
+                    className={cn('h-full rounded-full', MEAL_BARS[index % MEAL_BARS.length])}
+                    style={{ width: `${(meal.energyKcal / total) * 100}%` }}
+                  />
+                </div>
+              ) : null}
 
               {meal.entries.length > 0 ? (
                 <ul className="border-border border-t">

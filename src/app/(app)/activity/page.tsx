@@ -11,12 +11,14 @@ import { DateHeading, DateNav } from '@/components/layout/date-nav';
 import { ErrorState } from '@/components/states/error-state';
 import { ActivityList } from '@/components/today/activity-list';
 import { WalkingSummary } from '@/components/today/walking-summary';
+import { WeekStrip } from '@/components/today/week-strip';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useSelectedDate } from '@/hooks/use-selected-date';
 import { summaryApi } from '@/lib/api/endpoints';
 import type { ActivityCategory } from '@/lib/api/types';
 import { useAuth } from '@/lib/auth/auth-provider';
+import { addDays } from '@/lib/format/dates';
 import { useFormat } from '@/lib/format/use-format';
 import { queryKeys } from '@/lib/query/query-keys';
 
@@ -33,6 +35,12 @@ const ActivityView = () => {
   const dashboard = useQuery({
     queryKey: queryKeys.dashboard(date),
     queryFn: () => summaryApi.dashboard(date),
+  });
+
+  const weekFrom = addDays(date, -6);
+  const week = useQuery({
+    queryKey: queryKeys.history(weekFrom, date),
+    queryFn: () => summaryApi.history(weekFrom, date),
   });
 
   const walkingSessions =
@@ -86,6 +94,13 @@ const ActivityView = () => {
               title={t('walkingSessions')}
               activities={walkingSessions}
               onAdd={() => setDialog({ open: true, category: 'WALKING' })}
+            />
+
+            <WeekStrip
+              days={week.data ?? []}
+              selected={date}
+              onSelect={setDate}
+              metric="burned"
             />
           </Column>
 
