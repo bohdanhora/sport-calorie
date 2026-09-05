@@ -5,7 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { Column, Columns } from '@/components/layout/columns';
@@ -14,6 +14,7 @@ import { OnboardingDialog } from '@/components/onboarding/onboarding-dialog';
 import { NutritionProviderSection } from '@/components/settings/nutrition-provider-section';
 import { ErrorState } from '@/components/states/error-state';
 import { Button } from '@/components/ui/button';
+import { DateField } from '@/components/ui/date-field';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { NativeSelect } from '@/components/ui/native-select';
@@ -33,6 +34,9 @@ import { listTimeZones } from '@/lib/format/time-zones';
 import { useFormat } from '@/lib/format/use-format';
 import { queryKeys } from '@/lib/query/query-keys';
 import { optionalNumber, requiredNumber, toValue } from '@/lib/validation/numbers';
+
+/** Only bounds the year list in the picker; nothing in the app reads it otherwise. */
+const EARLIEST_BIRTH_DATE = '1920-01-01';
 
 const MIN_CALORIE_TARGET = 800;
 const MAX_CALORIE_TARGET = 8000;
@@ -194,6 +198,7 @@ const ProfileSection = ({ profile }: { profile: Profile }) => {
 
   const {
     register,
+    control,
     handleSubmit,
     reset,
     formState: { errors, isDirty },
@@ -292,7 +297,19 @@ const ProfileSection = ({ profile }: { profile: Profile }) => {
 
           <Field label={t('birthDate')} error={errors.birthDate?.message}>
             {(props) => (
-              <Input {...props} {...register('birthDate')} type="date" max={todayIn('UTC')} />
+              <Controller
+                control={control}
+                name="birthDate"
+                render={({ field }) => (
+                  <DateField
+                    {...props}
+                    value={field.value}
+                    onChange={field.onChange}
+                    min={EARLIEST_BIRTH_DATE}
+                    max={todayIn('UTC')}
+                  />
+                )}
+              />
             )}
           </Field>
 

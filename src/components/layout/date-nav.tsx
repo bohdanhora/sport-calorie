@@ -7,8 +7,11 @@ import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
-import { addDays, isFuture, todayIn } from '@/lib/format/dates';
+import { addDays, addMonths, isFuture, todayIn } from '@/lib/format/dates';
 import { useFormat } from '@/lib/format/use-format';
+
+/** How far back the picker offers to go; the app has no data older than this. */
+const HISTORY_MONTHS = 60;
 
 interface DateNavProps {
   date: string;
@@ -45,6 +48,8 @@ export const DateNav = ({ date, timezone, onChange }: DateNavProps) => {
           >
             <Calendar
               value={date}
+              min={addMonths(today, -HISTORY_MONTHS)}
+              max={today}
               today={today}
               onSelect={(next) => {
                 onChange(next);

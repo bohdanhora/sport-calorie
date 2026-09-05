@@ -58,7 +58,9 @@
     "next": "Next day",
     "pickDate": "Pick a date",
     "previousMonth": "Previous month",
-    "nextMonth": "Next month"
+    "nextMonth": "Next month",
+    "month": "Month",
+    "year": "Year"
   },
   "meals": {
     "BREAKFAST": "Breakfast",

@@ -58,7 +58,9 @@
     "next": "Следующий день",
     "pickDate": "Выбрать дату",
     "previousMonth": "Предыдущий месяц",
-    "nextMonth": "Следующий месяц"
+    "nextMonth": "Следующий месяц",
+    "month": "Месяц",
+    "year": "Год"
   },
   "meals": {
     "BREAKFAST": "Завтрак",

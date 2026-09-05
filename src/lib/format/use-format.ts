@@ -7,6 +7,7 @@ import { INTL_LOCALES, type Locale } from '@/i18n/config';
 
 import {
   dayOffsetFromToday,
+  formatDateWithYear,
   formatFullDate,
   formatShortDate,
   formatWeekdayDate,
@@ -49,6 +50,7 @@ export interface AppFormat {
   dayLabel: (date: string, timeZone: string) => string;
   isRelativeDay: (date: string, timeZone: string) => boolean;
   fullDate: (date: string) => string;
+  dateWithYear: (date: string) => string;
   shortDate: (date: string) => string;
   time: (isoInstant: string, timeZone: string) => string;
 }
@@ -94,6 +96,7 @@ export const useFormat = (): AppFormat => {
       isRelativeDay: (date, timeZone) =>
         RELATIVE_OFFSETS[dayOffsetFromToday(date, timeZone)] !== undefined,
       fullDate: (date) => formatFullDate(date, intlLocale),
+      dateWithYear: (date) => formatDateWithYear(date, intlLocale),
       shortDate: (date) => formatShortDate(date, intlLocale),
       time: (isoInstant, timeZone) => formatTime(isoInstant, timeZone, intlLocale),
     }),

@@ -49,6 +49,14 @@ export const formatFullDate = (date: string, locale = DEFAULT_LOCALE): string =>
     month: 'long',
   }).format(parseDate(date));
 
+export const formatDateWithYear = (date: string, locale = DEFAULT_LOCALE): string =>
+  new Intl.DateTimeFormat(locale, {
+    timeZone: 'UTC',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }).format(parseDate(date));
+
 export const formatShortDate = (date: string, locale = DEFAULT_LOCALE): string =>
   new Intl.DateTimeFormat(locale, {
     timeZone: 'UTC',

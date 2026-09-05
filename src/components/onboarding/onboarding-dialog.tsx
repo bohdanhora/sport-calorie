@@ -6,10 +6,11 @@ import { Footprints, Scale, Target, UtensilsCrossed } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState, type ComponentType } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
+import { DateField } from '@/components/ui/date-field';
 import { Dialog } from '@/components/ui/dialog';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
@@ -27,6 +28,9 @@ import { listTimeZones } from '@/lib/format/time-zones';
 import { useFormat } from '@/lib/format/use-format';
 import { queryKeys } from '@/lib/query/query-keys';
 import { requiredNumber, optionalNumber, toValue } from '@/lib/validation/numbers';
+
+/** Only bounds the year list in the picker; nothing in the app reads it otherwise. */
+const EARLIEST_BIRTH_DATE = '1920-01-01';
 
 const ACTIVITY_LEVELS: ActivityLevel[] = ['SEDENTARY', 'LIGHT', 'MODERATE', 'HIGH', 'VERY_HIGH'];
 const GOALS: FitnessGoal[] = ['LOSE_WEIGHT', 'MAINTAIN_WEIGHT', 'GAIN_WEIGHT'];
@@ -105,6 +109,7 @@ export const OnboardingDialog = ({
 
   const {
     register,
+    control,
     trigger,
     getValues,
     formState: { errors },
@@ -293,7 +298,19 @@ export const OnboardingDialog = ({
 
               <Field label={settings('birthDate')} error={errors.birthDate?.message}>
                 {(props) => (
-                  <Input {...props} {...register('birthDate')} type="date" max={todayIn('UTC')} />
+                  <Controller
+                    control={control}
+                    name="birthDate"
+                    render={({ field }) => (
+                      <DateField
+                        {...props}
+                        value={field.value}
+                        onChange={field.onChange}
+                        min={EARLIEST_BIRTH_DATE}
+                        max={todayIn('UTC')}
+                      />
+                    )}
+                  />
                 )}
               </Field>
 
