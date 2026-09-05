@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const BASE_URL = process.env.E2E_BASE_URL ?? 'http://localhost:3000';
+const E2E_PORT = process.env.E2E_PORT ?? '3100';
+const BASE_URL = process.env.E2E_BASE_URL ?? `http://localhost:${E2E_PORT}`;
 
 export default defineConfig({
   testDir: './e2e',
@@ -23,7 +24,10 @@ export default defineConfig({
     : {
         command: 'npm run dev',
         url: BASE_URL,
-        reuseExistingServer: true,
+        // Own port and own build directory: a dev server already running on 3000
+        // keeps its .next to itself, so neither run overwrites the other's chunks.
+        env: { PORT: E2E_PORT, NEXT_DIST_DIR: '.next-e2e' },
+        reuseExistingServer: !process.env.CI,
         timeout: 120_000,
       },
 });

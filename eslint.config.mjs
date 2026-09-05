@@ -8,7 +8,15 @@ const compat = new FlatCompat({ baseDirectory: dirname(fileURLToPath(import.meta
 
 const config = [
   {
-    ignores: ['.next', 'node_modules', 'coverage', 'playwright-report', 'test-results', 'next-env.d.ts'],
+    ignores: [
+      '.next',
+      '.next-e2e',
+      'node_modules',
+      'coverage',
+      'playwright-report',
+      'test-results',
+      'next-env.d.ts',
+    ],
   },
   ...compat.extends('next/core-web-vitals', 'next/typescript'),
   prettierConfig,
