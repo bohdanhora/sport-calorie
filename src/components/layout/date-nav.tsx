@@ -1,9 +1,12 @@
 'use client';
 
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import * as PopoverPrimitive from '@radix-ui/react-popover';
+import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
 import { addDays, isFuture, todayIn } from '@/lib/format/dates';
 import { useFormat } from '@/lib/format/use-format';
 
@@ -15,6 +18,7 @@ interface DateNavProps {
 
 export const DateNav = ({ date, timezone, onChange }: DateNavProps) => {
   const t = useTranslations('day');
+  const [pickerOpen, setPickerOpen] = useState(false);
   const today = todayIn(timezone);
   const nextDate = addDays(date, 1);
 
@@ -25,6 +29,31 @@ export const DateNav = ({ date, timezone, onChange }: DateNavProps) => {
           {t('today')}
         </Button>
       ) : null}
+
+      <PopoverPrimitive.Root open={pickerOpen} onOpenChange={setPickerOpen}>
+        <PopoverPrimitive.Trigger asChild>
+          <Button variant="ghost" size="icon" aria-label={t('pickDate')}>
+            <CalendarDays className="size-4" aria-hidden />
+          </Button>
+        </PopoverPrimitive.Trigger>
+
+        <PopoverPrimitive.Portal>
+          <PopoverPrimitive.Content
+            align="end"
+            sideOffset={8}
+            className="border-border bg-surface-raised shadow-soft z-50 rounded-lg border p-3 animate-[fade-in_140ms_ease-out]"
+          >
+            <Calendar
+              value={date}
+              today={today}
+              onSelect={(next) => {
+                onChange(next);
+                setPickerOpen(false);
+              }}
+            />
+          </PopoverPrimitive.Content>
+        </PopoverPrimitive.Portal>
+      </PopoverPrimitive.Root>
 
       <Button
         variant="ghost"

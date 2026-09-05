@@ -55,7 +55,10 @@
     "yesterday": "Вчера",
     "tomorrow": "Завтра",
     "previous": "Предыдущий день",
-    "next": "Следующий день"
+    "next": "Следующий день",
+    "pickDate": "Выбрать дату",
+    "previousMonth": "Предыдущий месяц",
+    "nextMonth": "Следующий месяц"
   },
   "meals": {
     "BREAKFAST": "Завтрак",

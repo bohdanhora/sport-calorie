@@ -55,7 +55,10 @@
     "yesterday": "Yesterday",
     "tomorrow": "Tomorrow",
     "previous": "Previous day",
-    "next": "Next day"
+    "next": "Next day",
+    "pickDate": "Pick a date",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month"
   },
   "meals": {
     "BREAKFAST": "Breakfast",
