@@ -89,8 +89,10 @@ const HistoryPage = () => {
               <li
                 key={day.date}
                 className={cn(
-                  'animate-row border-l-2 xl:border-border xl:bg-surface xl:overflow-hidden xl:rounded-lg xl:border xl:border-l-2',
-                  isOver ? 'border-l-danger xl:border-l-danger' : 'border-l-accent xl:border-l-accent',
+                  'animate-row xl:border-border xl:bg-surface border-l-2 xl:overflow-hidden xl:rounded-lg xl:border xl:border-l-2',
+                  isOver
+                    ? 'border-l-danger xl:border-l-danger'
+                    : 'border-l-accent xl:border-l-accent',
                 )}
                 style={{ animationDelay: `${Math.min(index, 8) * 25}ms` }}
               >
@@ -128,7 +130,10 @@ const HistoryPage = () => {
                       aria-hidden
                     >
                       <div
-                        className={cn('h-full rounded-full', isOver ? 'bg-danger/70' : 'bg-accent/70')}
+                        className={cn(
+                          'h-full rounded-full',
+                          isOver ? 'bg-danger/70' : 'bg-accent/70',
+                        )}
                         style={{ width: `${consumedShare * 100}%` }}
                       />
                     </div>

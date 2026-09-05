@@ -49,7 +49,7 @@ export const WeekStrip = ({ days, selected, onSelect, metric = 'intake' }: WeekS
               className="border-border-strong absolute inset-x-0 border-t border-dashed"
               style={{ bottom: `${(goal / peak) * 100}%` }}
             >
-              <span className="text-foreground-subtle absolute right-0 -top-4 text-[0.625rem]">
+              <span className="text-foreground-subtle absolute -top-4 right-0 text-[0.625rem]">
                 {t('goal')}
               </span>
             </div>

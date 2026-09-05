@@ -37,17 +37,17 @@ The interface is mobile-first, theme-aware, and localized for English, Russian, 
 
 ## Tech stack
 
-| Area | Technology |
-| --- | --- |
-| Framework | Next.js 15 App Router, React 19, TypeScript strict mode |
-| Styling | Tailwind CSS 4 design tokens, Radix UI primitives, Lucide icons |
-| Server state | TanStack Query |
-| Forms | React Hook Form, Zod |
-| Charts | Recharts |
-| Localization | next-intl with ICU plurals |
-| Dates and numbers | `Intl`, date-fns |
-| Themes | next-themes |
-| Testing | Vitest, Testing Library, Playwright |
+| Area              | Technology                                                      |
+| ----------------- | --------------------------------------------------------------- |
+| Framework         | Next.js 15 App Router, React 19, TypeScript strict mode         |
+| Styling           | Tailwind CSS 4 design tokens, Radix UI primitives, Lucide icons |
+| Server state      | TanStack Query                                                  |
+| Forms             | React Hook Form, Zod                                            |
+| Charts            | Recharts                                                        |
+| Localization      | next-intl with ICU plurals                                      |
+| Dates and numbers | `Intl`, date-fns                                                |
+| Themes            | next-themes                                                     |
+| Testing           | Vitest, Testing Library, Playwright                             |
 
 ## Architecture
 
@@ -69,15 +69,15 @@ Three rules the code follows:
 
 ## Screens
 
-| Route | Purpose |
-| --- | --- |
-| `/` | Today: calorie balance, macros, walking, meals, activities, weight, quick add |
-| `/food` | The day's diary and the reusable food library |
-| `/activity` | Walking sessions and workouts for a day |
-| `/progress` | Trends and averages over 7, 30, or 90 days |
-| `/history` | Every logged day, opening into that day |
-| `/settings` | Body data, calorie goal, automatic estimation, language, timezone, theme, account |
-| `/login`, `/register` | Session, with email and Google |
+| Route                 | Purpose                                                                           |
+| --------------------- | --------------------------------------------------------------------------------- |
+| `/`                   | Today: calorie balance, macros, walking, meals, activities, weight, quick add     |
+| `/food`               | The day's diary and the reusable food library                                     |
+| `/activity`           | Walking sessions and workouts for a day                                           |
+| `/progress`           | Trends and averages over 7, 30, or 90 days                                        |
+| `/history`            | Every logged day, opening into that day                                           |
+| `/settings`           | Body data, calorie goal, automatic estimation, language, timezone, theme, account |
+| `/login`, `/register` | Session, with email and Google                                                    |
 
 Any screen that shows a single day reads `?date=YYYY-MM-DD`, so a day can be linked to and the browser back button works. History links straight into a day.
 
@@ -163,10 +163,10 @@ password  demo12345
 
 ## Environment variables
 
-| Variable | Required | Description |
-| --- | :---: | --- |
-| `NEXT_PUBLIC_API_URL` | Yes | API base URL including the `/api` prefix, without a trailing slash. |
-| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | No | OAuth 2.0 Web client ID. Empty hides the Google button; the same value has to be set as `GOOGLE_CLIENT_ID` on the API. |
+| Variable                       | Required | Description                                                                                                            |
+| ------------------------------ | :------: | ---------------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_API_URL`          |   Yes    | API base URL including the `/api` prefix, without a trailing slash.                                                    |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` |    No    | OAuth 2.0 Web client ID. Empty hides the Google button; the same value has to be set as `GOOGLE_CLIENT_ID` on the API. |
 
 Both values are exposed to the browser by design, so no secrets belong in `NEXT_PUBLIC_*` values. A Google client ID is public information; the API is what verifies the token it produces.
 
@@ -174,17 +174,17 @@ To enable Google sign-in, create an OAuth 2.0 Web client in the Google Cloud Con
 
 ## Available scripts
 
-| Command | Description |
-| --- | --- |
-| `npm run dev` | Start the development server. |
-| `npm run build` | Create an optimized production build. |
-| `npm run start` | Serve the production build. |
-| `npm run lint` | Run the ESLint checks. |
-| `npm run format` | Format TypeScript, CSS, JSON, and Markdown files. |
-| `npm run typecheck` | Run the TypeScript compiler with no emit. |
-| `npm test` | Run the Vitest unit suite. |
-| `npm run test:e2e` | Run the Playwright flows. |
-| `npm run test:e2e:install` | Download the Playwright browser once. |
+| Command                    | Description                                       |
+| -------------------------- | ------------------------------------------------- |
+| `npm run dev`              | Start the development server.                     |
+| `npm run build`            | Create an optimized production build.             |
+| `npm run start`            | Serve the production build.                       |
+| `npm run lint`             | Run the ESLint checks.                            |
+| `npm run format`           | Format TypeScript, CSS, JSON, and Markdown files. |
+| `npm run typecheck`        | Run the TypeScript compiler with no emit.         |
+| `npm test`                 | Run the Vitest unit suite.                        |
+| `npm run test:e2e`         | Run the Playwright flows.                         |
+| `npm run test:e2e:install` | Download the Playwright browser once.             |
 
 ## Project structure
 

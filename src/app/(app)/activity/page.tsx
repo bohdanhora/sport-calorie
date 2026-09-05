@@ -96,12 +96,7 @@ const ActivityView = () => {
               onAdd={() => setDialog({ open: true, category: 'WALKING' })}
             />
 
-            <WeekStrip
-              days={week.data ?? []}
-              selected={date}
-              onSelect={setDate}
-              metric="burned"
-            />
+            <WeekStrip days={week.data ?? []} selected={date} onSelect={setDate} metric="burned" />
           </Column>
 
           <Column>

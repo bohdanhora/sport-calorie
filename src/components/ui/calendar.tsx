@@ -77,7 +77,9 @@ export const Calendar = ({ value, onSelect, min, max, today }: CalendarProps) =>
           className="h-9 flex-1 px-2 text-[0.8125rem]"
           value={selectedMonth}
           onChange={(event) =>
-            setMonthWithin(`${month.slice(0, 4)}-${String(Number(event.target.value) + 1).padStart(2, '0')}-01`)
+            setMonthWithin(
+              `${month.slice(0, 4)}-${String(Number(event.target.value) + 1).padStart(2, '0')}-01`,
+            )
           }
         >
           {monthNames.map((name, index) => (

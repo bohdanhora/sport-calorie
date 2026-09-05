@@ -45,7 +45,10 @@ export const MacroSummary = ({ consumed, target }: MacroSummaryProps) => {
                     / {format.kcal(goal)} {units('gram')}
                   </span>
                 </p>
-                <div className="bg-surface-muted mt-2.5 h-1.5 overflow-hidden rounded-full" aria-hidden>
+                <div
+                  className="bg-surface-muted mt-2.5 h-1.5 overflow-hidden rounded-full"
+                  aria-hidden
+                >
                   <div
                     className={`${bar} h-full rounded-full transition-[width] duration-500 ease-out`}
                     style={{ width: `${progress * 100}%` }}

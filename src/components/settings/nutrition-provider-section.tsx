@@ -181,7 +181,9 @@ export const NutritionProviderSection = () => {
 
   const visionRecognised =
     visionModelName !== '' &&
-    (known?.visionPrefixes ?? []).some((prefix) => visionModelName.toLowerCase().startsWith(prefix));
+    (known?.visionPrefixes ?? []).some((prefix) =>
+      visionModelName.toLowerCase().startsWith(prefix),
+    );
 
   const save = useMutation({
     mutationFn: (values: ProviderValues) =>

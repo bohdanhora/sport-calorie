@@ -44,7 +44,7 @@ export const DateNav = ({ date, timezone, onChange }: DateNavProps) => {
           <PopoverPrimitive.Content
             align="end"
             sideOffset={8}
-            className="border-border bg-surface-raised shadow-soft z-50 rounded-lg border p-3 animate-[fade-in_140ms_ease-out]"
+            className="border-border bg-surface-raised shadow-soft z-50 animate-[fade-in_140ms_ease-out] rounded-lg border p-3"
           >
             <Calendar
               value={date}

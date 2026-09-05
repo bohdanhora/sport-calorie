@@ -6,12 +6,7 @@ import { cn } from '@/lib/utils/cn';
  * it takes the tone of whatever it sits in.
  */
 export const LogoMark = ({ className }: { className?: string }) => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    aria-hidden
-    className={cn('size-[1.375rem]', className)}
-  >
+  <svg viewBox="0 0 24 24" fill="none" aria-hidden className={cn('size-[1.375rem]', className)}>
     <circle
       cx="12"
       cy="12"
