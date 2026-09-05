@@ -14,6 +14,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { ComponentType, ReactNode } from 'react';
 
+import { Logo } from '@/components/layout/logo';
 import { ThemeToggle } from '@/components/layout/theme-toggle';
 import { cn } from '@/lib/utils/cn';
 
@@ -49,8 +50,7 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
     <div className="min-h-dvh lg:flex">
       <aside className="border-border sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r px-3 py-5 lg:flex">
         <div className="px-3 pb-6">
-          <p className="text-[0.9375rem] font-semibold tracking-tight">{app('name')}</p>
-          <p className="text-foreground-subtle mt-0.5 text-xs">{app('tagline')}</p>
+          <Logo name={app('name')} tagline={app('tagline')} />
         </div>
 
         <nav aria-label={t('main')} className="flex-1">

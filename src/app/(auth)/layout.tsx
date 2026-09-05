@@ -6,11 +6,13 @@ import { useRouter } from 'next/navigation';
 import { useEffect, type ReactNode } from 'react';
 
 import { LanguageToggle } from '@/components/layout/language-toggle';
+import { Logo } from '@/components/layout/logo';
 import { ThemeToggle } from '@/components/layout/theme-toggle';
 import { useAuth } from '@/lib/auth/auth-provider';
 
 const AuthLayout = ({ children }: { children: ReactNode }) => {
   const t = useTranslations('auth');
+  const app = useTranslations('app');
   const { status } = useAuth();
   const router = useRouter();
 
@@ -38,7 +40,7 @@ const AuthLayout = ({ children }: { children: ReactNode }) => {
           className="bg-chart-2 pointer-events-none absolute -right-32 -bottom-40 size-[26rem] rounded-full opacity-[0.06] blur-3xl"
         />
 
-        <p className="relative text-[0.9375rem] font-semibold tracking-tight">Sport Calorie</p>
+        <Logo name={app('name')} className="relative" />
 
         <div className="relative max-w-md space-y-8">
           <h2 className="text-[1.75rem] leading-[1.15] font-semibold tracking-[-0.02em]">
@@ -62,7 +64,7 @@ const AuthLayout = ({ children }: { children: ReactNode }) => {
 
       <div className="flex min-h-dvh flex-col">
         <header className="flex items-center justify-between px-5 py-5">
-          <p className="text-[0.9375rem] font-semibold tracking-tight lg:invisible">Sport Calorie</p>
+          <Logo name={app('name')} className="lg:invisible" />
           <div className="flex items-center gap-2">
             <LanguageToggle />
             <ThemeToggle />
