@@ -1,10 +1,11 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Pencil, Plus, Search, Trash2 } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Suspense, useState } from 'react';
 
+import { FoodCard } from '@/components/food/food-card';
 import { FoodEntryDialog } from '@/components/food/food-entry-dialog';
 import { FoodFormDialog } from '@/components/food/food-form-dialog';
 import { DateHeading, DateNav } from '@/components/layout/date-nav';
@@ -19,27 +20,21 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/toast';
 import { useSelectedDate } from '@/hooks/use-selected-date';
 import { foodsApi, summaryApi } from '@/lib/api/endpoints';
-import type { Food, FoodUnit, MealType } from '@/lib/api/types';
+import type { Food, MealType } from '@/lib/api/types';
 import { useAuth } from '@/lib/auth/auth-provider';
 import { useFormat } from '@/lib/format/use-format';
 import { queryKeys } from '@/lib/query/query-keys';
-
-const UNIT_SHORT_KEYS = {
-  GRAM: 'gram',
-  MILLILITER: 'millilitre',
-  PIECE: 'piece',
-  SERVING: 'serving',
-} as const;
 
 const FoodView = () => {
   const t = useTranslations('foodPage');
   const { timezone } = useAuth();
   const [date, setDate] = useSelectedDate(timezone);
   const [tab, setTab] = useState<'diary' | 'foods'>('diary');
-  const [entryDialog, setEntryDialog] = useState<{ open: boolean; meal: MealType }>({
-    open: false,
-    meal: 'BREAKFAST',
-  });
+  const [entryDialog, setEntryDialog] = useState<{
+    open: boolean;
+    meal: MealType;
+    food: Food | null;
+  }>({ open: false, meal: 'BREAKFAST', food: null });
 
   const tabs = [
     { value: 'diary' as const, label: t('diary') },
@@ -54,12 +49,21 @@ const FoodView = () => {
             <h1 className="page-title">{t('title')}</h1>
             <p className="text-foreground-subtle mt-0.5 text-[0.8125rem]">{t('subtitle')}</p>
           </div>
-          <Button size="sm" onClick={() => setEntryDialog({ open: true, meal: 'BREAKFAST' })}>
+          <Button
+            size="sm"
+            onClick={() => setEntryDialog({ open: true, meal: 'BREAKFAST', food: null })}
+          >
             <Plus className="size-4" aria-hidden />
             {t('logFood')}
           </Button>
         </div>
-        <Segmented label={t('title')} value={tab} onChange={setTab} options={tabs} />
+        <Segmented
+          label={t('title')}
+          value={tab}
+          onChange={setTab}
+          options={tabs}
+          className="sm:max-w-sm"
+        />
       </header>
 
       {tab === 'diary' ? (
@@ -67,10 +71,12 @@ const FoodView = () => {
           date={date}
           timezone={timezone}
           onChangeDate={setDate}
-          onAdd={(meal) => setEntryDialog({ open: true, meal })}
+          onAdd={(meal) => setEntryDialog({ open: true, meal, food: null })}
         />
       ) : (
-        <SavedFoodsTab />
+        <SavedFoodsTab
+          onLogFood={(food) => setEntryDialog({ open: true, meal: 'BREAKFAST', food })}
+        />
       )}
 
       <FoodEntryDialog
@@ -78,6 +84,7 @@ const FoodView = () => {
         onOpenChange={(open) => setEntryDialog((current) => ({ ...current, open }))}
         date={date}
         defaultMeal={entryDialog.meal}
+        defaultFood={entryDialog.food}
       />
     </div>
   );
@@ -126,17 +133,15 @@ const DiaryTab = ({
             </span>
           </div>
 
-          <MealList meals={dashboard.data.meals} onAdd={onAdd} />
+          <MealList meals={dashboard.data.meals} onAdd={onAdd} columns />
         </>
       )}
     </div>
   );
 };
 
-const SavedFoodsTab = () => {
+const SavedFoodsTab = ({ onLogFood }: { onLogFood: (food: Food) => void }) => {
   const t = useTranslations('foodPage');
-  const units = useTranslations('units');
-  const format = useFormat();
   const [search, setSearch] = useState('');
   const [formDialog, setFormDialog] = useState<{ open: boolean; food: Food | null }>({
     open: false,
@@ -158,9 +163,6 @@ const SavedFoodsTab = () => {
     },
     onError: () => showToast({ title: t('archiveFailed'), tone: 'danger' }),
   });
-
-  const describeServing = (food: Food): string =>
-    `${food.servingSize} ${units(UNIT_SHORT_KEYS[food.servingUnit as FoodUnit])}`;
 
   return (
     <div className="space-y-5">
@@ -187,9 +189,9 @@ const SavedFoodsTab = () => {
 
       <Section title={t('savedFoods')}>
         {foods.isPending ? (
-          <div className="space-y-2" aria-busy="true">
-            {Array.from({ length: 5 }, (_, index) => (
-              <Skeleton key={index} className="h-14 w-full" />
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3" aria-busy="true">
+            {Array.from({ length: 6 }, (_, index) => (
+              <Skeleton key={index} className="h-[8.75rem] w-full" />
             ))}
           </div>
         ) : foods.isError ? (
@@ -205,51 +207,17 @@ const SavedFoodsTab = () => {
             }
           />
         ) : (
-          <ul className="divide-border border-border bg-surface divide-y overflow-hidden rounded-lg border">
+          <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {foods.data.items.map((food, index) => (
-              <li
+              <FoodCard
                 key={food.id}
-                className="group animate-row hover:bg-surface-muted/60 flex items-center gap-3 px-4 py-3 transition-colors duration-150"
-                style={{ animationDelay: `${Math.min(index, 8) * 25}ms` }}
-              >
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm">
-                    {food.name}
-                    {food.brand ? (
-                      <span className="text-foreground-subtle"> · {food.brand}</span>
-                    ) : null}
-                  </p>
-                  <p className="numeric text-foreground-subtle mt-0.5 text-xs">
-                    {t('perServing', {
-                      kcal: format.kcal(food.energyKcal),
-                      serving: describeServing(food),
-                    })}
-                    {food.isOwned ? '' : ` · ${t('shared')}`}
-                  </p>
-                </div>
-
-                {food.isOwned ? (
-                  <div className="flex shrink-0 gap-0.5 opacity-0 transition-opacity duration-150 group-hover:opacity-100 focus-within:opacity-100 max-sm:opacity-100">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      aria-label={t('editFood', { name: food.name })}
-                      onClick={() => setFormDialog({ open: true, food })}
-                    >
-                      <Pencil className="size-4" aria-hidden />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      aria-label={t('archiveFood', { name: food.name })}
-                      disabled={archive.isPending}
-                      onClick={() => archive.mutate(food.id)}
-                    >
-                      <Trash2 className="size-4" aria-hidden />
-                    </Button>
-                  </div>
-                ) : null}
-              </li>
+                food={food}
+                index={index}
+                archiving={archive.isPending}
+                onLog={() => onLogFood(food)}
+                onEdit={() => setFormDialog({ open: true, food })}
+                onArchive={() => archive.mutate(food.id)}
+              />
             ))}
           </ul>
         )}

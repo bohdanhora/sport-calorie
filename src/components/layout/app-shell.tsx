@@ -94,7 +94,7 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
       <div className="min-w-0 flex-1">
         <main
           key={pathname}
-          className="animate-rise mx-auto w-full max-w-3xl px-5 pt-5 pb-28 lg:px-8 lg:pt-8 lg:pb-16"
+          className="animate-rise mx-auto w-full max-w-3xl px-5 pt-5 pb-28 lg:px-8 lg:pt-8 lg:pb-16 xl:max-w-6xl"
         >
           {children}
         </main>

@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { Suspense, useState } from 'react';
 
 import { ActivityDialog } from '@/components/activity/activity-dialog';
+import { Column, Columns } from '@/components/layout/columns';
 import { DateHeading, DateNav } from '@/components/layout/date-nav';
 import { ErrorState } from '@/components/states/error-state';
 import { ActivityList } from '@/components/today/activity-list';
@@ -67,31 +68,35 @@ const ActivityView = () => {
       ) : dashboard.isError ? (
         <ErrorState onRetry={() => void dashboard.refetch()} />
       ) : (
-        <>
-          <div className="border-border bg-surface flex items-baseline justify-between rounded-lg border px-4 py-3">
-            <span className="label-caps">{t('burnedToday')}</span>
-            <span className="metric-lg">
-              {format.kcal(dashboard.data.calories.activityKcal)}
-              <span className="text-foreground-subtle ml-1 text-xs font-normal">
-                {units('kcal')}
+        <Columns>
+          <Column>
+            <div className="border-border bg-surface flex items-baseline justify-between rounded-lg border px-4 py-3">
+              <span className="label-caps">{t('burnedToday')}</span>
+              <span className="metric-lg">
+                {format.kcal(dashboard.data.calories.activityKcal)}
+                <span className="text-foreground-subtle ml-1 text-xs font-normal">
+                  {units('kcal')}
+                </span>
               </span>
-            </span>
-          </div>
+            </div>
 
-          <WalkingSummary walking={dashboard.data.walking} />
+            <WalkingSummary walking={dashboard.data.walking} />
 
-          <ActivityList
-            title={t('walkingSessions')}
-            activities={walkingSessions}
-            onAdd={() => setDialog({ open: true, category: 'WALKING' })}
-          />
+            <ActivityList
+              title={t('walkingSessions')}
+              activities={walkingSessions}
+              onAdd={() => setDialog({ open: true, category: 'WALKING' })}
+            />
+          </Column>
 
-          <ActivityList
-            title={t('workouts')}
-            activities={otherSessions}
-            onAdd={() => setDialog({ open: true, category: 'STRENGTH' })}
-          />
-        </>
+          <Column>
+            <ActivityList
+              title={t('workouts')}
+              activities={otherSessions}
+              onAdd={() => setDialog({ open: true, category: 'STRENGTH' })}
+            />
+          </Column>
+        </Columns>
       )}
 
       <ActivityDialog

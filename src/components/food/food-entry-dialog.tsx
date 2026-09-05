@@ -53,6 +53,8 @@ interface FoodEntryDialogProps {
   onOpenChange: (open: boolean) => void;
   date: string;
   defaultMeal?: MealType;
+  /** Opens straight on the portion form for a food chosen elsewhere. */
+  defaultFood?: Food | null;
 }
 
 export const FoodEntryDialog = ({
@@ -60,6 +62,7 @@ export const FoodEntryDialog = ({
   onOpenChange,
   date,
   defaultMeal = 'BREAKFAST',
+  defaultFood = null,
 }: FoodEntryDialogProps) => {
   const t = useTranslations('foodEntry');
   const page = useTranslations('foodPage');
@@ -82,11 +85,11 @@ export const FoodEntryDialog = ({
       setMeal(defaultMeal);
       setSearch('');
       setDescription('');
-      setSelected(null);
+      setSelected(defaultFood);
       setManual(false);
       setNotice(null);
     }
-  }, [open, defaultMeal]);
+  }, [open, defaultMeal, defaultFood]);
 
   const provider = useQuery({
     queryKey: queryKeys.nutritionProvider,

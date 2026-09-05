@@ -7,6 +7,7 @@ import { Suspense, useState } from 'react';
 
 import { ActivityDialog } from '@/components/activity/activity-dialog';
 import { FoodEntryDialog } from '@/components/food/food-entry-dialog';
+import { Column, Columns } from '@/components/layout/columns';
 import { DateHeading, DateNav } from '@/components/layout/date-nav';
 import { ErrorState } from '@/components/states/error-state';
 import { ActivityList } from '@/components/today/activity-list';
@@ -90,64 +91,68 @@ const TodayView = () => {
           onRetry={() => void dashboard.refetch()}
         />
       ) : (
-        <>
-          <CalorieSummary calories={dashboard.data.calories} />
+        <Columns>
+          <Column>
+            <CalorieSummary calories={dashboard.data.calories} />
 
-          <QuickAdd onSelect={handleQuickAction} />
+            <QuickAdd onSelect={handleQuickAction} />
 
-          <MacroSummary
-            consumed={dashboard.data.macros.consumed}
-            target={dashboard.data.macros.target}
-          />
+            <MacroSummary
+              consumed={dashboard.data.macros.consumed}
+              target={dashboard.data.macros.target}
+            />
 
-          <WalkingSummary walking={dashboard.data.walking} />
+            <WalkingSummary walking={dashboard.data.walking} />
+          </Column>
 
-          <MealList
-            meals={dashboard.data.meals}
-            onAdd={(meal) => setFoodDialog({ open: true, meal })}
-          />
+          <Column>
+            <MealList
+              meals={dashboard.data.meals}
+              onAdd={(meal) => setFoodDialog({ open: true, meal })}
+            />
 
-          <ActivityList
-            activities={dashboard.data.activities}
-            onAdd={() => setActivityDialog({ open: true })}
-          />
+            <ActivityList
+              activities={dashboard.data.activities}
+              onAdd={() => setActivityDialog({ open: true })}
+            />
 
-          <section className="border-border bg-surface flex items-center justify-between gap-3 rounded-lg border px-4 py-3">
-            <div>
-              <p className="label-caps">{t('weight')}</p>
-              <p className="metric-md mt-1">
-                {dashboard.data.weight ? (
-                  <>
-                    {format.weight(dashboard.data.weight.weightKg)}
-                    <span className="text-foreground-subtle ml-1 text-xs font-normal">
-                      {units('kilogram')}
+            <section className="border-border bg-surface flex items-center justify-between gap-3 rounded-lg border px-4 py-3">
+              <div>
+                <p className="label-caps">{t('weight')}</p>
+                <p className="metric-md mt-1">
+                  {dashboard.data.weight ? (
+                    <>
+                      {format.weight(dashboard.data.weight.weightKg)}
+                      <span className="text-foreground-subtle ml-1 text-xs font-normal">
+                        {units('kilogram')}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-foreground-muted text-sm font-normal">
+                      {t('weightMissing')}
                     </span>
-                  </>
-                ) : (
-                  <span className="text-foreground-muted text-sm font-normal">
-                    {t('weightMissing')}
-                  </span>
-                )}
-              </p>
-            </div>
+                  )}
+                </p>
+              </div>
 
-            <button
-              type="button"
-              onClick={() => setWeightDialogOpen(true)}
-              className="text-accent press text-[0.8125rem] font-medium underline-offset-4 hover:underline"
-            >
-              {dashboard.data.weight ? common('update') : common('record')}
-            </button>
-          </section>
+              <button
+                type="button"
+                onClick={() => setWeightDialogOpen(true)}
+                className="text-accent press text-[0.8125rem] font-medium underline-offset-4 hover:underline"
+              >
+                {dashboard.data.weight ? common('update') : common('record')}
+              </button>
+            </section>
 
-          <p className="text-foreground-subtle text-xs">
-            {t('estimateNote')}{' '}
-            <Link href="/settings" className="underline underline-offset-2">
-              {t('estimateLink')}
-            </Link>{' '}
-            {t('estimateNoteEnd')}
-          </p>
-        </>
+            <p className="text-foreground-subtle text-xs">
+              {t('estimateNote')}{' '}
+              <Link href="/settings" className="underline underline-offset-2">
+                {t('estimateLink')}
+              </Link>{' '}
+              {t('estimateNoteEnd')}
+            </p>
+          </Column>
+        </Columns>
       )}
 
       <FoodEntryDialog

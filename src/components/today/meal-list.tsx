@@ -10,14 +10,24 @@ import { useToast } from '@/components/ui/toast';
 import { foodEntriesApi } from '@/lib/api/endpoints';
 import type { FoodEntry, MealSummary, MealType } from '@/lib/api/types';
 import { useFormat } from '@/lib/format/use-format';
+import { cn } from '@/lib/utils/cn';
 import { useInvalidateDay } from '@/lib/query/use-day-mutations';
 
 interface MealListProps {
   meals: MealSummary[];
   onAdd: (meal: MealType) => void;
+  /** In a wide column the four meals read better side by side than stacked. */
+  columns?: boolean;
 }
 
-export const MealList = ({ meals, onAdd }: MealListProps) => {
+// Below xl both variants render the same single panel; only the wide breakpoint
+// splits it into separate cards.
+const PANEL_CLASS = 'border-border bg-surface overflow-hidden rounded-lg border';
+const GRID_PANEL_CLASS = `${PANEL_CLASS} xl:grid xl:grid-cols-2 xl:gap-4 xl:overflow-visible xl:rounded-none xl:border-0 xl:bg-transparent`;
+const GRID_MEAL_CLASS =
+  'xl:border-border xl:overflow-hidden xl:rounded-lg xl:border xl:border-t-0 xl:bg-surface';
+
+export const MealList = ({ meals, onAdd, columns = false }: MealListProps) => {
   const t = useTranslations('today');
   const entryText = useTranslations('foodEntry');
   const mealNames = useTranslations('meals');
@@ -50,7 +60,12 @@ export const MealList = ({ meals, onAdd }: MealListProps) => {
       }
     >
       {isEmpty ? (
-        <div className="border-border rounded-lg border border-dashed px-5 py-7 text-center">
+        <div
+          className={cn(
+            'border-border rounded-lg border border-dashed px-5 py-7 text-center',
+            columns ? 'mx-auto max-w-2xl' : undefined,
+          )}
+        >
           <p className="text-sm font-medium">{t('noFood')}</p>
           <p className="text-foreground-muted mt-1 text-[0.8125rem]">{t('noFoodHint')}</p>
           <Button size="sm" className="mt-4" onClick={() => onAdd('BREAKFAST')}>
@@ -58,9 +73,15 @@ export const MealList = ({ meals, onAdd }: MealListProps) => {
           </Button>
         </div>
       ) : (
-        <div className="border-border bg-surface overflow-hidden rounded-lg border">
+        <div className={columns ? GRID_PANEL_CLASS : PANEL_CLASS}>
           {meals.map((meal, index) => (
-            <div key={meal.meal} className={index > 0 ? 'border-border border-t' : undefined}>
+            <div
+              key={meal.meal}
+              className={cn(
+                index > 0 ? 'border-border border-t' : undefined,
+                columns ? GRID_MEAL_CLASS : undefined,
+              )}
+            >
               <div className="flex items-center justify-between gap-3 px-4 py-2.5">
                 <h3 className="text-[0.8125rem] font-medium">{mealNames(meal.meal)}</h3>
                 <div className="flex items-center gap-1">

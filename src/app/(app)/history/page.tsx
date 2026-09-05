@@ -59,11 +59,12 @@ const HistoryPage = () => {
           value={range}
           onChange={setRange}
           options={rangeOptions}
+          className="sm:max-w-md"
         />
       </header>
 
       {history.isPending ? (
-        <div className="space-y-2" aria-busy="true">
+        <div className="space-y-2 xl:grid xl:grid-cols-2 xl:gap-3 xl:space-y-0" aria-busy="true">
           {Array.from({ length: 6 }, (_, index) => (
             <Skeleton key={index} className="h-16 w-full" />
           ))}
@@ -73,7 +74,7 @@ const HistoryPage = () => {
       ) : loggedDays.length === 0 ? (
         <EmptyState title={t('empty')} description={t('emptyHint')} />
       ) : (
-        <ul className="divide-border border-border bg-surface divide-y overflow-hidden rounded-lg border">
+        <ul className="divide-border border-border bg-surface divide-y overflow-hidden rounded-lg border xl:grid xl:grid-cols-2 xl:gap-3 xl:divide-y-0 xl:overflow-visible xl:rounded-none xl:border-0 xl:bg-transparent">
           {loggedDays.map((day, index) => {
             const balance = day.netKcal - day.targetKcal;
             const label = format.dayLabel(day.date, timezone);
@@ -81,7 +82,7 @@ const HistoryPage = () => {
             return (
               <li
                 key={day.date}
-                className="animate-row"
+                className="animate-row xl:border-border xl:bg-surface xl:overflow-hidden xl:rounded-lg xl:border"
                 style={{ animationDelay: `${Math.min(index, 8) * 25}ms` }}
               >
                 <Link

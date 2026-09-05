@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import { DailyBarChart, DailyLineChart } from '@/components/charts/daily-chart';
+import { Columns } from '@/components/layout/columns';
 import { EmptyState } from '@/components/states/empty-state';
 import { ErrorState } from '@/components/states/error-state';
 import { Section } from '@/components/ui/section';
@@ -57,7 +58,13 @@ const ProgressPage = () => {
           <h1 className="page-title">{t('title')}</h1>
           <p className="text-foreground-subtle mt-0.5 text-[0.8125rem]">{t('subtitle')}</p>
         </div>
-        <Segmented label={t('range')} value={range} onChange={setRange} options={rangeOptions} />
+        <Segmented
+          label={t('range')}
+          value={range}
+          onChange={setRange}
+          options={rangeOptions}
+          className="sm:max-w-md"
+        />
       </header>
 
       {progress.isPending ? (
@@ -106,95 +113,97 @@ const ProgressPage = () => {
             </dl>
           </Section>
 
-          <Section title={t('caloriesConsumed')}>
-            <ChartPanel>
-              <DailyBarChart
-                data={progress.data.days.map((day) => ({
-                  date: day.date,
-                  value: day.consumedKcal,
-                }))}
-                seriesName={t('consumed')}
-                formatValue={format.kcal}
-                formatAxisValue={format.axisKcal}
-                formatDate={format.shortDate}
-                referenceValue={progress.data.days.at(-1)?.targetKcal}
-              />
-            </ChartPanel>
-            <p className="text-foreground-subtle text-xs">{t('goalLineNote')}</p>
-          </Section>
-
-          <Section title={t('activityCalories')}>
-            <ChartPanel>
-              <DailyBarChart
-                data={progress.data.days.map((day) => ({
-                  date: day.date,
-                  value: day.activityKcal,
-                }))}
-                seriesName={t('burned')}
-                formatValue={format.kcal}
-                formatAxisValue={format.axisKcal}
-                formatDate={format.shortDate}
-              />
-            </ChartPanel>
-          </Section>
-
-          <Section title={t('walkingDistance')}>
-            <ChartPanel>
-              <DailyBarChart
-                data={progress.data.days.map((day) => ({
-                  date: day.date,
-                  value: metresToKilometres(day.walkingDistanceM),
-                }))}
-                seriesName={t('distance')}
-                formatValue={(value) => `${format.decimal(value)} ${units('kilometre')}`}
-                formatAxisValue={format.decimal}
-                formatDate={format.shortDate}
-              />
-            </ChartPanel>
-          </Section>
-
-          {progress.data.weights.length >= 2 ? (
-            <Section title={t('weight')}>
+          <Columns>
+            <Section title={t('caloriesConsumed')}>
               <ChartPanel>
-                <DailyLineChart
-                  data={progress.data.weights.map((point) => ({
-                    date: point.date,
-                    value: point.weightKg,
+                <DailyBarChart
+                  data={progress.data.days.map((day) => ({
+                    date: day.date,
+                    value: day.consumedKcal,
                   }))}
-                  seriesName={t('weight')}
-                  formatValue={format.weight}
+                  seriesName={t('consumed')}
+                  formatValue={format.kcal}
+                  formatAxisValue={format.axisKcal}
+                  formatDate={format.shortDate}
+                  referenceValue={progress.data.days.at(-1)?.targetKcal}
+                />
+              </ChartPanel>
+              <p className="text-foreground-subtle text-xs">{t('goalLineNote')}</p>
+            </Section>
+
+            <Section title={t('activityCalories')}>
+              <ChartPanel>
+                <DailyBarChart
+                  data={progress.data.days.map((day) => ({
+                    date: day.date,
+                    value: day.activityKcal,
+                  }))}
+                  seriesName={t('burned')}
+                  formatValue={format.kcal}
+                  formatAxisValue={format.axisKcal}
                   formatDate={format.shortDate}
                 />
               </ChartPanel>
             </Section>
-          ) : null}
 
-          {progress.data.activityBreakdown.length > 0 ? (
-            <Section title={t('breakdown')}>
-              <ul className="divide-border border-border bg-surface divide-y overflow-hidden rounded-lg border">
-                {progress.data.activityBreakdown.map((activity, index) => (
-                  <li
-                    key={activity.activityTypeId}
-                    className="animate-row flex items-center justify-between gap-3 px-4 py-3"
-                    style={{ animationDelay: `${Math.min(index, 6) * 30}ms` }}
-                  >
-                    <div>
-                      <p className="text-sm">{activityName(activity)}</p>
-                      <p className="numeric text-foreground-subtle mt-0.5 text-xs">
-                        {today('sessions', { count: activity.sessions })}
-                        {activity.durationSec > 0
-                          ? ` · ${format.duration(activity.durationSec)}`
-                          : ''}
-                      </p>
-                    </div>
-                    <p className="numeric text-sm">
-                      {format.kcal(activity.energyKcal)} {units('kcal')}
-                    </p>
-                  </li>
-                ))}
-              </ul>
+            <Section title={t('walkingDistance')}>
+              <ChartPanel>
+                <DailyBarChart
+                  data={progress.data.days.map((day) => ({
+                    date: day.date,
+                    value: metresToKilometres(day.walkingDistanceM),
+                  }))}
+                  seriesName={t('distance')}
+                  formatValue={(value) => `${format.decimal(value)} ${units('kilometre')}`}
+                  formatAxisValue={format.decimal}
+                  formatDate={format.shortDate}
+                />
+              </ChartPanel>
             </Section>
-          ) : null}
+
+            {progress.data.weights.length >= 2 ? (
+              <Section title={t('weight')}>
+                <ChartPanel>
+                  <DailyLineChart
+                    data={progress.data.weights.map((point) => ({
+                      date: point.date,
+                      value: point.weightKg,
+                    }))}
+                    seriesName={t('weight')}
+                    formatValue={format.weight}
+                    formatDate={format.shortDate}
+                  />
+                </ChartPanel>
+              </Section>
+            ) : null}
+
+            {progress.data.activityBreakdown.length > 0 ? (
+              <Section title={t('breakdown')}>
+                <ul className="divide-border border-border bg-surface divide-y overflow-hidden rounded-lg border">
+                  {progress.data.activityBreakdown.map((activity, index) => (
+                    <li
+                      key={activity.activityTypeId}
+                      className="animate-row flex items-center justify-between gap-3 px-4 py-3"
+                      style={{ animationDelay: `${Math.min(index, 6) * 30}ms` }}
+                    >
+                      <div>
+                        <p className="text-sm">{activityName(activity)}</p>
+                        <p className="numeric text-foreground-subtle mt-0.5 text-xs">
+                          {today('sessions', { count: activity.sessions })}
+                          {activity.durationSec > 0
+                            ? ` · ${format.duration(activity.durationSec)}`
+                            : ''}
+                        </p>
+                      </div>
+                      <p className="numeric text-sm">
+                        {format.kcal(activity.energyKcal)} {units('kcal')}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              </Section>
+            ) : null}
+          </Columns>
         </>
       )}
     </div>

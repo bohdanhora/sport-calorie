@@ -8,6 +8,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { Column, Columns } from '@/components/layout/columns';
 import { ThemeToggle } from '@/components/layout/theme-toggle';
 import { OnboardingDialog } from '@/components/onboarding/onboarding-dialog';
 import { NutritionProviderSection } from '@/components/settings/nutrition-provider-section';
@@ -63,68 +64,73 @@ const SettingsPage = () => {
       ) : profile.isError ? (
         <ErrorState onRetry={() => void profile.refetch()} />
       ) : (
-        <>
-          <CalorieGoalSection profile={profile.data} />
+        <Columns className="space-y-8 xl:space-y-0">
+          <Column className="space-y-8">
+            <CalorieGoalSection profile={profile.data} />
 
-          <Section title={t('body')}>
-            <div className="border-border bg-surface flex items-center justify-between gap-3 rounded-lg border px-4 py-3">
-              <div>
-                <p className="label-caps">{t('currentWeight')}</p>
-                <p className="metric-md mt-1">
-                  {profile.data.currentWeightKg !== null ? (
-                    <>
-                      {format.weight(profile.data.currentWeightKg)}
-                      <span className="text-foreground-subtle ml-1 text-xs font-normal">
-                        {units('kilogram')}
+            <Section title={t('body')}>
+              <div className="border-border bg-surface flex items-center justify-between gap-3 rounded-lg border px-4 py-3">
+                <div>
+                  <p className="label-caps">{t('currentWeight')}</p>
+                  <p className="metric-md mt-1">
+                    {profile.data.currentWeightKg !== null ? (
+                      <>
+                        {format.weight(profile.data.currentWeightKg)}
+                        <span className="text-foreground-subtle ml-1 text-xs font-normal">
+                          {units('kilogram')}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-foreground-muted text-sm font-normal">
+                        {t('notRecorded')}
                       </span>
-                    </>
-                  ) : (
-                    <span className="text-foreground-muted text-sm font-normal">
-                      {t('notRecorded')}
-                    </span>
-                  )}
-                </p>
+                    )}
+                  </p>
+                </div>
+                <Button variant="secondary" size="sm" onClick={() => setWeightDialogOpen(true)}>
+                  {t('recordWeight')}
+                </Button>
               </div>
-              <Button variant="secondary" size="sm" onClick={() => setWeightDialogOpen(true)}>
-                {t('recordWeight')}
-              </Button>
-            </div>
-          </Section>
+            </Section>
 
-          <ProfileSection profile={profile.data} />
+            <ProfileSection profile={profile.data} />
+          </Column>
 
-          <NutritionProviderSection />
+          <Column className="space-y-8">
+            <NutritionProviderSection />
 
-          <Section title={t('help')}>
-            <div className="border-border bg-surface flex items-center justify-between gap-3 rounded-lg border px-4 py-3">
-              <div className="min-w-0">
-                <p className="text-sm">{t('showGuide')}</p>
-                <p className="text-foreground-subtle mt-0.5 text-xs">{t('showGuideHint')}</p>
+            <Section title={t('help')}>
+              <div className="border-border bg-surface flex items-center justify-between gap-3 rounded-lg border px-4 py-3">
+                <div className="min-w-0">
+                  <p className="text-sm">{t('showGuide')}</p>
+                  <p className="text-foreground-subtle mt-0.5 text-xs">{t('showGuideHint')}</p>
+                </div>
+                <Button variant="secondary" size="sm" onClick={() => setGuideOpen(true)}>
+                  {common('open')}
+                </Button>
               </div>
-              <Button variant="secondary" size="sm" onClick={() => setGuideOpen(true)}>
-                {common('open')}
-              </Button>
-            </div>
-          </Section>
+            </Section>
 
-          <Section title={t('appearance')}>
-            <div className="border-border bg-surface flex items-center justify-between gap-3 rounded-lg border px-4 py-3">
-              <p className="text-sm">{t('theme')}</p>
-              <ThemeToggle />
-            </div>
-          </Section>
-
-          <Section title={t('account')}>
-            <div className="border-border bg-surface flex items-center justify-between gap-3 rounded-lg border px-4 py-3">
-              <div className="min-w-0">
-                <p className="truncate text-sm">{user?.email}</p>
-                <p className="text-foreground-subtle mt-0.5 text-xs">{t('signedIn')}</p>
+            <Section title={t('appearance')}>
+              <div className="border-border bg-surface flex items-center justify-between gap-3 rounded-lg border px-4 py-3">
+                <p className="text-sm">{t('theme')}</p>
+                <ThemeToggle />
               </div>
-              <Button variant="secondary" size="sm" onClick={() => void logout()}>
-                {t('signOut')}
-              </Button>
-            </div>
-          </Section>
+            </Section>
+
+            <Section title={t('account')}>
+              <div className="border-border bg-surface flex items-center justify-between gap-3 rounded-lg border px-4 py-3">
+                <div className="min-w-0">
+                  <p className="truncate text-sm">{user?.email}</p>
+                  <p className="text-foreground-subtle mt-0.5 text-xs">{t('signedIn')}</p>
+                </div>
+                <Button variant="secondary" size="sm" onClick={() => void logout()}>
+                  {t('signOut')}
+                </Button>
+              </div>
+            </Section>
+          </Column>
+
           <OnboardingDialog
             open={guideOpen}
             onOpenChange={setGuideOpen}
@@ -138,7 +144,7 @@ const SettingsPage = () => {
             date={todayIn(timezone)}
             currentWeightKg={profile.data.currentWeightKg}
           />
-        </>
+        </Columns>
       )}
     </div>
   );

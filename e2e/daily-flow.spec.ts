@@ -45,6 +45,21 @@ test('logs food and updates the calorie balance', async () => {
   await expect(page.getByText('Porridge')).toBeVisible();
 });
 
+test('logs a food straight from the library grid', async () => {
+  await page.goto(`/food?date=${dayOffsetFromToday(-2)}`);
+  await page.getByRole('radio', { name: 'My foods' }).click();
+
+  await page.getByRole('button', { name: 'Log Egg' }).click();
+
+  // The card hands the dialog its food, so the portion form is already open on it.
+  await expect(page.getByRole('spinbutton', { name: 'Amount' })).toHaveValue('1');
+  await page.getByRole('button', { name: 'Add to diary' }).click();
+
+  await expect(page.getByText('Food logged', { exact: true })).toBeVisible();
+  await page.getByRole('radio', { name: 'Diary' }).click();
+  await expect(page.getByText('Egg', { exact: true })).toBeVisible();
+});
+
 test('records a treadmill session and derives the average speed', async () => {
   await page.goto(`/?date=${dayOffsetFromToday(-3)}`);
 
