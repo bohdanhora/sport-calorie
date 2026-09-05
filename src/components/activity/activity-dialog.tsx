@@ -15,6 +15,7 @@ import { Input, Textarea } from '@/components/ui/input';
 import { Segmented } from '@/components/ui/segmented';
 import { Select } from '@/components/ui/select';
 import { useToast } from '@/components/ui/toast';
+import { paceReplacesIntensity } from '@/lib/activity/intensity';
 import { ApiError } from '@/lib/api/client';
 import {
   activitiesApi,
@@ -175,6 +176,21 @@ export const ActivityDialog = ({
   );
 
   const values = watch();
+  const durationSec = Number.isFinite(values.durationMin)
+    ? minutesToSeconds(values.durationMin)
+    : null;
+  const distanceM = Number.isFinite(values.distanceKm)
+    ? kilometresToMetres(values.distanceKm)
+    : null;
+  const avgSpeedKmh = toValue(values.avgSpeedKmh);
+
+  const paceKnown = paceReplacesIntensity(activityType?.category ?? null, {
+    durationSec,
+    distanceM,
+    avgSpeedKmh,
+  });
+  const asksIntensity = Boolean(activityType?.tracksIntensity) && !paceKnown;
+
   const measurements = useMemo<ActivityEstimateInput | null>(() => {
     if (!activityType) {
       return null;
@@ -182,18 +198,16 @@ export const ActivityDialog = ({
 
     return {
       activityTypeId: activityType.id,
-      durationSec: Number.isFinite(values.durationMin)
-        ? minutesToSeconds(values.durationMin)
-        : null,
-      distanceM: Number.isFinite(values.distanceKm) ? kilometresToMetres(values.distanceKm) : null,
-      avgSpeedKmh: toValue(values.avgSpeedKmh),
+      durationSec,
+      distanceM,
+      avgSpeedKmh,
       inclinePercent: toValue(values.inclinePercent),
       sets: toValue(values.sets),
       reps: toValue(values.reps),
-      intensity,
+      intensity: asksIntensity ? intensity : null,
       date,
     };
-  }, [activityType, values, intensity, date]);
+  }, [activityType, durationSec, distanceM, avgSpeedKmh, values, asksIntensity, intensity, date]);
 
   const debounced = useDebounced(measurements, ESTIMATE_DEBOUNCE_MS);
   const hasMeasurement = Boolean(
@@ -236,7 +250,7 @@ export const ActivityDialog = ({
       inclinePercent: measurements.inclinePercent,
       sets: measurements.sets,
       reps: measurements.reps,
-      intensity: activityType.tracksIntensity ? intensity : null,
+      intensity: asksIntensity ? intensity : null,
       energyKcal: overrideEnergy ? toValue(formValues.energyKcal) : null,
       notes: formValues.notes.trim() || null,
       date,
@@ -254,7 +268,10 @@ export const ActivityDialog = ({
       // The API answers in seconds and metres; the form is minutes and km.
       setTypeId(parsed.activityTypeId);
       setValue('title', parsed.title ?? '');
-      setValue('durationMin', parsed.durationSec ? secondsToMinutes(parsed.durationSec) : Number.NaN);
+      setValue(
+        'durationMin',
+        parsed.durationSec ? secondsToMinutes(parsed.durationSec) : Number.NaN,
+      );
       setValue('distanceKm', parsed.distanceM ? metresToKilometres(parsed.distanceM) : Number.NaN);
       setValue('avgSpeedKmh', parsed.avgSpeedKmh ?? Number.NaN);
       setValue('inclinePercent', parsed.inclinePercent ?? Number.NaN);
@@ -447,7 +464,7 @@ export const ActivityDialog = ({
           ) : null}
         </div>
 
-        {activityType?.tracksIntensity ? (
+        {asksIntensity ? (
           <div className="space-y-1.5">
             <p className="text-foreground-muted text-[0.8125rem] font-medium">{t('intensity')}</p>
             <Segmented
@@ -485,7 +502,9 @@ export const ActivityDialog = ({
                 <p className="text-foreground-subtle mt-1 text-xs">
                   {estimateQuery.data?.usedFallbackWeight
                     ? t('fallbackWeightHint')
-                    : t('estimateHint')}
+                    : paceKnown
+                      ? t('estimatePaceHint')
+                      : t('estimateHint')}
                 </p>
               </div>
               <p className="metric-md shrink-0">

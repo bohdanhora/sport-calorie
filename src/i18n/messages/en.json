@@ -313,6 +313,7 @@
     "intensity": "Intensity",
     "estimatedBurn": "Estimated burn",
     "estimateHint": "Estimated from body weight, duration and intensity",
+    "estimatePaceHint": "Estimated from body weight, duration and the pace you logged",
     "fallbackWeightHint": "Based on a default body weight, record your weight for a closer estimate",
     "caloriesBurned": "Calories burned",
     "useEstimate": "Use the estimate",

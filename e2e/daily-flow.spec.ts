@@ -78,7 +78,21 @@ test('records a treadmill session and derives the average speed', async () => {
 
   await page.getByRole('button', { name: 'Walk' }).click();
   await page.getByRole('spinbutton', { name: 'Duration' }).fill('45');
+
+  // With only a duration there is nothing to read the effort from, so the form
+  // asks for it.
+  await expect(page.getByRole('radiogroup', { name: 'Intensity' })).toBeVisible();
+  await expect(page.getByText('Estimated from body weight, duration and intensity')).toBeVisible();
+
   await page.getByRole('spinbutton', { name: 'Distance' }).fill('3.7');
+
+  // The distance gives a pace, which is what the burn is worked out from now,
+  // so the question goes away rather than sitting there changing nothing.
+  await expect(page.getByRole('radiogroup', { name: 'Intensity' })).toBeHidden();
+  await expect(
+    page.getByText('Estimated from body weight, duration and the pace you logged'),
+  ).toBeVisible();
+
   await expect(page.getByText('Estimated burn')).toBeVisible();
   await page.getByRole('button', { name: 'Log activity' }).click();
 
