@@ -1,7 +1,18 @@
+import type { AuthResponse } from './types';
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api';
 
 const UNAUTHORISED = 401;
 const NO_CONTENT = 204;
+
+/**
+ * The session survives a reload on the `sc_refresh` cookie the API sets. Safari
+ * refuses that cookie when the API is on an unrelated domain to the app, which
+ * is why the phone landed back on the sign-in screen after every reload while
+ * the desktop stayed signed in. The API therefore also returns the refresh
+ * token, and this copy is sent in the body when the cookie never arrives.
+ */
+const REFRESH_TOKEN_STORAGE_KEY = 'sc.refresh-token';
 
 export class ApiError extends Error {
   readonly status: number;
@@ -16,14 +27,59 @@ export class ApiError extends Error {
 }
 
 let accessToken: string | null = null;
-let refreshRequest: Promise<string | null> | null = null;
+let refreshToken: string | null = null;
+let restoreRequest: Promise<AuthResponse | null> | null = null;
 let onSessionLost: (() => void) | null = null;
+
+const readStoredRefreshToken = (): string | null => {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  try {
+    return window.localStorage.getItem(REFRESH_TOKEN_STORAGE_KEY);
+  } catch {
+    // Private browsing can refuse storage outright; the cookie still covers it.
+    return null;
+  }
+};
+
+const storeRefreshToken = (token: string | null): void => {
+  refreshToken = token;
+
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  try {
+    if (token) {
+      window.localStorage.setItem(REFRESH_TOKEN_STORAGE_KEY, token);
+    } else {
+      window.localStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
+    }
+  } catch {
+    // Nothing to do: the request still carries whatever the cookie holds.
+  }
+};
 
 export const setAccessToken = (token: string | null): void => {
   accessToken = token;
 };
 
 export const getAccessToken = (): string | null => accessToken;
+
+/** Remembers a session the API just handed out, so a reload can restore it. */
+export const rememberSession = (session: AuthResponse): void => {
+  accessToken = session.accessToken;
+  storeRefreshToken(session.refreshToken);
+};
+
+export const forgetSession = (): void => {
+  accessToken = null;
+  storeRefreshToken(null);
+};
+
+export const getRefreshToken = (): string | null => refreshToken ?? readStoredRefreshToken();
 
 export const setSessionLostHandler = (handler: (() => void) | null): void => {
   onSessionLost = handler;
@@ -67,30 +123,45 @@ const buildHeaders = (body: unknown): HeadersInit => {
   return headers;
 };
 
-const refreshSession = async (): Promise<string | null> => {
-  refreshRequest ??= (async () => {
+/**
+ * One in-flight call at a time. A page load restores the session and any query
+ * that raced it can answer 401, and two refreshes rotating the same token used
+ * to leave the loser holding a dead one.
+ */
+const restoreSession = async (): Promise<AuthResponse | null> => {
+  restoreRequest ??= (async () => {
     try {
+      const stored = getRefreshToken();
+
       const response = await fetch(`${API_URL}/auth/refresh`, {
         method: 'POST',
         credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(stored === null ? {} : { refreshToken: stored }),
       });
 
       if (!response.ok) {
+        // Anything else - the network, a sleeping API - leaves the token alone,
+        // so a flaky connection does not sign the user out.
+        if (response.status === UNAUTHORISED) {
+          storeRefreshToken(null);
+        }
+
         return null;
       }
 
-      const session = (await response.json()) as { accessToken: string };
+      const session = (await response.json()) as AuthResponse;
 
-      accessToken = session.accessToken;
-      return session.accessToken;
+      rememberSession(session);
+      return session;
     } catch {
       return null;
     } finally {
-      refreshRequest = null;
+      restoreRequest = null;
     }
   })();
 
-  return refreshRequest;
+  return restoreRequest;
 };
 
 export interface RequestOptions {
@@ -132,7 +203,7 @@ export const apiRequest = async <T>(path: string, options: RequestOptions = {}):
   let response = await send();
 
   if (response.status === UNAUTHORISED && !skipAuthRetry) {
-    const refreshed = await refreshSession();
+    const refreshed = await restoreSession();
 
     if (refreshed) {
       response = await send();
@@ -150,4 +221,4 @@ export const apiRequest = async <T>(path: string, options: RequestOptions = {}):
   return readBody<T>(response);
 };
 
-export const refreshAccessToken = refreshSession;
+export const restoreStoredSession = restoreSession;

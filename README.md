@@ -225,7 +225,11 @@ Signing in returns a short-lived access token in the response body and sets a ro
 
 `src/lib/api/client.ts` is the single place that performs requests. It attaches the access token, sends cookies, and on a `401` refreshes once and replays the request. Concurrent requests share a single refresh, so a burst of `401`s produces one refresh rather than five.
 
-The access token is kept in memory only, never in `localStorage`, so a cross-site scripting bug cannot read it out of storage. On page load the app exchanges the cookie for a fresh token; refresh tokens rotate, so each one is used once. When the refresh fails the session is cleared and the user lands on the sign-in screen.
+The access token is kept in memory only, never in storage, so a cross-site scripting bug cannot read it out. On page load the app exchanges the cookie for a fresh token; refresh tokens rotate, and a rotated one keeps working for a further minute, so two refreshes racing on the same page load cannot leave the loser holding a dead token and end the session.
+
+The cookie alone is not enough when the API is deployed to a different site than the app. Safari refuses a cross-site cookie by default, which put the phone back on the sign-in screen after every reload while the desktop stayed signed in. The API therefore returns the refresh token in the body as well, and the app keeps that copy in `localStorage` and sends it in the refresh body whenever the cookie does not arrive. That copy is readable by script, which is the price of the session surviving on iOS at all; the cookie stays the preferred path and is used whenever the browser kept it. Serving the API from a subdomain of the app removes the need for the fallback entirely.
+
+Sessions are per device. Each sign-in gets its own refresh token, so a phone and a desktop hold separate sessions and neither displaces the other; signing out ends only the session that asked.
 
 The API types in `src/lib/api/types.ts` mirror the backend DTOs, so a contract change surfaces as a TypeScript error rather than a runtime surprise.
 
@@ -237,7 +241,7 @@ The user's timezone comes from their profile, not from the browser. Every date s
 
 The unit suite covers the logic that would be silently wrong if it broke: number and duration formatting in every locale, distance precision, conversions between what forms collect and what the API stores, timezone-aware day offsets, and the portion preview including the case where a unit conversion would have to be invented.
 
-Playwright drives the real daily flow against a running API and database, on a desktop viewport and a Pixel-sized one: create an account, answer the first-run wizard, log food, log a treadmill session and check the derived average speed, log a repetition workout, record weight, set a manual calorie goal and confirm it survives, move between days, and see the days in history. A second suite covers language: switching before signing in, choosing a language in settings and confirming it survives a reload, and checking that numbers and units follow it. A third walks the first-run wizard: that it refuses to move on without the data the metabolic formula needs, that the answers reach the database and the wizard stays closed afterwards, and that the guide can be reopened from settings.
+Playwright drives the real daily flow against a running API and database, on a desktop viewport and a Pixel-sized one: create an account, answer the first-run wizard, log food, log a treadmill session and check the derived average speed, log a repetition workout, record weight, set a manual calorie goal and confirm it survives, move between days, and see the days in history. A second suite covers language: switching before signing in, choosing a language in settings and confirming it survives a reload, and checking that numbers and units follow it. A fourth covers the session: that it survives a reload after the browser has thrown the refresh cookie away, that signing out still ends it for good, and that signing back in starts one the next reload keeps. A third walks the first-run wizard: that it refuses to move on without the data the metabolic formula needs, that the answers reach the database and the wizard stays closed afterwards, and that the guide can be reopened from settings.
 
 ```bash
 npm test
@@ -255,6 +259,8 @@ The frontend runs on any platform that supports Next.js. Configure `NEXT_PUBLIC_
 1. the backend allows the deployed frontend origin through `CORS_ORIGINS`;
 2. the backend sets `COOKIE_DOMAIN` when the two are served from different subdomains;
 3. both are served over HTTPS, since the refresh cookie is marked secure in production.
+
+Point 2 is worth more than it looks. A frontend and an API on unrelated domains - `*.vercel.app` and `*.onrender.com`, say - make the refresh cookie cross-site, and Safari drops it. The app falls back to a stored token so the session survives regardless, but a shared parent domain keeps the session in an httpOnly cookie where it belongs.
 
 Stop the development server before building: both write to `.next`.
 

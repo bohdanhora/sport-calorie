@@ -3,9 +3,13 @@ import { expect, type Page } from '@playwright/test';
 export const PASSWORD = 'playwright-password';
 
 /** Creates a brand new account, which always lands on the onboarding wizard. */
-export const registerAccount = async (page: Page, prefix: string): Promise<void> => {
+export const registerAccount = async (
+  page: Page,
+  prefix: string,
+  email?: string,
+): Promise<void> => {
   await page.goto('/register');
-  await page.getByLabel('Email').fill(`${prefix}-${Date.now()}@sport-calorie.test`);
+  await page.getByLabel('Email').fill(email ?? `${prefix}-${Date.now()}@sport-calorie.test`);
   // The field carries a "Show password" toggle, whose label also says Password.
   await page.getByLabel('Password', { exact: true }).fill(PASSWORD);
   await page.getByRole('button', { name: 'Create account' }).click();

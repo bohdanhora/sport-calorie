@@ -12,7 +12,12 @@ import {
   type ReactNode,
 } from 'react';
 
-import { apiRequest, setAccessToken, setSessionLostHandler } from '@/lib/api/client';
+import {
+  forgetSession,
+  rememberSession,
+  restoreStoredSession,
+  setSessionLostHandler,
+} from '@/lib/api/client';
 import { authApi, type LoginInput, type RegisterInput } from '@/lib/api/endpoints';
 import type { AuthResponse, SessionUser } from '@/lib/api/types';
 import { detectTimeZone } from '@/lib/format/dates';
@@ -41,7 +46,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const applySession = useCallback(
     (session: AuthResponse) => {
-      setAccessToken(session.accessToken);
+      rememberSession(session);
       setUser(session.user);
       setStatus('authenticated');
 
@@ -54,7 +59,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 
   const clearSession = useCallback(() => {
-    setAccessToken(null);
+    forgetSession();
     setUser(null);
     setStatus('unauthenticated');
     queryClient.clear();
@@ -64,20 +69,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     let active = true;
 
     const restore = async () => {
-      try {
-        const session = await apiRequest<AuthResponse>('/auth/refresh', {
-          method: 'POST',
-          skipAuthRetry: true,
-        });
+      const session = await restoreStoredSession();
 
-        if (active) {
-          applySession(session);
-        }
-      } catch {
-        if (active) {
-          setAccessToken(null);
-          setStatus('unauthenticated');
-        }
+      if (!active) {
+        return;
+      }
+
+      if (session) {
+        applySession(session);
+      } else {
+        setStatus('unauthenticated');
       }
     };
 
@@ -90,7 +91,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     setSessionLostHandler(() => {
-      setAccessToken(null);
+      forgetSession();
       setUser(null);
       setStatus('unauthenticated');
     });

@@ -22,6 +22,8 @@ export interface AuthResponse {
   accessToken: string;
   expiresIn: number;
   user: SessionUser;
+  /** Mirrors the refresh cookie, for browsers that refuse to store it. */
+  refreshToken: string;
 }
 
 export interface EnergyProfile {

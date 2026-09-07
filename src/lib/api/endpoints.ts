@@ -1,4 +1,4 @@
-import { apiRequest } from './client';
+import { apiRequest, getRefreshToken } from './client';
 import type {
   ActivityEnergyEstimate,
   ActivityEntry,
@@ -49,7 +49,14 @@ export const authApi = {
     apiRequest<AuthResponse>('/auth/login', { method: 'POST', body: input }),
   google: (input: GoogleSignInInput) =>
     apiRequest<AuthResponse>('/auth/google', { method: 'POST', body: input }),
-  logout: () => apiRequest<void>('/auth/logout', { method: 'POST', skipAuthRetry: true }),
+  // The token goes along so the API can retire this session even when the
+  // browser never stored the cookie that would have named it.
+  logout: () =>
+    apiRequest<void>('/auth/logout', {
+      method: 'POST',
+      body: { refreshToken: getRefreshToken() ?? undefined },
+      skipAuthRetry: true,
+    }),
 };
 
 export interface UpdateProfileInput {
