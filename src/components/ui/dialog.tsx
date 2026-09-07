@@ -46,7 +46,7 @@ export const Dialog = ({
           }
         }}
         className={cn(
-          'border-border bg-surface-raised fixed inset-x-0 bottom-0 z-50 flex max-h-[92dvh] animate-[sheet-in_200ms_ease-out] flex-col rounded-t-xl border',
+          'sheet border-border bg-surface-raised fixed inset-x-0 bottom-0 z-50 flex max-h-[92dvh] animate-[sheet-in_200ms_ease-out] flex-col rounded-t-xl border',
           'sm:inset-x-auto sm:top-1/2 sm:bottom-auto sm:left-1/2 sm:max-h-[85dvh] sm:w-full sm:max-w-lg sm:-translate-x-1/2 sm:-translate-y-1/2 sm:animate-[dialog-in_180ms_ease-out] sm:rounded-lg',
           className,
         )}

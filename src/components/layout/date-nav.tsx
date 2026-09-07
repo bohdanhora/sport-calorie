@@ -26,7 +26,7 @@ export const DateNav = ({ date, timezone, onChange }: DateNavProps) => {
   const nextDate = addDays(date, 1);
 
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex shrink-0 items-center gap-1">
       {date !== today ? (
         <Button variant="ghost" size="sm" onClick={() => onChange(today)}>
           {t('today')}
@@ -86,9 +86,13 @@ export const DateHeading = ({ date, timezone }: { date: string; timezone: string
   const format = useFormat();
 
   return (
-    <div>
-      <h1 className="page-title">{format.dayLabel(date, timezone)}</h1>
-      <p className="text-foreground-subtle mt-0.5 text-[0.8125rem]">{format.fullDate(date)}</p>
+    // A full date in Russian runs past thirty characters, which on a phone used
+    // to shove the day controls off the row rather than give way itself.
+    <div className="min-w-0">
+      <h1 className="page-title truncate">{format.dayLabel(date, timezone)}</h1>
+      <p className="text-foreground-subtle mt-0.5 truncate text-[0.8125rem]">
+        {format.fullDate(date)}
+      </p>
     </div>
   );
 };

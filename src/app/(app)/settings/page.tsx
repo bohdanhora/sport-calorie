@@ -74,7 +74,7 @@ const SettingsPage = () => {
 
             <Section title={t('body')}>
               <div className="border-border bg-surface flex items-center justify-between gap-3 rounded-lg border px-4 py-3">
-                <div>
+                <div className="min-w-0">
                   <p className="label-caps">{t('currentWeight')}</p>
                   <p className="metric-md mt-1">
                     {profile.data.currentWeightKg !== null ? (
@@ -91,7 +91,12 @@ const SettingsPage = () => {
                     )}
                   </p>
                 </div>
-                <Button variant="secondary" size="sm" onClick={() => setWeightDialogOpen(true)}>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="shrink-0"
+                  onClick={() => setWeightDialogOpen(true)}
+                >
                   {t('recordWeight')}
                 </Button>
               </div>
@@ -471,7 +476,7 @@ const CalorieGoalSection = ({ profile }: { profile: Profile }) => {
     <Section title={t('calorieGoal')}>
       <div className="border-border bg-surface space-y-4 rounded-lg border px-4 py-4">
         {energy.isComplete ? (
-          <dl className="border-border grid grid-cols-3 gap-4 border-b pb-4">
+          <dl className="border-border grid grid-cols-2 gap-4 border-b pb-4 sm:grid-cols-3">
             <div>
               <dt className="label-caps">{t('bmr')}</dt>
               <dd className="metric-md mt-1.5">{format.kcal(energy.bmrKcal ?? 0)}</dd>

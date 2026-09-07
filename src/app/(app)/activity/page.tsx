@@ -51,15 +51,15 @@ const ActivityView = () => {
   return (
     <div className="space-y-6">
       <header className="space-y-4">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <h1 className="page-title">{t('title')}</h1>
-            <p className="text-foreground-subtle mt-0.5 text-[0.8125rem]">{t('subtitle')}</p>
+        <div className="space-y-0.5">
+          <div className="flex items-center justify-between gap-3">
+            <h1 className="page-title truncate">{t('title')}</h1>
+            <Button size="sm" className="shrink-0" onClick={() => setDialog({ open: true })}>
+              <Plus className="size-4" aria-hidden />
+              {t('logActivity')}
+            </Button>
           </div>
-          <Button size="sm" onClick={() => setDialog({ open: true })}>
-            <Plus className="size-4" aria-hidden />
-            {t('logActivity')}
-          </Button>
+          <p className="text-foreground-subtle text-[0.8125rem]">{t('subtitle')}</p>
         </div>
 
         <div className="border-border flex items-center justify-between gap-3 border-b pb-3">

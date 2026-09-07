@@ -120,6 +120,20 @@
     -webkit-text-size-adjust: 100%;
   }
 
+  /* Safari paints a grey block over anything tapped and holds it for the length
+     of the gesture, which reads as lag on a control that answers instantly. */
+  a,
+  button,
+  label,
+  select,
+  summary,
+  [role='button'],
+  [role='radio'],
+  [role='tab'] {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
   body {
     background-color: var(--background);
     color: var(--foreground);
@@ -238,6 +252,36 @@
 
   .press:active {
     transform: scale(0.985);
+  }
+}
+
+/*
+ * iOS zooms the page in whenever a field under 16px takes focus, and leaves it
+ * zoomed: every tap into a form shifted the layout sideways and the user had to
+ * pinch back out. This sits outside `@layer` on purpose, so it beats the
+ * `text-sm` utility the fields carry, and only where the pointer is a finger.
+ */
+@media (pointer: coarse) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/*
+ * A bottom sheet is pinned with `position: fixed`, which iOS measures against
+ * the layout viewport, so the keyboard slides straight over it and swallows the
+ * field the user just tapped - the weight input was landing behind the keys.
+ * `--keyboard-inset` (see use-keyboard-inset) lifts the sheet by exactly what
+ * the keyboard covers. Unlayered so it beats `bottom-0`, and only below `sm`,
+ * which is the width where the dialog is a sheet at all.
+ */
+@media (max-width: 639px) {
+  .sheet {
+    bottom: var(--keyboard-inset, 0px);
+    max-height: calc(92dvh - var(--keyboard-inset, 0px));
+    transition: bottom 160ms ease-out;
   }
 }
 
