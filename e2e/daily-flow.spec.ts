@@ -118,11 +118,25 @@ test('records weight for a day', async () => {
   await page.goto(`/?date=${dayOffsetFromToday(-5)}`);
 
   await page.getByRole('button', { name: 'Weight' }).click();
-  await page.getByRole('spinbutton', { name: 'Weight' }).fill('80.4');
+  // A textbox rather than a spinbutton: a number field takes a full stop and
+  // nothing else, so the comma on a localised phone keyboard was thrown away
+  // and only whole kilograms could be entered.
+  await page.getByRole('textbox', { name: 'Weight' }).fill('80.4');
   await page.getByRole('button', { name: 'Save weight' }).click();
 
   await expect(page.getByText('Weight recorded', { exact: true })).toBeVisible();
   await expect(page.getByText('80.4')).toBeVisible();
+});
+
+test('takes a weight typed with a comma', async () => {
+  await page.goto(`/?date=${dayOffsetFromToday(-6)}`);
+
+  await page.getByRole('button', { name: 'Weight' }).click();
+  await page.getByRole('textbox', { name: 'Weight' }).fill('78,5');
+  await page.getByRole('button', { name: 'Save weight' }).click();
+
+  await expect(page.getByText('Weight recorded', { exact: true })).toBeVisible();
+  await expect(page.getByText('78.5')).toBeVisible();
 });
 
 test('keeps a manually chosen calorie goal', async () => {

@@ -11,12 +11,13 @@ import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import { NumberInput } from '@/components/ui/number-input';
 import { useToast } from '@/components/ui/toast';
 import { ApiError } from '@/lib/api/client';
 import { weightApi } from '@/lib/api/endpoints';
 import { useFormat } from '@/lib/format/use-format';
 import { useInvalidateDay } from '@/lib/query/use-day-mutations';
-import { requiredNumber } from '@/lib/validation/numbers';
+import { requiredNumber, toDecimal } from '@/lib/validation/numbers';
 
 const MIN_WEIGHT_KG = 25;
 const MAX_WEIGHT_KG = 400;
@@ -60,12 +61,12 @@ export const WeightDialog = ({ open, onOpenChange, date, currentWeightKg }: Weig
     formState: { errors },
   } = useForm<WeightValues>({
     resolver: zodResolver(schema),
-    defaultValues: { weightKg: Number.NaN, note: '' },
+    defaultValues: { weightKg: undefined, note: '' },
   });
 
   useEffect(() => {
     if (open) {
-      reset({ weightKg: currentWeightKg ?? Number.NaN, note: '' });
+      reset({ weightKg: currentWeightKg ?? undefined, note: '' });
     }
   }, [open, currentWeightKg, reset]);
 
@@ -100,14 +101,9 @@ export const WeightDialog = ({ open, onOpenChange, date, currentWeightKg }: Weig
       >
         <Field label={t('weight')} error={errors.weightKg?.message} suffix={units('kilogram')}>
           {(props) => (
-            <Input
+            <NumberInput
               {...props}
-              {...register('weightKg', { valueAsNumber: true })}
-              type="number"
-              inputMode="decimal"
-              step="0.1"
-              min={MIN_WEIGHT_KG}
-              max={MAX_WEIGHT_KG}
+              {...register('weightKg', { setValueAs: toDecimal })}
               autoFocus
               className="pr-14"
             />
