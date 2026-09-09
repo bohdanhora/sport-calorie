@@ -36,7 +36,7 @@ test('logs food and updates the calorie balance', async () => {
   await page.getByRole('button', { name: 'Food', exact: true }).first().click();
   await page.getByRole('button', { name: 'Enter calories manually' }).click();
   await page.getByLabel('Name').fill('Porridge');
-  await page.getByRole('spinbutton', { name: 'Amount' }).fill('250');
+  await page.getByRole('textbox', { name: 'Amount' }).fill('250');
   await page.getByRole('spinbutton', { name: 'Calories' }).fill('420');
   await page.getByRole('button', { name: 'Add to diary' }).click();
 
@@ -52,7 +52,7 @@ test('logs a food straight from the library grid', async () => {
   await page.getByRole('button', { name: 'Log Egg' }).click();
 
   // The card hands the dialog its food, so the portion form is already open on it.
-  await expect(page.getByRole('spinbutton', { name: 'Amount' })).toHaveValue('1');
+  await expect(page.getByRole('textbox', { name: 'Amount' })).toHaveValue('1');
   await page.getByRole('button', { name: 'Add to diary' }).click();
 
   await expect(page.getByText('Food logged', { exact: true })).toBeVisible();
@@ -77,14 +77,16 @@ test('records a treadmill session and derives the average speed', async () => {
   await page.goto(`/?date=${dayOffsetFromToday(-3)}`);
 
   await page.getByRole('button', { name: 'Walk' }).click();
-  await page.getByRole('spinbutton', { name: 'Duration' }).fill('45');
+  await page.getByRole('textbox', { name: 'Duration' }).fill('45');
 
   // With only a duration there is nothing to read the effort from, so the form
   // asks for it.
   await expect(page.getByRole('radiogroup', { name: 'Intensity' })).toBeVisible();
   await expect(page.getByText('Estimated from body weight, duration and intensity')).toBeVisible();
 
-  await page.getByRole('spinbutton', { name: 'Distance' }).fill('3.7');
+  // Typed with a comma, the separator a localised phone keyboard offers. The
+  // pace asserted below is what proves it was read as 3.7 and not thrown away.
+  await page.getByRole('textbox', { name: 'Distance' }).fill('3,7');
 
   // The distance gives a pace, which is what the burn is worked out from now,
   // so the question goes away rather than sitting there changing nothing.

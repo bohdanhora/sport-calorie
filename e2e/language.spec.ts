@@ -45,8 +45,8 @@ test('the language chosen on the first screen carries through the wizard', async
   await page.getByRole('combobox', { name: 'Пол' }).click();
   await page.getByRole('option', { name: 'Мужской', exact: true }).click();
   await pickBirthDate(page, 'Дата рождения');
-  await page.getByRole('spinbutton', { name: 'Рост' }).fill('180');
-  await page.getByRole('spinbutton', { name: 'Текущий вес' }).fill('80');
+  await page.getByRole('textbox', { name: 'Рост' }).fill('180');
+  await page.getByRole('textbox', { name: 'Текущий вес' }).fill('80');
   await page.getByRole('button', { name: 'Дальше', exact: true }).click();
 
   await page.getByRole('button', { name: 'Дальше', exact: true }).click();
@@ -88,8 +88,8 @@ test('numbers and units follow the chosen language', async () => {
   await page.goto('/');
 
   await page.getByRole('button', { name: 'Ходьба' }).click();
-  await page.getByRole('spinbutton', { name: 'Длительность' }).fill('45');
-  await page.getByRole('spinbutton', { name: 'Дистанция' }).fill('3.7');
+  await page.getByRole('textbox', { name: 'Длительность' }).fill('45');
+  await page.getByRole('textbox', { name: 'Дистанция' }).fill('3.7');
   await expect(page.getByText('Расчётный расход')).toBeVisible();
   await page.getByRole('button', { name: 'Записать активность' }).click();
 

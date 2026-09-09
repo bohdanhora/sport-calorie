@@ -39,8 +39,8 @@ export const completeOnboarding = async (page: Page): Promise<void> => {
   await page.getByRole('combobox', { name: 'Sex' }).click();
   await page.getByRole('option', { name: 'Male', exact: true }).click();
   await pickBirthDate(page);
-  await page.getByRole('spinbutton', { name: 'Height' }).fill('180');
-  await page.getByRole('spinbutton', { name: 'Current weight' }).fill('80');
+  await page.getByRole('textbox', { name: 'Height' }).fill('180');
+  await page.getByRole('textbox', { name: 'Current weight' }).fill('80');
   await page.getByRole('button', { name: 'Next', exact: true }).click();
 
   await expect(page.getByRole('heading', { name: 'Your goal' })).toBeVisible();

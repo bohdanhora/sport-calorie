@@ -17,13 +17,13 @@ import { ApiError } from '@/lib/api/client';
 import { weightApi } from '@/lib/api/endpoints';
 import { useFormat } from '@/lib/format/use-format';
 import { useInvalidateDay } from '@/lib/query/use-day-mutations';
-import { requiredNumber, toDecimal } from '@/lib/validation/numbers';
+import { requiredNumber, toDecimal, type EmptyOr, type Submitted } from '@/lib/validation/numbers';
 
 const MIN_WEIGHT_KG = 25;
 const MAX_WEIGHT_KG = 400;
 
 interface WeightValues {
-  weightKg: number;
+  weightKg: EmptyOr<number>;
   note: string;
 }
 
@@ -59,7 +59,7 @@ export const WeightDialog = ({ open, onOpenChange, date, currentWeightKg }: Weig
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<WeightValues>({
+  } = useForm<WeightValues, unknown, Submitted<WeightValues>>({
     resolver: zodResolver(schema),
     defaultValues: { weightKg: undefined, note: '' },
   });
@@ -71,7 +71,7 @@ export const WeightDialog = ({ open, onOpenChange, date, currentWeightKg }: Weig
   }, [open, currentWeightKg, reset]);
 
   const save = useMutation({
-    mutationFn: (values: WeightValues) =>
+    mutationFn: (values: Submitted<WeightValues>) =>
       weightApi.upsert(date, values.weightKg, values.note.trim() || null),
     onSuccess: async () => {
       await invalidateDay();

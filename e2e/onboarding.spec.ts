@@ -43,13 +43,13 @@ test('a new account is guided through setup and gets a calculated target', async
   await page.getByRole('combobox', { name: 'Sex' }).click();
   await page.getByRole('option', { name: 'Male', exact: true }).click();
   await pickBirthDate(page);
-  await page.getByRole('spinbutton', { name: 'Height' }).fill('180');
-  await page.getByRole('spinbutton', { name: 'Current weight' }).fill('80');
+  await page.getByRole('textbox', { name: 'Height' }).fill('180');
+  await page.getByRole('textbox', { name: 'Current weight' }).fill('80');
   await page.getByRole('button', { name: 'Next', exact: true }).click();
 
   await page.getByRole('combobox', { name: 'Goal' }).click();
   await page.getByRole('option', { name: 'Lose weight' }).click();
-  await page.getByRole('spinbutton', { name: 'Target weight' }).fill('75');
+  await page.getByRole('textbox', { name: 'Target weight' }).fill('75');
   await page.getByRole('button', { name: 'Next', exact: true }).click();
 
   await page.getByRole('button', { name: 'Finish' }).click();
@@ -66,7 +66,7 @@ test('a new account is guided through setup and gets a calculated target', async
   await expect(page.getByRole('heading', { name: 'Welcome to Sport Calorie' })).toBeHidden();
 
   await page.goto('/settings');
-  await expect(page.getByRole('spinbutton', { name: 'Height' })).toHaveValue('180');
+  await expect(page.getByRole('textbox', { name: 'Height' })).toHaveValue('180');
   await expect(page.getByText('Currently following the recommended target.')).toBeVisible();
   await expect(
     page.getByText('Current weight', { exact: true }).locator('xpath=following-sibling::p'),

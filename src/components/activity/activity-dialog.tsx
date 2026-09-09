@@ -5,13 +5,14 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { Sparkle } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, type DefaultValues } from 'react-hook-form';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
 import { Field } from '@/components/ui/field';
 import { Input, Textarea } from '@/components/ui/input';
+import { NumberInput } from '@/components/ui/number-input';
 import { Segmented } from '@/components/ui/segmented';
 import { Select } from '@/components/ui/select';
 import { useToast } from '@/components/ui/toast';
@@ -33,34 +34,48 @@ import { useActivityTypeName } from '@/lib/format/use-activity-name';
 import { useFormat } from '@/lib/format/use-format';
 import { queryKeys } from '@/lib/query/query-keys';
 import { useInvalidateDay } from '@/lib/query/use-day-mutations';
-import { optionalNumber, toValue } from '@/lib/validation/numbers';
+import {
+  optionalNumber,
+  toDecimal,
+  toValue,
+  type EmptyOr,
+  type Submitted,
+} from '@/lib/validation/numbers';
 
 const ESTIMATE_DEBOUNCE_MS = 350;
 const INTENSITY_VALUES: Intensity[] = ['LOW', 'MODERATE', 'HIGH'];
 
 interface ActivityValues {
   title: string;
-  durationMin: number;
-  distanceKm: number;
-  avgSpeedKmh: number;
-  inclinePercent: number;
-  sets: number;
-  reps: number;
-  energyKcal: number;
+  // Empty until typed into; the schema levels that to NaN on submit.
+  durationMin: EmptyOr<number>;
+  distanceKm: EmptyOr<number>;
+  avgSpeedKmh: EmptyOr<number>;
+  inclinePercent: EmptyOr<number>;
+  sets: EmptyOr<number>;
+  reps: EmptyOr<number>;
+  energyKcal: EmptyOr<number>;
   notes: string;
 }
 
-const EMPTY_VALUES: ActivityValues = {
+const EMPTY_VALUES: DefaultValues<ActivityValues> = {
   title: '',
-  durationMin: Number.NaN,
-  distanceKm: Number.NaN,
-  avgSpeedKmh: Number.NaN,
-  inclinePercent: Number.NaN,
+  // The fields that take a fractional value are text, and a text input shows
+  // NaN as the word "NaN"; undefined is what leaves one empty. The whole
+  // numbers below are still number inputs, which blank an invalid value
+  // themselves.
+  durationMin: undefined,
+  distanceKm: undefined,
+  avgSpeedKmh: undefined,
+  inclinePercent: undefined,
   sets: Number.NaN,
   reps: Number.NaN,
   energyKcal: Number.NaN,
   notes: '',
 };
+
+/** The fields that accept a fractional value, and so are text rather than number. */
+type DecimalField = 'durationMin' | 'distanceKm' | 'avgSpeedKmh' | 'inclinePercent';
 
 interface ActivityDialogProps {
   open: boolean;
@@ -138,12 +153,27 @@ export const ActivityDialog = ({
     handleSubmit,
     watch,
     reset,
+    resetField,
     setValue,
     formState: { errors },
-  } = useForm<ActivityValues>({
+  } = useForm<ActivityValues, unknown, Submitted<ActivityValues>>({
     resolver: zodResolver(schema),
     defaultValues: EMPTY_VALUES,
   });
+
+  /**
+   * Fills one of the fractional fields, or empties it. Emptying goes through
+   * resetField rather than a NaN: these are text inputs now, and NaN would
+   * show up in the box spelled out.
+   */
+  const applyNumber = (field: DecimalField, value: number | null | undefined): void => {
+    if (value === null || value === undefined) {
+      resetField(field);
+      return;
+    }
+
+    setValue(field, value);
+  };
 
   useEffect(() => {
     if (!open) {
@@ -176,12 +206,10 @@ export const ActivityDialog = ({
   );
 
   const values = watch();
-  const durationSec = Number.isFinite(values.durationMin)
-    ? minutesToSeconds(values.durationMin)
-    : null;
-  const distanceM = Number.isFinite(values.distanceKm)
-    ? kilometresToMetres(values.distanceKm)
-    : null;
+  const durationMin = toValue(values.durationMin);
+  const distanceKm = toValue(values.distanceKm);
+  const durationSec = durationMin === null ? null : minutesToSeconds(durationMin);
+  const distanceM = distanceKm === null ? null : kilometresToMetres(distanceKm);
   const avgSpeedKmh = toValue(values.avgSpeedKmh);
 
   const paceKnown = paceReplacesIntensity(activityType?.category ?? null, {
@@ -268,13 +296,10 @@ export const ActivityDialog = ({
       // The API answers in seconds and metres; the form is minutes and km.
       setTypeId(parsed.activityTypeId);
       setValue('title', parsed.title ?? '');
-      setValue(
-        'durationMin',
-        parsed.durationSec ? secondsToMinutes(parsed.durationSec) : Number.NaN,
-      );
-      setValue('distanceKm', parsed.distanceM ? metresToKilometres(parsed.distanceM) : Number.NaN);
-      setValue('avgSpeedKmh', parsed.avgSpeedKmh ?? Number.NaN);
-      setValue('inclinePercent', parsed.inclinePercent ?? Number.NaN);
+      applyNumber('durationMin', parsed.durationSec ? secondsToMinutes(parsed.durationSec) : null);
+      applyNumber('distanceKm', parsed.distanceM ? metresToKilometres(parsed.distanceM) : null);
+      applyNumber('avgSpeedKmh', parsed.avgSpeedKmh);
+      applyNumber('inclinePercent', parsed.inclinePercent);
       setValue('sets', parsed.sets ?? Number.NaN);
       setValue('reps', parsed.reps ?? Number.NaN);
 
@@ -354,13 +379,9 @@ export const ActivityDialog = ({
               suffix={units('minute')}
             >
               {(props) => (
-                <Input
+                <NumberInput
                   {...props}
-                  {...register('durationMin', { valueAsNumber: true })}
-                  type="number"
-                  inputMode="decimal"
-                  step="any"
-                  min="0"
+                  {...register('durationMin', { setValueAs: toDecimal })}
                   className="pr-14"
                 />
               )}
@@ -374,13 +395,9 @@ export const ActivityDialog = ({
               suffix={units('kilometre')}
             >
               {(props) => (
-                <Input
+                <NumberInput
                   {...props}
-                  {...register('distanceKm', { valueAsNumber: true })}
-                  type="number"
-                  inputMode="decimal"
-                  step="any"
-                  min="0"
+                  {...register('distanceKm', { setValueAs: toDecimal })}
                   className="pr-12"
                 />
               )}
@@ -395,13 +412,9 @@ export const ActivityDialog = ({
               hint={t('speedHint')}
             >
               {(props) => (
-                <Input
+                <NumberInput
                   {...props}
-                  {...register('avgSpeedKmh', { valueAsNumber: true })}
-                  type="number"
-                  inputMode="decimal"
-                  step="any"
-                  min="0"
+                  {...register('avgSpeedKmh', { setValueAs: toDecimal })}
                   className="pr-20"
                   placeholder={
                     estimateQuery.data?.avgSpeedKmh
@@ -420,13 +433,9 @@ export const ActivityDialog = ({
               suffix={units('percent')}
             >
               {(props) => (
-                <Input
+                <NumberInput
                   {...props}
-                  {...register('inclinePercent', { valueAsNumber: true })}
-                  type="number"
-                  inputMode="decimal"
-                  step="any"
-                  min="0"
+                  {...register('inclinePercent', { setValueAs: toDecimal })}
                   className="pr-10"
                 />
               )}

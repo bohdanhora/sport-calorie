@@ -5,7 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, type DefaultValues } from 'react-hook-form';
 import { z } from 'zod';
 
 import { Column, Columns } from '@/components/layout/columns';
@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button';
 import { DateField } from '@/components/ui/date-field';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import { NumberInput } from '@/components/ui/number-input';
 import { NativeSelect } from '@/components/ui/native-select';
 import { Section } from '@/components/ui/section';
 import { Select } from '@/components/ui/select';
@@ -33,7 +34,13 @@ import { todayIn } from '@/lib/format/dates';
 import { listTimeZones } from '@/lib/format/time-zones';
 import { useFormat } from '@/lib/format/use-format';
 import { queryKeys } from '@/lib/query/query-keys';
-import { optionalNumber, requiredNumber, toValue } from '@/lib/validation/numbers';
+import {
+  optionalNumber,
+  requiredNumber,
+  toDecimal,
+  toValue,
+  type EmptyOr,
+} from '@/lib/validation/numbers';
 
 /** Only bounds the year list in the picker; nothing in the app reads it otherwise. */
 const EARLIEST_BIRTH_DATE = '1920-01-01';
@@ -162,8 +169,9 @@ const SettingsPage = () => {
 interface ProfileValues {
   displayName: string;
   birthDate: string;
-  heightCm: number;
-  targetWeightKg: number;
+  // Empty until something is typed, which is what the schema levels to NaN.
+  heightCm: EmptyOr<number>;
+  targetWeightKg: EmptyOr<number>;
 }
 
 const ProfileSection = ({ profile }: { profile: Profile }) => {
@@ -194,11 +202,12 @@ const ProfileSection = ({ profile }: { profile: Profile }) => {
     [t],
   );
 
-  const toDefaults = (): ProfileValues => ({
+  const toDefaults = (): DefaultValues<ProfileValues> => ({
     displayName: profile.displayName ?? '',
     birthDate: profile.birthDate ?? '',
-    heightCm: profile.heightCm ?? Number.NaN,
-    targetWeightKg: profile.targetWeightKg ?? Number.NaN,
+    // Text inputs, so empty is undefined: a text box spells a NaN out.
+    heightCm: profile.heightCm ?? undefined,
+    targetWeightKg: profile.targetWeightKg ?? undefined,
   });
 
   const {
@@ -213,8 +222,8 @@ const ProfileSection = ({ profile }: { profile: Profile }) => {
     reset({
       displayName: profile.displayName ?? '',
       birthDate: profile.birthDate ?? '',
-      heightCm: profile.heightCm ?? Number.NaN,
-      targetWeightKg: profile.targetWeightKg ?? Number.NaN,
+      heightCm: profile.heightCm ?? undefined,
+      targetWeightKg: profile.targetWeightKg ?? undefined,
     });
     setSex(profile.sex ?? '');
     setActivityLevel(profile.activityLevel);
@@ -320,14 +329,9 @@ const ProfileSection = ({ profile }: { profile: Profile }) => {
 
           <Field label={t('height')} error={errors.heightCm?.message} suffix={units('centimetre')}>
             {(props) => (
-              <Input
+              <NumberInput
                 {...props}
-                {...register('heightCm', { valueAsNumber: true })}
-                type="number"
-                inputMode="decimal"
-                step="any"
-                min="80"
-                max="260"
+                {...register('heightCm', { setValueAs: toDecimal })}
                 className="pr-12"
               />
             )}
@@ -339,14 +343,9 @@ const ProfileSection = ({ profile }: { profile: Profile }) => {
             suffix={units('kilogram')}
           >
             {(props) => (
-              <Input
+              <NumberInput
                 {...props}
-                {...register('targetWeightKg', { valueAsNumber: true })}
-                type="number"
-                inputMode="decimal"
-                step="0.1"
-                min="25"
-                max="400"
+                {...register('targetWeightKg', { setValueAs: toDecimal })}
                 className="pr-12"
               />
             )}
@@ -444,7 +443,7 @@ const CalorieGoalSection = ({ profile }: { profile: Profile }) => {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<{ calorieTargetKcal: number }>({
+  } = useForm<{ calorieTargetKcal: EmptyOr<number> }>({
     resolver: zodResolver(schema),
     defaultValues: { calorieTargetKcal: effectiveTarget },
   });

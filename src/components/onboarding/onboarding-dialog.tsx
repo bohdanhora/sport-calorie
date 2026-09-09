@@ -15,6 +15,7 @@ import { DateField } from '@/components/ui/date-field';
 import { Dialog } from '@/components/ui/dialog';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import { NumberInput } from '@/components/ui/number-input';
 import { NativeSelect } from '@/components/ui/native-select';
 import { Select } from '@/components/ui/select';
 import { useToast } from '@/components/ui/toast';
@@ -28,7 +29,14 @@ import { todayIn } from '@/lib/format/dates';
 import { listTimeZones } from '@/lib/format/time-zones';
 import { useFormat } from '@/lib/format/use-format';
 import { queryKeys } from '@/lib/query/query-keys';
-import { requiredNumber, optionalNumber, toValue } from '@/lib/validation/numbers';
+import {
+  optionalNumber,
+  requiredNumber,
+  toDecimal,
+  toValue,
+  type EmptyOr,
+  type Submitted,
+} from '@/lib/validation/numbers';
 
 /** Only bounds the year list in the picker; nothing in the app reads it otherwise. */
 const EARLIEST_BIRTH_DATE = '1920-01-01';
@@ -53,9 +61,10 @@ const GUIDE_ICONS: Record<(typeof GUIDE_POINTS)[number], ComponentType<{ classNa
 interface OnboardingValues {
   displayName: string;
   birthDate: string;
-  heightCm: number;
-  currentWeightKg: number;
-  targetWeightKg: number;
+  // Empty until typed into; the schema levels that to NaN.
+  heightCm: EmptyOr<number>;
+  currentWeightKg: EmptyOr<number>;
+  targetWeightKg: EmptyOr<number>;
 }
 
 interface OnboardingDialogProps {
@@ -118,14 +127,16 @@ export const OnboardingDialog = ({
     trigger,
     getValues,
     formState: { errors },
-  } = useForm<OnboardingValues>({
+  } = useForm<OnboardingValues, unknown, Submitted<OnboardingValues>>({
     resolver: zodResolver(schema),
     defaultValues: {
       displayName: profile?.displayName ?? user?.displayName ?? '',
       birthDate: profile?.birthDate ?? '',
-      heightCm: profile?.heightCm ?? Number.NaN,
-      currentWeightKg: profile?.currentWeightKg ?? Number.NaN,
-      targetWeightKg: profile?.targetWeightKg ?? Number.NaN,
+      // Text inputs now, so an empty one is undefined: a text box would render
+      // a NaN as the word itself.
+      heightCm: profile?.heightCm ?? undefined,
+      currentWeightKg: profile?.currentWeightKg ?? undefined,
+      targetWeightKg: profile?.targetWeightKg ?? undefined,
     },
   });
 
@@ -181,13 +192,22 @@ export const OnboardingDialog = ({
 
     if (step === 'preferences' && sex) {
       const values = getValues();
+      // getValues answers the fields as typed, before the schema levels them,
+      // so the two the wizard insists on are read back through toValue. An
+      // earlier step already refused to advance without them.
+      const heightCm = toValue(values.heightCm);
+      const currentWeightKg = toValue(values.currentWeightKg);
+
+      if (heightCm === null || currentWeightKg === null) {
+        return;
+      }
 
       complete.mutate({
         displayName: values.displayName.trim() || null,
         sex,
         birthDate: values.birthDate,
-        heightCm: values.heightCm,
-        currentWeightKg: values.currentWeightKg,
+        heightCm,
+        currentWeightKg,
         targetWeightKg: toValue(values.targetWeightKg),
         activityLevel,
         goal,
@@ -337,14 +357,9 @@ export const OnboardingDialog = ({
                 suffix={units('centimetre')}
               >
                 {(props) => (
-                  <Input
+                  <NumberInput
                     {...props}
-                    {...register('heightCm', { valueAsNumber: true })}
-                    type="number"
-                    inputMode="decimal"
-                    step="any"
-                    min="80"
-                    max="260"
+                    {...register('heightCm', { setValueAs: toDecimal })}
                     className="pr-12"
                   />
                 )}
@@ -356,14 +371,9 @@ export const OnboardingDialog = ({
                 suffix={units('kilogram')}
               >
                 {(props) => (
-                  <Input
+                  <NumberInput
                     {...props}
-                    {...register('currentWeightKg', { valueAsNumber: true })}
-                    type="number"
-                    inputMode="decimal"
-                    step="0.1"
-                    min="25"
-                    max="400"
+                    {...register('currentWeightKg', { setValueAs: toDecimal })}
                     className="pr-12"
                   />
                 )}
@@ -403,14 +413,9 @@ export const OnboardingDialog = ({
               optional
             >
               {(props) => (
-                <Input
+                <NumberInput
                   {...props}
-                  {...register('targetWeightKg', { valueAsNumber: true })}
-                  type="number"
-                  inputMode="decimal"
-                  step="0.1"
-                  min="25"
-                  max="400"
+                  {...register('targetWeightKg', { setValueAs: toDecimal })}
                   className="pr-12"
                 />
               )}

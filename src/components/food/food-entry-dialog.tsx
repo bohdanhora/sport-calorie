@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import { NumberInput } from '@/components/ui/number-input';
 import { Segmented } from '@/components/ui/segmented';
 import { Select } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -25,7 +26,15 @@ import { downscaleImage } from '@/lib/media/downscale-image';
 import { canLogInUnit, previewPortion } from '@/lib/nutrition/portion';
 import { queryKeys } from '@/lib/query/query-keys';
 import { useInvalidateDay } from '@/lib/query/use-day-mutations';
-import { optionalNumber, positiveNumber, requiredNumber, toValue } from '@/lib/validation/numbers';
+import {
+  optionalNumber,
+  positiveNumber,
+  requiredNumber,
+  toDecimal,
+  toValue,
+  type EmptyOr,
+  type Submitted,
+} from '@/lib/validation/numbers';
 
 const MEAL_VALUES: MealType[] = ['BREAKFAST', 'LUNCH', 'DINNER', 'SNACK'];
 const UNIT_VALUES: FoodUnit[] = ['GRAM', 'MILLILITER', 'PIECE', 'SERVING'];
@@ -413,7 +422,11 @@ const SavedFoodForm = ({
     watch,
     setValue,
     formState: { errors },
-  } = useForm<{ amount: number; unit: FoodUnit }>({
+  } = useForm<
+    { amount: EmptyOr<number>; unit: FoodUnit },
+    unknown,
+    { amount: number; unit: FoodUnit }
+  >({
     resolver: zodResolver(schema),
     defaultValues: { amount: food.servingSize, unit: food.servingUnit },
   });
@@ -438,15 +451,7 @@ const SavedFoodForm = ({
       <div className="grid grid-cols-2 gap-3">
         <Field label={t('amount')} error={errors.amount?.message}>
           {(props) => (
-            <Input
-              {...props}
-              {...register('amount', { valueAsNumber: true })}
-              type="number"
-              inputMode="decimal"
-              step="any"
-              min="0"
-              autoFocus
-            />
+            <NumberInput {...props} {...register('amount', { setValueAs: toDecimal })} autoFocus />
           )}
         </Field>
 
@@ -486,12 +491,12 @@ const SavedFoodForm = ({
 
 interface ManualValues {
   name: string;
-  amount: number;
+  amount: EmptyOr<number>;
   unit: FoodUnit;
-  energyKcal: number;
-  proteinG: number;
-  carbsG: number;
-  fatG: number;
+  energyKcal: EmptyOr<number>;
+  proteinG: EmptyOr<number>;
+  carbsG: EmptyOr<number>;
+  fatG: EmptyOr<number>;
 }
 
 const ManualFoodForm = ({
@@ -502,7 +507,7 @@ const ManualFoodForm = ({
 }: {
   unitOptions: UnitOption[];
   onBack: () => void;
-  onSubmit: (values: ManualValues) => void;
+  onSubmit: (values: Submitted<ManualValues>) => void;
   pending: boolean;
 }) => {
   const t = useTranslations('foodEntry');
@@ -530,16 +535,19 @@ const ManualFoodForm = ({
     watch,
     setValue,
     formState: { errors },
-  } = useForm<ManualValues>({
+  } = useForm<ManualValues, unknown, Submitted<ManualValues>>({
     resolver: zodResolver(schema),
     defaultValues: {
       name: '',
       amount: 100,
       unit: 'GRAM',
       energyKcal: Number.NaN,
-      proteinG: Number.NaN,
-      carbsG: Number.NaN,
-      fatG: Number.NaN,
+      // Text inputs now, so an empty one is undefined: NaN would appear in
+      // the box as the word itself. energyKcal above is still a number input,
+      // which blanks an invalid value on its own.
+      proteinG: undefined,
+      carbsG: undefined,
+      fatG: undefined,
     },
   });
 
@@ -553,16 +561,7 @@ const ManualFoodForm = ({
 
       <div className="grid grid-cols-2 gap-3">
         <Field label={t('amount')} error={errors.amount?.message}>
-          {(props) => (
-            <Input
-              {...props}
-              {...register('amount', { valueAsNumber: true })}
-              type="number"
-              inputMode="decimal"
-              step="any"
-              min="0"
-            />
-          )}
+          {(props) => <NumberInput {...props} {...register('amount', { setValueAs: toDecimal })} />}
         </Field>
 
         <Field label={t('unit')}>
@@ -595,39 +594,14 @@ const ManualFoodForm = ({
         <legend className="label-caps mb-2">{t('macrosOptional')}</legend>
         <Field label={today('protein')} error={errors.proteinG?.message}>
           {(props) => (
-            <Input
-              {...props}
-              {...register('proteinG', { valueAsNumber: true })}
-              type="number"
-              inputMode="decimal"
-              step="any"
-              min="0"
-            />
+            <NumberInput {...props} {...register('proteinG', { setValueAs: toDecimal })} />
           )}
         </Field>
         <Field label={today('carbs')} error={errors.carbsG?.message}>
-          {(props) => (
-            <Input
-              {...props}
-              {...register('carbsG', { valueAsNumber: true })}
-              type="number"
-              inputMode="decimal"
-              step="any"
-              min="0"
-            />
-          )}
+          {(props) => <NumberInput {...props} {...register('carbsG', { setValueAs: toDecimal })} />}
         </Field>
         <Field label={today('fat')} error={errors.fatG?.message}>
-          {(props) => (
-            <Input
-              {...props}
-              {...register('fatG', { valueAsNumber: true })}
-              type="number"
-              inputMode="decimal"
-              step="any"
-              min="0"
-            />
-          )}
+          {(props) => <NumberInput {...props} {...register('fatG', { setValueAs: toDecimal })} />}
         </Field>
       </fieldset>
 

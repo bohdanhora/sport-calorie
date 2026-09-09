@@ -4,19 +4,28 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { useEffect, useMemo } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, type DefaultValues } from 'react-hook-form';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import { NumberInput } from '@/components/ui/number-input';
 import { Select } from '@/components/ui/select';
 import { useToast } from '@/components/ui/toast';
 import { ApiError } from '@/lib/api/client';
 import { foodsApi, type FoodInput } from '@/lib/api/endpoints';
 import type { Food, FoodUnit } from '@/lib/api/types';
-import { optionalNumber, positiveNumber, requiredNumber, toValue } from '@/lib/validation/numbers';
+import {
+  optionalNumber,
+  positiveNumber,
+  requiredNumber,
+  toDecimal,
+  toValue,
+  type EmptyOr,
+  type Submitted,
+} from '@/lib/validation/numbers';
 
 const UNIT_VALUES: FoodUnit[] = ['GRAM', 'MILLILITER', 'PIECE', 'SERVING'];
 
@@ -30,12 +39,12 @@ const UNIT_LABEL_KEYS = {
 interface FoodValues {
   name: string;
   brand: string;
-  servingSize: number;
+  servingSize: EmptyOr<number>;
   servingUnit: FoodUnit;
-  energyKcal: number;
-  proteinG: number;
-  carbsG: number;
-  fatG: number;
+  energyKcal: EmptyOr<number>;
+  proteinG: EmptyOr<number>;
+  carbsG: EmptyOr<number>;
+  fatG: EmptyOr<number>;
 }
 
 interface FoodFormDialogProps {
@@ -44,15 +53,17 @@ interface FoodFormDialogProps {
   food?: Food | null;
 }
 
-const toDefaults = (food?: Food | null): FoodValues => ({
+const toDefaults = (food?: Food | null): DefaultValues<FoodValues> => ({
   name: food?.name ?? '',
   brand: food?.brand ?? '',
   servingSize: food?.servingSize ?? 100,
   servingUnit: food?.servingUnit ?? 'GRAM',
   energyKcal: food?.energyKcal ?? Number.NaN,
-  proteinG: food?.proteinG ?? Number.NaN,
-  carbsG: food?.carbsG ?? Number.NaN,
-  fatG: food?.fatG ?? Number.NaN,
+  // Text inputs now, so an empty one is undefined rather than a NaN a text
+  // box would spell out. energyKcal above is still a number input.
+  proteinG: food?.proteinG ?? undefined,
+  carbsG: food?.carbsG ?? undefined,
+  fatG: food?.fatG ?? undefined,
 });
 
 export const FoodFormDialog = ({ open, onOpenChange, food }: FoodFormDialogProps) => {
@@ -84,7 +95,7 @@ export const FoodFormDialog = ({ open, onOpenChange, food }: FoodFormDialogProps
     setValue,
     reset,
     formState: { errors },
-  } = useForm<FoodValues>({
+  } = useForm<FoodValues, unknown, Submitted<FoodValues>>({
     resolver: zodResolver(schema),
     defaultValues: toDefaults(food),
   });
@@ -150,14 +161,7 @@ export const FoodFormDialog = ({ open, onOpenChange, food }: FoodFormDialogProps
         <div className="grid grid-cols-2 gap-3">
           <Field label={t('servingSize')} error={errors.servingSize?.message}>
             {(props) => (
-              <Input
-                {...props}
-                {...register('servingSize', { valueAsNumber: true })}
-                type="number"
-                inputMode="decimal"
-                step="any"
-                min="0"
-              />
+              <NumberInput {...props} {...register('servingSize', { setValueAs: toDecimal })} />
             )}
           </Field>
 
@@ -191,39 +195,16 @@ export const FoodFormDialog = ({ open, onOpenChange, food }: FoodFormDialogProps
           <legend className="label-caps mb-2">{t('macrosOptional')}</legend>
           <Field label={t('protein')} error={errors.proteinG?.message}>
             {(props) => (
-              <Input
-                {...props}
-                {...register('proteinG', { valueAsNumber: true })}
-                type="number"
-                inputMode="decimal"
-                step="any"
-                min="0"
-              />
+              <NumberInput {...props} {...register('proteinG', { setValueAs: toDecimal })} />
             )}
           </Field>
           <Field label={t('carbs')} error={errors.carbsG?.message}>
             {(props) => (
-              <Input
-                {...props}
-                {...register('carbsG', { valueAsNumber: true })}
-                type="number"
-                inputMode="decimal"
-                step="any"
-                min="0"
-              />
+              <NumberInput {...props} {...register('carbsG', { setValueAs: toDecimal })} />
             )}
           </Field>
           <Field label={t('fat')} error={errors.fatG?.message}>
-            {(props) => (
-              <Input
-                {...props}
-                {...register('fatG', { valueAsNumber: true })}
-                type="number"
-                inputMode="decimal"
-                step="any"
-                min="0"
-              />
-            )}
+            {(props) => <NumberInput {...props} {...register('fatG', { setValueAs: toDecimal })} />}
           </Field>
         </fieldset>
 
