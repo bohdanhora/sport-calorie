@@ -261,7 +261,8 @@
     "estimateFailed": "Could not estimate this dish",
     "providerMissing": "Set up nutrition estimation in settings first",
     "openSettings": "Open settings",
-    "scanPhoto": "Scan a photo",
+    "scanPhoto": "Take a photo",
+    "pickPhoto": "Choose from gallery",
     "scanning": "Reading the photo…",
     "estimateOrPhotoHint": "Describe the portion, or photograph it. Anything you type is used as a hint for the photo.",
     "photoUnavailable": "Photos are off: the model you chose does not accept them. Pick one for photos in settings."
@@ -481,7 +482,7 @@
     "privacyNote": "Dish descriptions you submit are sent to the provider you configure. Nothing else from your diary is sent.",
     "provider": "Provider",
     "customProvider": "Custom",
-    "whereToGetKey": "Where to get a {provider} key",
+    "whereToGetKey": "Where to get a key for {provider}",
     "keyOptional": "Leave empty to keep it.",
     "typeItIn": "Type an id by hand",
     "modelPlaceholder": "model id",

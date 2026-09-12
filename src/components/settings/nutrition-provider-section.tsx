@@ -31,12 +31,6 @@ interface ProviderValues {
   apiKey: string;
 }
 
-/**
- * The ids come from the provider itself, so they are never out of date. What no
- * OpenAI compatible provider reports is modality, which is why whether a model
- * takes photos is decided by a catalog on our side, and why the user can say
- * otherwise.
- */
 const ModelPicker = ({
   value,
   onChange,
@@ -56,8 +50,6 @@ const ModelPicker = ({
   const t = useTranslations('provider');
   const [manual, setManual] = useState(false);
 
-  // Before the first save there is no key to ask with, so the list is empty and
-  // the id has to be typed. The same holds if the provider refuses to list.
   if (models.length === 0 || manual) {
     return (
       <Input
@@ -178,6 +170,7 @@ export const NutritionProviderSection = () => {
 
   const known = providers.find((entry) => entry.baseUrl === baseUrl);
   const selectedProviderId = known?.id ?? CUSTOM_PROVIDER;
+  const offeredModels = models.data?.models ?? known?.models ?? [];
 
   const visionRecognised =
     visionModelName !== '' &&
@@ -260,7 +253,11 @@ export const NutritionProviderSection = () => {
                   value={selectedProviderId}
                   onChange={(event) => {
                     const next = providers.find((entry) => entry.id === event.target.value);
+
                     setValue('baseUrl', next ? next.baseUrl : '', { shouldValidate: true });
+                    setValue('modelName', next?.defaultModel ?? '', { shouldValidate: true });
+                    setValue('visionModelName', '');
+                    setValue('visionOverride', false);
                   }}
                 >
                   {providers.map((entry) => (
@@ -302,7 +299,7 @@ export const NutritionProviderSection = () => {
                   {...register('apiKey')}
                   type="password"
                   autoComplete="off"
-                  placeholder="sk-..."
+                  placeholder={known?.keyHint ?? 'sk-...'}
                   className="font-sans"
                 />
               )}
@@ -334,7 +331,7 @@ export const NutritionProviderSection = () => {
                       {...props}
                       value={field.value}
                       onChange={field.onChange}
-                      models={models.data?.models ?? []}
+                      models={offeredModels}
                     />
                   )}
                 />
@@ -351,7 +348,7 @@ export const NutritionProviderSection = () => {
                       {...props}
                       value={field.value}
                       onChange={field.onChange}
-                      models={models.data?.models ?? []}
+                      models={offeredModels}
                       emptyOption={t('visionOff')}
                     />
                   )}

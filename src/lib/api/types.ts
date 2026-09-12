@@ -22,7 +22,6 @@ export interface AuthResponse {
   accessToken: string;
   expiresIn: number;
   user: SessionUser;
-  /** Mirrors the refresh cookie, for browsers that refuse to store it. */
   refreshToken: string;
 }
 
@@ -251,9 +250,7 @@ export interface NutritionProvider {
   baseUrl: string | null;
   modelName: string | null;
   visionModelName: string | null;
-  /** Whether photos can be sent at all. */
   supportsVision: boolean;
-  /** Whether the catalog, rather than the user, is the one saying so. */
   visionModelKnown: boolean;
   visionOverride: boolean;
   apiKeyHint: string | null;
@@ -264,6 +261,9 @@ export interface CatalogProvider {
   label: string;
   baseUrl: string;
   apiKeysUrl: string;
+  keyHint: string;
+  defaultModel: string;
+  models: string[];
   visionPrefixes: string[];
 }
 
@@ -288,7 +288,6 @@ export interface ParsedActivity {
   sets: number | null;
   reps: number | null;
   intensity: Intensity | null;
-  /** Calculated by the same estimator the form uses, not by the model. */
   energyKcal: number;
   effectiveDurationSec: number;
 }

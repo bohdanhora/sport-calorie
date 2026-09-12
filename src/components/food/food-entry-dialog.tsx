@@ -2,9 +2,9 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Camera, ChevronLeft, Search, Sparkle } from 'lucide-react';
+import { Camera, ChevronLeft, Images, Search, Sparkle } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -63,7 +63,6 @@ interface FoodEntryDialogProps {
   onOpenChange: (open: boolean) => void;
   date: string;
   defaultMeal?: MealType;
-  /** Opens straight on the portion form for a food chosen elsewhere. */
   defaultFood?: Food | null;
 }
 
@@ -102,6 +101,7 @@ export const FoodEntryDialog = ({
   }, [open, defaultMeal, defaultFood]);
 
   const photoInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
 
   const provider = useQuery({
     queryKey: queryKeys.nutritionProvider,
@@ -174,6 +174,15 @@ export const FoodEntryDialog = ({
     onSuccess: applyEstimate,
     onError: reportEstimateFailure,
   });
+
+  const onPhotoChosen = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+
+    if (file) {
+      scan.mutate(file);
+    }
+  };
 
   const createEntry = useMutation({
     mutationFn: foodEntriesApi.create,
@@ -250,14 +259,14 @@ export const FoodEntryDialog = ({
           <div className="space-y-4">
             {provider.data?.isConfigured ? (
               <div className="border-border bg-surface-muted space-y-2 rounded-md border p-3">
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <Input
                     value={description}
                     onChange={(event) => setDescription(event.target.value)}
                     placeholder={t('describePlaceholder')}
                     aria-label={t('describe')}
                     autoComplete="off"
-                    className="bg-surface font-sans"
+                    className="bg-surface min-w-40 flex-1 font-sans"
                     onKeyDown={(event) => {
                       if (event.key === 'Enter' && description.trim().length > 1) {
                         event.preventDefault();
@@ -275,17 +284,30 @@ export const FoodEntryDialog = ({
                   </Button>
 
                   {provider.data?.supportsVision ? (
-                    <Button
-                      variant="secondary"
-                      size="icon"
-                      className="size-10 shrink-0"
-                      aria-label={t('scanPhoto')}
-                      title={t('scanPhoto')}
-                      disabled={scan.isPending}
-                      onClick={() => photoInputRef.current?.click()}
-                    >
-                      <Camera className="size-4" aria-hidden />
-                    </Button>
+                    <>
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        className="size-11 shrink-0 sm:size-10"
+                        aria-label={t('scanPhoto')}
+                        title={t('scanPhoto')}
+                        disabled={scan.isPending}
+                        onClick={() => photoInputRef.current?.click()}
+                      >
+                        <Camera className="size-4" aria-hidden />
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        className="size-11 shrink-0 sm:size-10"
+                        aria-label={t('pickPhoto')}
+                        title={t('pickPhoto')}
+                        disabled={scan.isPending}
+                        onClick={() => galleryInputRef.current?.click()}
+                      >
+                        <Images className="size-4" aria-hidden />
+                      </Button>
+                    </>
                   ) : null}
                 </div>
 
@@ -295,14 +317,15 @@ export const FoodEntryDialog = ({
                   accept="image/jpeg,image/png,image/webp"
                   capture="environment"
                   hidden
-                  onChange={(event) => {
-                    const file = event.target.files?.[0];
-                    event.target.value = '';
+                  onChange={onPhotoChosen}
+                />
 
-                    if (file) {
-                      scan.mutate(file);
-                    }
-                  }}
+                <input
+                  ref={galleryInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  hidden
+                  onChange={onPhotoChosen}
                 />
 
                 <p className="text-foreground-subtle text-xs">
@@ -542,9 +565,6 @@ const ManualFoodForm = ({
       amount: 100,
       unit: 'GRAM',
       energyKcal: Number.NaN,
-      // Text inputs now, so an empty one is undefined: NaN would appear in
-      // the box as the word itself. energyKcal above is still a number input,
-      // which blanks an invalid value on its own.
       proteinG: undefined,
       carbsG: undefined,
       fatG: undefined,
