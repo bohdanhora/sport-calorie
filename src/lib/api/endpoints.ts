@@ -49,8 +49,6 @@ export const authApi = {
     apiRequest<AuthResponse>('/auth/login', { method: 'POST', body: input }),
   google: (input: GoogleSignInInput) =>
     apiRequest<AuthResponse>('/auth/google', { method: 'POST', body: input }),
-  // The token goes along so the API can retire this session even when the
-  // browser never stored the cookie that would have named it.
   logout: () =>
     apiRequest<void>('/auth/logout', {
       method: 'POST',
@@ -151,7 +149,6 @@ export interface NutritionProviderInput {
   modelName: string;
   visionModelName?: string | null;
   visionOverride?: boolean;
-  /** Omit to keep the key already stored; required only the first time. */
   apiKey?: string;
 }
 

@@ -1,10 +1,5 @@
 import { cn } from '@/lib/utils/cn';
 
-/**
- * The mark is the calorie ring the day screen is built around: an arc closing
- * on itself, left open where the day still has room. Drawn in currentColor so
- * it takes the tone of whatever it sits in.
- */
 export const LogoMark = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="none" aria-hidden className={cn('size-[1.375rem]', className)}>
     <circle

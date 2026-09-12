@@ -11,7 +11,6 @@ import { useAuth } from '@/lib/auth/auth-provider';
 const GSI_SRC = 'https://accounts.google.com/gsi/client';
 const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? '';
 
-/** Google refuses to render its button any wider than this. */
 const MAX_BUTTON_WIDTH = 400;
 
 interface CredentialResponse {
@@ -49,11 +48,6 @@ declare global {
   }
 }
 
-/**
- * The button text follows the `hl` of the library itself; the `locale` option on
- * renderButton is ignored, which leaves Google guessing the language. Switching
- * language therefore means loading the library again under the new one.
- */
 const loadGsiScript = (locale: string): Promise<void> => {
   const existing = document.querySelector<HTMLScriptElement>('script[data-gsi]');
 
@@ -80,15 +74,6 @@ const loadGsiScript = (locale: string): Promise<void> => {
   });
 };
 
-/**
- * Renders Google's own button, which is what their branding rules ask for, and
- * hands the ID token it returns to the API. Without a client id there is nothing
- * to render, so the whole block disappears.
- *
- * Google draws the button into an iframe of a width it is told once, so the
- * frame is measured first and the button redrawn whenever that width changes.
- * A frame the card has outgrown is what makes the button look pasted on.
- */
 export const GoogleSignIn = () => {
   const t = useTranslations('auth');
   const locale = useLocale();
@@ -116,11 +101,6 @@ export const GoogleSignIn = () => {
     [locale, signInWithGoogle, t],
   );
 
-  /**
-   * initialize binds the callback for good, so it runs once per library load and
-   * reads the current callback through a ref. Calling it again on every theme or
-   * width change is what Google warns about.
-   */
   const latestCredentialHandler = useRef(handleCredential);
   const initializedFor = useRef<string | null>(null);
 
@@ -145,8 +125,6 @@ export const GoogleSignIn = () => {
   }, []);
 
   useEffect(() => {
-    // resolvedTheme is undefined until the theme is known; rendering before then
-    // would draw the button twice, in the wrong colours first.
     if (!CLIENT_ID || width === 0 || !resolvedTheme) {
       return;
     }
@@ -214,7 +192,7 @@ export const GoogleSignIn = () => {
         <span className="bg-border h-px flex-1" />
       </div>
 
-      {/* The border and radius are ours; Google's own edges are clipped to them. */}
+      {}
       <div
         ref={frameRef}
         className="border-border-strong bg-surface relative min-h-10 overflow-hidden rounded-md border"

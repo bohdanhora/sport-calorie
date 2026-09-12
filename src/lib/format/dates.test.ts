@@ -89,7 +89,6 @@ describe('buildMonthGrid', () => {
   });
 
   it('starts on the weekday the locale asks for', () => {
-    // 1 March 2026 is a Sunday.
     expect(buildMonthGrid('2026-03-15', 0)[0]).toBe('2026-03-01');
     expect(buildMonthGrid('2026-03-15', 1)[0]).toBe('2026-02-23');
   });

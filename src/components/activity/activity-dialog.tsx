@@ -47,7 +47,6 @@ const INTENSITY_VALUES: Intensity[] = ['LOW', 'MODERATE', 'HIGH'];
 
 interface ActivityValues {
   title: string;
-  // Empty until typed into; the schema levels that to NaN on submit.
   durationMin: EmptyOr<number>;
   distanceKm: EmptyOr<number>;
   avgSpeedKmh: EmptyOr<number>;
@@ -60,10 +59,6 @@ interface ActivityValues {
 
 const EMPTY_VALUES: DefaultValues<ActivityValues> = {
   title: '',
-  // The fields that take a fractional value are text, and a text input shows
-  // NaN as the word "NaN"; undefined is what leaves one empty. The whole
-  // numbers below are still number inputs, which blank an invalid value
-  // themselves.
   durationMin: undefined,
   distanceKm: undefined,
   avgSpeedKmh: undefined,
@@ -74,7 +69,6 @@ const EMPTY_VALUES: DefaultValues<ActivityValues> = {
   notes: '',
 };
 
-/** The fields that accept a fractional value, and so are text rather than number. */
 type DecimalField = 'durationMin' | 'distanceKm' | 'avgSpeedKmh' | 'inclinePercent';
 
 interface ActivityDialogProps {
@@ -161,11 +155,6 @@ export const ActivityDialog = ({
     defaultValues: EMPTY_VALUES,
   });
 
-  /**
-   * Fills one of the fractional fields, or empties it. Emptying goes through
-   * resetField rather than a NaN: these are text inputs now, and NaN would
-   * show up in the box spelled out.
-   */
   const applyNumber = (field: DecimalField, value: number | null | undefined): void => {
     if (value === null || value === undefined) {
       resetField(field);
@@ -293,7 +282,6 @@ export const ActivityDialog = ({
   const parse = useMutation({
     mutationFn: () => activitiesApi.parse(description.trim(), locale),
     onSuccess: (parsed) => {
-      // The API answers in seconds and metres; the form is minutes and km.
       setTypeId(parsed.activityTypeId);
       setValue('title', parsed.title ?? '');
       applyNumber('durationMin', parsed.durationSec ? secondsToMinutes(parsed.durationSec) : null);

@@ -15,21 +15,13 @@ import { useFormat } from '@/lib/format/use-format';
 import { useInvalidateDay } from '@/lib/query/use-day-mutations';
 
 interface WeightPromptProps {
-  /** Today in the user's timezone. The prompt only ever asks about today. */
   date: string;
-  /** Whether today already has a weight; the prompt stays away if it does. */
   logged: boolean;
-  /** The most recent earlier weigh-in, if there is one within reach. */
   previous: { date: string; weightKg: number } | null;
 }
 
 const SKIP_PREFIX = 'weight-prompt-skipped:';
 
-/**
- * Asks for the day's weight once a day. Skipping is remembered per date in the
- * browser, so the answer holds until tomorrow instead of returning on every
- * navigation. Nothing about it reaches the API.
- */
 export const WeightPrompt = ({ date, logged, previous }: WeightPromptProps) => {
   const t = useTranslations('weightPrompt');
   const form = useTranslations('weightForm');
@@ -50,9 +42,7 @@ export const WeightPrompt = ({ date, logged, previous }: WeightPromptProps) => {
 
     try {
       skipped = window.localStorage.getItem(`${SKIP_PREFIX}${date}`) === '1';
-    } catch {
-      // A browser that refuses storage just gets asked again; nothing breaks.
-    }
+    } catch {}
 
     setOpen(!skipped);
   }, [date, logged]);
@@ -60,9 +50,7 @@ export const WeightPrompt = ({ date, logged, previous }: WeightPromptProps) => {
   const skip = () => {
     try {
       window.localStorage.setItem(`${SKIP_PREFIX}${date}`, '1');
-    } catch {
-      // Same as above: worth trying, not worth failing over.
-    }
+    } catch {}
 
     setOpen(false);
   };

@@ -4,7 +4,6 @@ import { completeOnboarding, pickBirthDate, registerAccount } from './support/ac
 
 const WEIGHT_PROMPT = 'Record today’s weight';
 
-/** The prompt opens from an effect, a tick after the dashboard answers. */
 const SETTLE_MS = 300;
 
 test('a new account is guided through setup and gets a calculated target', async ({ page }) => {
@@ -15,16 +14,10 @@ test('a new account is guided through setup and gets a calculated target', async
   await expect(page.getByRole('heading', { name: 'Welcome to Sport Calorie' })).toBeVisible();
   await expect(page.getByText('Log what you eat')).toBeVisible();
 
-  // The dashboard behind the wizard has no weight for today, which is exactly
-  // when it wants to ask for one. It has to wait its turn: a second dialog here
-  // buries the wizard. Matched by text, because the one on top makes everything
-  // under it aria-hidden and a role query would call that a pass.
   await dashboardLoaded;
   await page.waitForTimeout(SETTLE_MS);
   await expect(page.getByText(WEIGHT_PROMPT)).toBeHidden();
 
-  // The wizard opens in whatever language the browser left behind, so the very
-  // first screen is where it has to be changeable.
   await page.getByRole('radio', { name: 'ru', exact: true }).click();
   await expect(
     page.getByRole('heading', { name: 'Добро пожаловать в Sport Calorie' }),
@@ -35,7 +28,6 @@ test('a new account is guided through setup and gets a calculated target', async
 
   await page.getByRole('button', { name: 'Next', exact: true }).click();
 
-  // The wizard will not move on until the metabolic formula has what it needs.
   await page.getByRole('button', { name: 'Next', exact: true }).click();
   await expect(page.getByText('Choose one so the estimate is right')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'About you' })).toBeVisible();
@@ -60,7 +52,6 @@ test('a new account is guided through setup and gets a calculated target', async
   await page.getByRole('button', { name: 'Start logging' }).click();
   await expect(page.getByRole('heading', { name: 'Today' })).toBeVisible();
 
-  // The answers reached the database, so the wizard stays closed from now on.
   await page.reload();
   await expect(page.getByRole('heading', { name: 'Today' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Welcome to Sport Calorie' })).toBeHidden();
@@ -83,7 +74,6 @@ test('the guide can be opened again from settings', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Welcome to Sport Calorie' })).toBeVisible();
   await expect(page.getByText('Walking and workouts')).toBeVisible();
 
-  // Both the header icon and the footer button close it; take the footer one.
   await page.getByRole('button', { name: 'Close', exact: true }).last().click();
   await expect(page.getByRole('heading', { name: 'Welcome to Sport Calorie' })).toBeHidden();
 });

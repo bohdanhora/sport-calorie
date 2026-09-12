@@ -51,15 +51,12 @@ test('the language chosen on the first screen carries through the wizard', async
 
   await page.getByRole('button', { name: 'Дальше', exact: true }).click();
 
-  // Nothing was touched on the preferences step, so the language saved is the
-  // one picked on the opening screen.
   await page.getByRole('button', { name: 'Завершить' }).click();
   await expect(page.getByRole('heading', { name: 'Всё готово' })).toBeVisible();
   await page.getByRole('button', { name: 'Начать' }).click();
 
   await expect(page.getByRole('heading', { name: 'Сегодня' })).toBeVisible();
 
-  // It reached the profile, not just the browser's cookie.
   await page.goto('/settings');
   await expect(page.getByRole('combobox', { name: 'Язык' })).toContainText('Русский');
 });

@@ -42,7 +42,6 @@ import {
   type EmptyOr,
 } from '@/lib/validation/numbers';
 
-/** Only bounds the year list in the picker; nothing in the app reads it otherwise. */
 const EARLIEST_BIRTH_DATE = '1920-01-01';
 
 const MIN_CALORIE_TARGET = 800;
@@ -169,7 +168,6 @@ const SettingsPage = () => {
 interface ProfileValues {
   displayName: string;
   birthDate: string;
-  // Empty until something is typed, which is what the schema levels to NaN.
   heightCm: EmptyOr<number>;
   targetWeightKg: EmptyOr<number>;
 }
@@ -205,7 +203,6 @@ const ProfileSection = ({ profile }: { profile: Profile }) => {
   const toDefaults = (): DefaultValues<ProfileValues> => ({
     displayName: profile.displayName ?? '',
     birthDate: profile.birthDate ?? '',
-    // Text inputs, so empty is undefined: a text box spells a NaN out.
     heightCm: profile.heightCm ?? undefined,
     targetWeightKg: profile.targetWeightKg ?? undefined,
   });

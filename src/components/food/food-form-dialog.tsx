@@ -59,8 +59,6 @@ const toDefaults = (food?: Food | null): DefaultValues<FoodValues> => ({
   servingSize: food?.servingSize ?? 100,
   servingUnit: food?.servingUnit ?? 'GRAM',
   energyKcal: food?.energyKcal ?? Number.NaN,
-  // Text inputs now, so an empty one is undefined rather than a NaN a text
-  // box would spell out. energyKcal above is still a number input.
   proteinG: food?.proteinG ?? undefined,
   carbsG: food?.carbsG ?? undefined,
   fatG: food?.fatG ?? undefined,

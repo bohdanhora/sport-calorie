@@ -10,14 +10,8 @@ interface ActivityBreakdownProps {
   activities: ActivityBreakdownData[];
 }
 
-/** Four tokens, cycled: a long list keeps its colours without inventing any. */
 const BARS = ['bg-chart-1', 'bg-chart-2', 'bg-chart-3', 'bg-chart-4'] as const;
 
-/**
- * A list of numbers made every activity look alike. The bar carries each one's
- * share of the energy burned, so the one activity that does the work is
- * obvious at a glance.
- */
 export const ActivityBreakdown = ({ activities }: ActivityBreakdownProps) => {
   const t = useTranslations('today');
   const units = useTranslations('units');

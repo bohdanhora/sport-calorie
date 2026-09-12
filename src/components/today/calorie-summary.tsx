@@ -22,7 +22,6 @@ export const CalorieSummary = ({ calories }: CalorieSummaryProps) => {
   const format = useFormat();
 
   const isOver = calories.remainingKcal < 0;
-  // Activity earns extra room to eat, so the ring is read against the whole allowance.
   const allowance = Math.max(calories.targetKcal + calories.activityKcal, 1);
   const consumedShare = Math.min(calories.consumedKcal / allowance, 1);
   const targetShare = Math.min(calories.targetKcal / allowance, 1);
@@ -81,7 +80,6 @@ export const CalorieSummary = ({ calories }: CalorieSummaryProps) => {
               className="transition-[stroke-dashoffset] duration-700 ease-out"
             />
             {showTargetTick ? (
-              /* Where the goal alone would have ended, before activity widened it. */
               <circle
                 cx={RING_SIZE / 2}
                 cy={RING_SIZE / 2}

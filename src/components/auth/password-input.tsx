@@ -7,10 +7,6 @@ import { useState, type InputHTMLAttributes } from 'react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils/cn';
 
-/**
- * A password field that can show what was typed. A mistyped password is the
- * usual reason a sign-in fails, and on a phone it is the hardest to notice.
- */
 export const PasswordInput = ({ className, ...props }: InputHTMLAttributes<HTMLInputElement>) => {
   const t = useTranslations('auth');
   const [visible, setVisible] = useState(false);

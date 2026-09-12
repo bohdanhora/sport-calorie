@@ -10,7 +10,6 @@ import { Calendar } from '@/components/ui/calendar';
 import { addDays, addMonths, isFuture, todayIn } from '@/lib/format/dates';
 import { useFormat } from '@/lib/format/use-format';
 
-/** How far back the picker offers to go; the app has no data older than this. */
 const HISTORY_MONTHS = 60;
 
 interface DateNavProps {
@@ -86,8 +85,6 @@ export const DateHeading = ({ date, timezone }: { date: string; timezone: string
   const format = useFormat();
 
   return (
-    // A full date in Russian runs past thirty characters, which on a phone used
-    // to shove the day controls off the row rather than give way itself.
     <div className="min-w-0">
       <h1 className="page-title truncate">{format.dayLabel(date, timezone)}</h1>
       <p className="text-foreground-subtle mt-0.5 truncate text-[0.8125rem]">

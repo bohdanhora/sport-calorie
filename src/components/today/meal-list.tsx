@@ -18,18 +18,14 @@ import { useInvalidateDay } from '@/lib/query/use-day-mutations';
 interface MealListProps {
   meals: MealSummary[];
   onAdd: (meal: MealType) => void;
-  /** In a wide column the four meals read better side by side than stacked. */
   columns?: boolean;
 }
 
-// Below xl both variants render the same single panel; only the wide breakpoint
-// splits it into separate cards.
 const PANEL_CLASS = 'border-border bg-surface overflow-hidden rounded-lg border';
 const GRID_PANEL_CLASS = `${PANEL_CLASS} xl:grid xl:grid-cols-2 xl:gap-4 xl:overflow-visible xl:rounded-none xl:border-0 xl:bg-transparent`;
 const GRID_MEAL_CLASS =
   'xl:border-border xl:overflow-hidden xl:rounded-lg xl:border xl:border-t-0 xl:bg-surface';
 
-/** One colour per meal, so the four headers stop looking interchangeable. */
 const MEAL_BARS = ['bg-chart-1', 'bg-chart-2', 'bg-chart-3', 'bg-chart-4'] as const;
 
 export const MealList = ({ meals, onAdd, columns = false }: MealListProps) => {

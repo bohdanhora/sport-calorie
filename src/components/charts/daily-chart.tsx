@@ -33,7 +33,6 @@ interface BaseChartProps {
   formatDate: (date: string) => string;
   formatAxisValue?: (value: number) => string;
   seriesName: string;
-  /** A CSS colour, normally one of the --chart-* tokens. */
   color?: string;
 }
 
@@ -84,10 +83,6 @@ export const DailyBarChart = ({
   );
 };
 
-/**
- * Weight moves in fractions of a kilogram, so the line alone reads as a flat
- * scribble. The fill under it gives the eye the shape of the trend.
- */
 export const DailyAreaChart = ({
   data,
   formatValue,

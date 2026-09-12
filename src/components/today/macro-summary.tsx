@@ -11,7 +11,6 @@ interface MacroSummaryProps {
   target: MacroAmount;
 }
 
-/** One colour per macro, so the three bars stop reading as one repeated bar. */
 const MACROS = [
   { key: 'proteinG', label: 'protein', bar: 'bg-chart-1' },
   { key: 'carbsG', label: 'carbs', bar: 'bg-chart-2' },

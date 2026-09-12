@@ -38,7 +38,6 @@ import {
   type Submitted,
 } from '@/lib/validation/numbers';
 
-/** Only bounds the year list in the picker; nothing in the app reads it otherwise. */
 const EARLIEST_BIRTH_DATE = '1920-01-01';
 
 const ACTIVITY_LEVELS: ActivityLevel[] = ['SEDENTARY', 'LIGHT', 'MODERATE', 'HIGH', 'VERY_HIGH'];
@@ -61,7 +60,6 @@ const GUIDE_ICONS: Record<(typeof GUIDE_POINTS)[number], ComponentType<{ classNa
 interface OnboardingValues {
   displayName: string;
   birthDate: string;
-  // Empty until typed into; the schema levels that to NaN.
   heightCm: EmptyOr<number>;
   currentWeightKg: EmptyOr<number>;
   targetWeightKg: EmptyOr<number>;
@@ -71,7 +69,6 @@ interface OnboardingDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   profile: Profile | undefined;
-  /** The guide on its own, for someone who wants to read it again. */
   guideOnly?: boolean;
 }
 
@@ -100,9 +97,6 @@ export const OnboardingDialog = ({
     profile?.activityLevel ?? 'LIGHT',
   );
   const [goal, setGoal] = useState<FitnessGoal>(profile?.goal ?? 'MAINTAIN_WEIGHT');
-  // Left unset until the user says otherwise, so that switching language on the
-  // opening screen - which reloads the app in the new one - carries through to
-  // what gets saved, rather than being overruled by the state's first value.
   const [language, setLanguage] = useState<Locale | null>(null);
   const chosenLanguage = language ?? locale;
   const [zone, setZone] = useState(profile?.timezone ?? timezone);
@@ -132,8 +126,6 @@ export const OnboardingDialog = ({
     defaultValues: {
       displayName: profile?.displayName ?? user?.displayName ?? '',
       birthDate: profile?.birthDate ?? '',
-      // Text inputs now, so an empty one is undefined: a text box would render
-      // a NaN as the word itself.
       heightCm: profile?.heightCm ?? undefined,
       currentWeightKg: profile?.currentWeightKg ?? undefined,
       targetWeightKg: profile?.targetWeightKg ?? undefined,
@@ -192,9 +184,6 @@ export const OnboardingDialog = ({
 
     if (step === 'preferences' && sex) {
       const values = getValues();
-      // getValues answers the fields as typed, before the schema levels them,
-      // so the two the wizard insists on are read back through toValue. An
-      // earlier step already refused to advance without them.
       const heightCm = toValue(values.heightCm);
       const currentWeightKg = toValue(values.currentWeightKg);
 

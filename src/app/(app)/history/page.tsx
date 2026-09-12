@@ -80,8 +80,6 @@ const HistoryPage = () => {
             const balance = day.netKcal - day.targetKcal;
             const label = format.dayLabel(day.date, timezone);
             const isOver = balance > 0;
-            // Same reading as the ring on the day screen: what was eaten against
-            // the goal plus whatever the day's activity earned back.
             const allowance = Math.max(day.targetKcal + day.activityKcal, 1);
             const consumedShare = Math.min(day.consumedKcal / allowance, 1);
 

@@ -48,8 +48,6 @@ const ProgressPage = () => {
     queryFn: () => summaryApi.progress(from, to),
   });
 
-  // The window of the same length ending the day before, to say which way the
-  // averages moved rather than leaving them without a reference.
   const previousTo = addDays(from, -1);
   const previousFrom = addDays(previousTo, -(rangeDays - 1));
   const previous = useQuery({

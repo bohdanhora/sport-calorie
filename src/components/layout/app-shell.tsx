@@ -91,8 +91,7 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
           </ul>
         </nav>
 
-        {/* Language and signing out belong where they are reached, not three
-            clicks into settings. The theme sits with them but is chosen once. */}
+        {}
         <div className="border-border space-y-2 border-t pt-3">
           {user?.email ? (
             <p className="text-foreground-subtle truncate px-3 text-[0.6875rem]">{user.email}</p>

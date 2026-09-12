@@ -12,18 +12,11 @@ interface WeekStripProps {
   days: DayOverview[];
   selected: string;
   onSelect: (date: string) => void;
-  /** Intake is read against the goal; energy burned has no goal to read against. */
   metric?: 'intake' | 'burned';
 }
 
-/** Headroom above the tallest bar, so a day over the goal still has the line below it. */
 const SCALE_HEADROOM = 1.15;
 
-/**
- * The week behind the day on screen: one bar per day against the goal line, so
- * "is today unusual?" is answered here instead of on Progress. Bars alone would
- * say little - intake rarely swings much - which is what the line is for.
- */
 export const WeekStrip = ({ days, selected, onSelect, metric = 'intake' }: WeekStripProps) => {
   const t = useTranslations('today');
   const locale = useLocale();

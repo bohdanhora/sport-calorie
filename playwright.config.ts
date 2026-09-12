@@ -24,8 +24,6 @@ export default defineConfig({
     : {
         command: 'npm run dev',
         url: BASE_URL,
-        // Own port and own build directory: a dev server already running on 3000
-        // keeps its .next to itself, so neither run overwrites the other's chunks.
         env: { PORT: E2E_PORT, NEXT_DIST_DIR: '.next-e2e' },
         reuseExistingServer: !process.env.CI,
         timeout: 120_000,

@@ -2,14 +2,6 @@ import { expect, test, type Page } from '@playwright/test';
 
 import { completeOnboarding, PASSWORD, registerAccount } from './support/account';
 
-/**
- * The phone kept landing back on the sign-in screen after a reload while the
- * desktop stayed signed in: Safari refuses the cross-site refresh cookie, so
- * emptying the cookie jar is a fair impression of what it does to a session.
- *
- * One account for the whole file, because registration and sign-in share a rate
- * limit with every other suite here.
- */
 test.describe.configure({ mode: 'serial' });
 
 let page: Page;
@@ -37,7 +29,6 @@ test('survives a reload after the browser throws the cookie away', async () => {
 });
 
 test('signing out ends the session for good', async () => {
-  // Below `lg` the sidebar is gone, so settings is the way out on a phone.
   await page.goto('/settings');
   await page.getByRole('button', { name: 'Sign out' }).first().click();
   await expect(page).toHaveURL(/\/login$/);

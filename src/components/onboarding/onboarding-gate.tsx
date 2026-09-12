@@ -8,11 +8,6 @@ import { useOnboardingPresence } from '@/components/onboarding/onboarding-presen
 import { profileApi } from '@/lib/api/endpoints';
 import { queryKeys } from '@/lib/query/query-keys';
 
-/**
- * Opens the first-run wizard for an account that has never answered it. Once it
- * is open it stays open until the wizard itself is finished, so the closing
- * summary survives the profile update that marks onboarding as done.
- */
 export const OnboardingGate = () => {
   const profile = useQuery({ queryKey: queryKeys.profile, queryFn: profileApi.get });
   const { setShowing } = useOnboardingPresence();

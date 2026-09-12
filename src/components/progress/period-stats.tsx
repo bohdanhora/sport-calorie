@@ -13,7 +13,6 @@ interface PeriodStatsProps {
   rangeDays: number;
 }
 
-/** Below this the two periods are the same number wearing a different hat. */
 const NOISE_FLOOR = 0.005;
 
 const Delta = ({
@@ -44,11 +43,6 @@ const Delta = ({
   );
 };
 
-/**
- * Averages are hard to read alone: 1,500 kcal a day is only meaningful next to
- * what the weeks before it looked like. The arrow says which way it moved; no
- * colour, because eating less is not automatically better.
- */
 export const PeriodStats = ({ current, previous, rangeDays }: PeriodStatsProps) => {
   const t = useTranslations('progress');
   const format = useFormat();
