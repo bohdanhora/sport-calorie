@@ -27,7 +27,7 @@ The interface is mobile-first, theme-aware, and localized for English, Russian, 
 - **Reusable food library** - a card grid of saved and catalog foods with calories and macros on the face of each card; one click opens the portion form already filled in with that food.
 - **Walking and treadmill first** - enter any two of duration, distance, and speed, and the third is derived; incline is part of the estimate.
 - **Live energy estimates** - the calorie burn updates as the activity form is filled, is labelled as an estimate, and can be replaced with a measured value.
-- **Automatic calorie estimation** - describe a dish in words and get a pre-filled draft you confirm before it reaches the diary.
+- **Automatic calorie estimation** - describe a dish in words, or photograph it with the camera or from the picture library, and get a pre-filled draft you confirm before it reaches the diary.
 - **Progress and history** - weight trend, calorie and activity charts, walking distance, weekly averages, an activity breakdown, and every logged day one tap away.
 - **Calorie goal you control** - estimated BMR and TDEE, a recommendation, and a manual target the system never overwrites.
 - **A guided first run** - a short guide and a four-step wizard collect body data, goal, language, and timezone once, then show the calorie target they produce.
@@ -103,7 +103,9 @@ Adding a language takes three steps: add it to `LOCALES` in `src/i18n/config.ts`
 
 ## Automatic calorie estimation
 
-When a provider is configured in settings, the food sheet gains a field where a dish can be described in words. The estimate fills the same form used for manual entry, is marked as an estimate, and nothing is written to the diary until it is confirmed. Without a configured provider the field is simply not shown.
+When a provider is configured in settings, the food sheet gains a field where a dish can be described in words. If the chosen model accepts images, two buttons appear beside it: one opens the camera, the other the picture library, since a phone asked for the camera hides everything already taken. Either way the estimate fills the same form used for manual entry, is marked as an estimate, and nothing is written to the diary until it is confirmed. Without a configured provider the field is simply not shown.
+
+Settings offers the providers the API knows - OpenAI, Anthropic, Google Gemini, xAI, Groq and OpenRouter - and any other OpenAI-compatible endpoint can be typed in. Choosing one fills in its base URL, the shape its keys have, a link to where they are issued, and a default model. The model lists come from the provider itself once a key is stored, and from the app's own catalog before that, so a working model can be picked without knowing any ids by heart; an id can still be typed by hand. A separate model can be chosen for photos, or photos left off entirely, in which case the camera never appears.
 
 The API key is entered in settings and stored encrypted on the server. The browser never receives it back, only a mask such as `sk-...4f2a`.
 
@@ -121,7 +123,7 @@ The interface is meant to feel like a calm, precise health product rather than a
 
 **Accessibility.** Semantic landmarks and headings, labelled fields with error text tied to inputs, visible focus rings that are never removed, accessible dialogs and radio groups from Radix, `aria-current` on navigation, and a live region for toasts.
 
-**Responsive.** Mobile first. Below `lg` the navigation is a bottom bar and dialogs open as bottom sheets with the primary action pinned within reach. Above it there is a sidebar and a centred content column. No horizontal page scrolling at any width.
+**Responsive.** Mobile first. Below `lg` the navigation is a bottom bar and dialogs open as bottom sheets with the primary action pinned within reach. Above it there is a sidebar and a centred content column. Fields, selects, switches and dialog controls are sized for a thumb on a phone and take their compact size back from the `sm` breakpoint up. No horizontal page scrolling at any width.
 
 ## Getting started
 
@@ -216,7 +218,7 @@ sport-calorie/
     │   ├── nutrition/    # Portion preview
     │   ├── validation/   # Shared numeric form rules
     │   └── utils/        # Class name helper
-    └── hooks/            # Selected date, animated numbers
+    └── hooks/            # Selected date, animated numbers, keyboard inset
 ```
 
 ## Authentication model
@@ -241,7 +243,7 @@ The user's timezone comes from their profile, not from the browser. Every date s
 
 The unit suite covers the logic that would be silently wrong if it broke: number and duration formatting in every locale, distance precision, conversions between what forms collect and what the API stores, timezone-aware day offsets, and the portion preview including the case where a unit conversion would have to be invented.
 
-Playwright drives the real daily flow against a running API and database, on a desktop viewport and a Pixel-sized one: create an account, answer the first-run wizard, log food, log a treadmill session and check the derived average speed, log a repetition workout, record weight, set a manual calorie goal and confirm it survives, move between days, and see the days in history. A second suite covers language: switching before signing in, choosing a language in settings and confirming it survives a reload, and checking that numbers and units follow it. A fourth covers the session: that it survives a reload after the browser has thrown the refresh cookie away, that signing out still ends it for good, and that signing back in starts one the next reload keeps. A third walks the first-run wizard: that it refuses to move on without the data the metabolic formula needs, that the answers reach the database and the wizard stays closed afterwards, and that the guide can be reopened from settings.
+Playwright drives the real daily flow against a running API and database, on a desktop viewport and a Pixel-sized one: create an account, answer the first-run wizard, log food, log a treadmill session and check the derived average speed, log a repetition workout, record weight, set a manual calorie goal and confirm it survives, move between days, and see the days in history. A second suite covers language: switching before signing in, choosing a language in settings and confirming it survives a reload, and checking that numbers and units follow it. A third walks the first-run wizard: that it refuses to move on without the data the metabolic formula needs, that the answers reach the database and the wizard stays closed afterwards, and that the guide can be reopened from settings. A fourth covers the session: that it survives a reload after the browser has thrown the refresh cookie away, that signing out still ends it for good, and that signing back in starts one the next reload keeps.
 
 ```bash
 npm test
