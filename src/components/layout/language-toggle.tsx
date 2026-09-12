@@ -40,7 +40,7 @@ export const LanguageToggle = ({ className }: { className?: string }) => {
             aria-checked={selected}
             onClick={() => change(value)}
             className={cn(
-              'press rounded-[0.3rem] px-2 py-1.5 text-[0.6875rem] font-semibold tracking-wide uppercase',
+              'press rounded-[0.3rem] px-2.5 py-2.5 text-[0.6875rem] font-semibold tracking-wide uppercase sm:px-2 sm:py-1.5',
               selected
                 ? 'bg-surface text-foreground shadow-[var(--shadow-soft)]'
                 : 'text-foreground-subtle hover:text-foreground',

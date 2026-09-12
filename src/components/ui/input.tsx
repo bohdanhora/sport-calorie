@@ -6,7 +6,7 @@ const fieldStyles =
   'w-full rounded-md border border-border-strong bg-surface px-3 text-sm text-foreground transition-colors duration-150 placeholder:text-foreground-subtle focus-visible:border-accent focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring disabled:opacity-60 aria-[invalid=true]:border-danger';
 
 export const Input = ({ className, ...props }: InputHTMLAttributes<HTMLInputElement>) => (
-  <input className={cn(fieldStyles, 'numeric h-10', className)} {...props} />
+  <input className={cn(fieldStyles, 'numeric h-11 sm:h-10', className)} {...props} />
 );
 
 export const Textarea = ({ className, ...props }: TextareaHTMLAttributes<HTMLTextAreaElement>) => (

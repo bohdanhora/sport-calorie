@@ -15,10 +15,9 @@ const buttonVariants = cva(
         danger: 'text-danger hover:bg-danger-soft',
       },
       size: {
-        sm: 'h-8 px-3 text-[0.8125rem]',
-        md: 'h-10 px-4 text-sm',
+        sm: 'h-9 px-3 text-[0.8125rem] sm:h-8',
+        md: 'h-11 px-4 text-sm sm:h-10',
         lg: 'h-11 px-5 text-sm',
-        // A finger needs more than a mouse does, so the square grows on a phone.
         icon: 'size-10 sm:size-9',
       },
     },

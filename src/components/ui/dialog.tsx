@@ -13,7 +13,6 @@ interface DialogProps {
   description?: string;
   children: ReactNode;
   className?: string;
-  /** A dialog the user has to answer, such as onboarding, sets this to false. */
   dismissible?: boolean;
 }
 
@@ -65,7 +64,7 @@ export const Dialog = ({
           {dismissible ? (
             <DialogPrimitive.Close
               aria-label="Close"
-              className="text-foreground-subtle hover:bg-surface-muted hover:text-foreground -mt-1 -mr-1 rounded-md p-1.5 transition-colors duration-150"
+              className="text-foreground-subtle hover:bg-surface-muted hover:text-foreground -mt-1 -mr-1 rounded-md p-2.5 transition-colors duration-150 sm:p-1.5"
             >
               <X className="size-4" aria-hidden />
             </DialogPrimitive.Close>

@@ -19,13 +19,10 @@ import {
 import { cn } from '@/lib/utils/cn';
 
 interface CalendarProps {
-  /** The selected day, and the month the grid opens on. */
   value: string;
   onSelect: (date: string) => void;
-  /** Inclusive bounds; days outside them are shown but cannot be chosen. */
   min: string;
   max: string;
-  /** Marked with a dot when it is not the chosen day. Omit where it is not useful. */
   today?: string;
 }
 
@@ -49,7 +46,6 @@ export const Calendar = ({ value, onSelect, min, max, today }: CalendarProps) =>
 
   const firstYear = Number(min.slice(0, 4));
   const lastYear = Number(max.slice(0, 4));
-  // Newest first: a birth year is reached faster going back than forward.
   const years = Array.from({ length: lastYear - firstYear + 1 }, (_, index) => lastYear - index);
 
   const selectedYear = Number(month.slice(0, 4));
@@ -74,7 +70,7 @@ export const Calendar = ({ value, onSelect, min, max, today }: CalendarProps) =>
 
         <NativeSelect
           aria-label={t('month')}
-          className="h-9 flex-1 px-2 text-[0.8125rem]"
+          className="h-10 flex-1 px-2 text-[0.8125rem] sm:h-9"
           value={selectedMonth}
           onChange={(event) =>
             setMonthWithin(
@@ -91,7 +87,7 @@ export const Calendar = ({ value, onSelect, min, max, today }: CalendarProps) =>
 
         <NativeSelect
           aria-label={t('year')}
-          className="numeric h-9 w-[5.25rem] shrink-0 px-2 text-[0.8125rem]"
+          className="numeric h-10 w-[5.25rem] shrink-0 px-2 text-[0.8125rem] sm:h-9"
           value={selectedYear}
           onChange={(event) => setMonthWithin(`${event.target.value}-${month.slice(5, 7)}-01`)}
         >
@@ -141,7 +137,7 @@ export const Calendar = ({ value, onSelect, min, max, today }: CalendarProps) =>
               aria-label={formatFullDate(day, locale)}
               onClick={() => onSelect(day)}
               className={cn(
-                'numeric focus-visible:outline-ring relative flex h-9 items-center justify-center rounded-md text-[0.8125rem] transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-1',
+                'numeric focus-visible:outline-ring relative flex h-10 items-center justify-center rounded-md text-[0.8125rem] transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-1 sm:h-9',
                 'disabled:pointer-events-none disabled:opacity-25',
                 outside && 'text-foreground-subtle',
                 !outside && !selected && 'text-foreground hover:bg-surface-muted',

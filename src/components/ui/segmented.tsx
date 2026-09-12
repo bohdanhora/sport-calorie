@@ -36,7 +36,7 @@ export const Segmented = <T extends string>({
           aria-checked={selected}
           onClick={() => onChange(option.value)}
           className={cn(
-            'flex-1 rounded-[0.3rem] px-3 py-1.5 text-[0.8125rem] font-medium whitespace-nowrap transition-colors duration-150',
+            'flex-1 rounded-[0.3rem] px-3 py-2.5 text-[0.8125rem] font-medium whitespace-nowrap transition-colors duration-150 sm:py-1.5',
             selected
               ? 'bg-surface text-foreground shadow-[var(--shadow-soft)]'
               : 'text-foreground-muted hover:text-foreground',

@@ -9,7 +9,7 @@ export const NativeSelect = ({
 }: SelectHTMLAttributes<HTMLSelectElement>) => (
   <select
     className={cn(
-      'border-border-strong bg-surface text-foreground focus-visible:border-accent focus-visible:outline-ring h-10 w-full appearance-none rounded-md border px-3 text-sm transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-1',
+      'border-border-strong bg-surface text-foreground focus-visible:border-accent focus-visible:outline-ring h-11 w-full appearance-none rounded-md border px-3 text-sm transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-1 sm:h-10',
       className,
     )}
     {...props}

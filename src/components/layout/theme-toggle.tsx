@@ -41,7 +41,7 @@ export const ThemeToggle = ({ className }: { className?: string }) => {
             aria-label={t(key)}
             onClick={() => setTheme(value)}
             className={cn(
-              'press rounded-[0.3rem] p-1.5',
+              'press rounded-[0.3rem] p-2.5 sm:p-1.5',
               selected
                 ? 'bg-surface text-foreground shadow-[var(--shadow-soft)]'
                 : 'text-foreground-subtle hover:text-foreground',

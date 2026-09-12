@@ -22,11 +22,6 @@ interface DateFieldProps {
   className?: string;
 }
 
-/**
- * Replaces `input type="date"`. The native control opens the browser's own
- * calendar, which follows neither the app's theme nor its language and, on a
- * date of birth, pages a month at a time from today.
- */
 export const DateField = ({
   value,
   onChange,
@@ -47,7 +42,7 @@ export const DateField = ({
         type="button"
         {...aria}
         className={cn(
-          'border-border-strong bg-surface text-foreground focus-visible:border-accent focus-visible:outline-ring flex h-10 w-full items-center justify-between gap-2 rounded-md border px-3 text-sm transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-1',
+          'border-border-strong bg-surface text-foreground focus-visible:border-accent focus-visible:outline-ring flex h-11 w-full items-center justify-between gap-2 rounded-md border px-3 text-sm transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-1 sm:h-10',
           'aria-[invalid=true]:border-danger',
           className,
         )}

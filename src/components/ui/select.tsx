@@ -36,7 +36,7 @@ export const Select = <T extends string>({
       id={id}
       {...aria}
       className={cn(
-        'border-border-strong bg-surface text-foreground focus-visible:border-accent focus-visible:outline-ring data-[placeholder]:text-foreground-subtle aria-[invalid=true]:border-danger flex h-10 w-full items-center justify-between gap-2 rounded-md border px-3 text-sm transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-1',
+        'border-border-strong bg-surface text-foreground focus-visible:border-accent focus-visible:outline-ring data-[placeholder]:text-foreground-subtle aria-[invalid=true]:border-danger flex h-11 w-full items-center justify-between gap-2 rounded-md border px-3 text-sm transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-1 sm:h-10',
         className,
       )}
     >
@@ -57,7 +57,7 @@ export const Select = <T extends string>({
             <SelectPrimitive.Item
               key={option.value}
               value={option.value}
-              className="text-foreground data-[highlighted]:bg-surface-muted flex cursor-default items-center justify-between gap-2 rounded-sm px-2.5 py-2 text-sm outline-none"
+              className="text-foreground data-[highlighted]:bg-surface-muted flex cursor-default items-center justify-between gap-2 rounded-sm px-2.5 py-2.5 text-sm outline-none sm:py-2"
             >
               <SelectPrimitive.ItemText>{option.label}</SelectPrimitive.ItemText>
               <SelectPrimitive.ItemIndicator>

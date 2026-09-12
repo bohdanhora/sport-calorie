@@ -69,8 +69,6 @@ const TodayView = () => {
   });
 
   const today = todayIn(timezone);
-  // The week already on screen carries the earlier weigh-ins, so the prompt's
-  // "same as yesterday" costs no extra request.
   const previousWeight =
     week.data
       ?.filter((day) => day.date < today && day.weightKg !== null)
@@ -160,7 +158,7 @@ const TodayView = () => {
               <button
                 type="button"
                 onClick={() => setWeightDialogOpen(true)}
-                className="text-accent press text-[0.8125rem] font-medium underline-offset-4 hover:underline"
+                className="text-accent press -my-2 py-2 text-[0.8125rem] font-medium underline-offset-4 hover:underline"
               >
                 {dashboard.data.weight ? common('update') : common('record')}
               </button>
