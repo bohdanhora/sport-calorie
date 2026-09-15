@@ -2,26 +2,27 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, RefreshCw } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
+import { Combobox } from '@/components/ui/combobox';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { NativeSelect } from '@/components/ui/native-select';
 import { Section } from '@/components/ui/section';
+import { Select } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/toast';
 import { ApiError } from '@/lib/api/client';
 import { nutritionProviderApi } from '@/lib/api/endpoints';
 import type { CatalogProvider } from '@/lib/api/types';
 import { queryKeys } from '@/lib/query/query-keys';
+import { cn } from '@/lib/utils/cn';
 
 const CUSTOM_PROVIDER = 'custom';
-const MANUAL_OPTION = '__manual__';
 
 interface ProviderValues {
   baseUrl: string;
@@ -31,65 +32,9 @@ interface ProviderValues {
   apiKey: string;
 }
 
-const ModelPicker = ({
-  value,
-  onChange,
-  models,
-  emptyOption,
-  id,
-  ...aria
-}: {
-  value: string;
-  onChange: (value: string) => void;
-  models: string[];
-  emptyOption?: string;
-  id?: string;
-  'aria-describedby'?: string;
-  'aria-invalid'?: boolean;
-}) => {
-  const t = useTranslations('provider');
-  const [manual, setManual] = useState(false);
-
-  if (models.length === 0 || manual) {
-    return (
-      <Input
-        {...aria}
-        id={id}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        autoComplete="off"
-        placeholder={t('modelPlaceholder')}
-        className="font-sans"
-      />
-    );
-  }
-
-  const options = models.includes(value) || value === '' ? models : [value, ...models];
-
-  return (
-    <NativeSelect
-      {...aria}
-      id={id}
-      value={value}
-      onChange={(event) => {
-        if (event.target.value === MANUAL_OPTION) {
-          setManual(true);
-          return;
-        }
-
-        onChange(event.target.value);
-      }}
-    >
-      {emptyOption === undefined ? null : <option value="">{emptyOption}</option>}
-      {options.map((model) => (
-        <option key={model} value={model}>
-          {model}
-        </option>
-      ))}
-      <option value={MANUAL_OPTION}>{t('typeItIn')}</option>
-    </NativeSelect>
-  );
-};
+const sameBaseUrl = (first: string, second: string) =>
+  first.trim().replace(/\/+$/, '').toLowerCase() ===
+  second.trim().replace(/\/+$/, '').toLowerCase();
 
 export const NutritionProviderSection = () => {
   const t = useTranslations('provider');
@@ -115,7 +60,7 @@ export const NutritionProviderSection = () => {
     queryFn: nutritionProviderApi.models,
     enabled: isConfigured,
     retry: false,
-    staleTime: 5 * 60_000,
+    staleTime: Number.POSITIVE_INFINITY,
   });
 
   const schema = useMemo(
@@ -170,7 +115,32 @@ export const NutritionProviderSection = () => {
 
   const known = providers.find((entry) => entry.baseUrl === baseUrl);
   const selectedProviderId = known?.id ?? CUSTOM_PROVIDER;
-  const offeredModels = models.data?.models ?? known?.models ?? [];
+
+  const connectedHere =
+    isConfigured && provider.data?.baseUrl != null && sameBaseUrl(provider.data.baseUrl, baseUrl);
+
+  const refresh = useMutation({
+    mutationFn: nutritionProviderApi.refreshModels,
+    onSuccess: (result) => queryClient.setQueryData(queryKeys.providerModels, result),
+    onError: (error: unknown) => {
+      showToast({
+        title: t('modelsRefreshFailed'),
+        description: error instanceof ApiError ? error.message : undefined,
+        tone: 'danger',
+      });
+    },
+  });
+
+  const offeredModels = connectedHere ? (models.data?.models ?? []) : [];
+  const modelsLoading = connectedHere && (models.isFetching || refresh.isPending);
+
+  const modelsHint = !connectedHere
+    ? t('modelsAfterConnect')
+    : models.isError && !models.data
+      ? t('modelsUnavailable')
+      : modelsLoading && !models.data
+        ? t('modelsLoading')
+        : t('modelsCount', { count: offeredModels.length });
 
   const visionRecognised =
     visionModelName !== '' &&
@@ -189,7 +159,6 @@ export const NutritionProviderSection = () => {
       }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.nutritionProvider });
-      await queryClient.invalidateQueries({ queryKey: queryKeys.providerModels });
       showToast({ title: t('saved') });
     },
     onError: (error: unknown) => {
@@ -204,6 +173,7 @@ export const NutritionProviderSection = () => {
   const remove = useMutation({
     mutationFn: nutritionProviderApi.remove,
     onSuccess: async () => {
+      queryClient.removeQueries({ queryKey: queryKeys.providerModels });
       await queryClient.invalidateQueries({ queryKey: queryKeys.nutritionProvider });
       showToast({ title: t('removed') });
     },
@@ -248,25 +218,22 @@ export const NutritionProviderSection = () => {
           <form onSubmit={onSubmit} noValidate className="space-y-4">
             <Field label={t('provider')} hint={known?.baseUrl}>
               {(props) => (
-                <NativeSelect
+                <Select
                   {...props}
                   value={selectedProviderId}
-                  onChange={(event) => {
-                    const next = providers.find((entry) => entry.id === event.target.value);
+                  onValueChange={(id) => {
+                    const next = providers.find((entry) => entry.id === id);
 
                     setValue('baseUrl', next ? next.baseUrl : '', { shouldValidate: true });
                     setValue('modelName', next?.defaultModel ?? '', { shouldValidate: true });
                     setValue('visionModelName', '');
                     setValue('visionOverride', false);
                   }}
-                >
-                  {providers.map((entry) => (
-                    <option key={entry.id} value={entry.id}>
-                      {entry.label}
-                    </option>
-                  ))}
-                  <option value={CUSTOM_PROVIDER}>{t('customProvider')}</option>
-                </NativeSelect>
+                  options={[
+                    ...providers.map((entry) => ({ value: entry.id, label: entry.label })),
+                    { value: CUSTOM_PROVIDER, label: t('customProvider') },
+                  ]}
+                />
               )}
             </Field>
 
@@ -320,18 +287,42 @@ export const NutritionProviderSection = () => {
             <Field
               label={t('model')}
               error={errors.modelName?.message}
-              hint={models.isError ? t('modelsUnavailable') : t('modelHint')}
+              hint={modelsHint}
+              action={
+                connectedHere ? (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="-my-1 -mr-2"
+                    disabled={modelsLoading}
+                    onClick={() => refresh.mutate()}
+                  >
+                    <RefreshCw
+                      className={cn('size-3.5', modelsLoading && 'animate-spin')}
+                      aria-hidden
+                    />
+                    {t('refreshModels')}
+                  </Button>
+                ) : null
+              }
             >
               {(props) => (
                 <Controller
                   control={control}
                   name="modelName"
                   render={({ field }) => (
-                    <ModelPicker
+                    <Combobox
                       {...props}
                       value={field.value}
                       onChange={field.onChange}
-                      models={offeredModels}
+                      options={offeredModels}
+                      loading={modelsLoading}
+                      allowCustom
+                      placeholder={t('modelPlaceholder')}
+                      searchPlaceholder={
+                        offeredModels.length > 0 ? t('modelSearch') : t('modelPlaceholder')
+                      }
+                      aria-label={t('model')}
                     />
                   )}
                 />
@@ -344,12 +335,18 @@ export const NutritionProviderSection = () => {
                   control={control}
                   name="visionModelName"
                   render={({ field }) => (
-                    <ModelPicker
+                    <Combobox
                       {...props}
                       value={field.value}
                       onChange={field.onChange}
-                      models={offeredModels}
-                      emptyOption={t('visionOff')}
+                      options={offeredModels}
+                      loading={modelsLoading}
+                      allowCustom
+                      emptyLabel={t('visionOff')}
+                      searchPlaceholder={
+                        offeredModels.length > 0 ? t('modelSearch') : t('modelPlaceholder')
+                      }
+                      aria-label={t('visionModel')}
                     />
                   )}
                 />

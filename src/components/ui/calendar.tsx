@@ -137,7 +137,7 @@ export const Calendar = ({ value, onSelect, min, max, today }: CalendarProps) =>
               aria-label={formatFullDate(day, locale)}
               onClick={() => onSelect(day)}
               className={cn(
-                'numeric focus-visible:outline-ring relative flex h-10 items-center justify-center rounded-md text-[0.8125rem] transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-1 sm:h-9',
+                'numeric focus-visible:ring-ring/30 relative flex h-10 items-center justify-center rounded-md text-[0.8125rem] transition-[color,background-color,box-shadow] duration-150 focus-visible:ring-3 focus-visible:outline-none sm:h-9',
                 'disabled:pointer-events-none disabled:opacity-25',
                 outside && 'text-foreground-subtle',
                 !outside && !selected && 'text-foreground hover:bg-surface-muted',

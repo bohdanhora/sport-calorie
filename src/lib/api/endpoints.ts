@@ -156,6 +156,8 @@ export const nutritionProviderApi = {
   get: () => apiRequest<NutritionProvider>('/nutrition-provider'),
   catalog: () => apiRequest<CatalogProvider[]>('/nutrition-provider/catalog'),
   models: () => apiRequest<ProviderModels>('/nutrition-provider/models'),
+  refreshModels: () =>
+    apiRequest<ProviderModels>('/nutrition-provider/models/refresh', { method: 'POST' }),
   save: (input: NutritionProviderInput) =>
     apiRequest<NutritionProvider>('/nutrition-provider', { method: 'PUT', body: input }),
   remove: () => apiRequest<void>('/nutrition-provider', { method: 'DELETE' }),

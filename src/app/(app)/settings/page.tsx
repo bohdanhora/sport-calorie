@@ -18,7 +18,7 @@ import { DateField } from '@/components/ui/date-field';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { NumberInput } from '@/components/ui/number-input';
-import { NativeSelect } from '@/components/ui/native-select';
+import { Combobox } from '@/components/ui/combobox';
 import { Section } from '@/components/ui/section';
 import { Select } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -384,13 +384,13 @@ const ProfileSection = ({ profile }: { profile: Profile }) => {
 
         <Field label={t('timezone')} hint={t('timezoneHint')}>
           {(props) => (
-            <NativeSelect {...props} value={zone} onChange={(event) => setZone(event.target.value)}>
-              {listTimeZones(profile.timezone).map((name) => (
-                <option key={name} value={name}>
-                  {name}
-                </option>
-              ))}
-            </NativeSelect>
+            <Combobox
+              {...props}
+              value={zone}
+              onChange={setZone}
+              options={listTimeZones(profile.timezone)}
+              aria-label={t('timezone')}
+            />
           )}
         </Field>
 

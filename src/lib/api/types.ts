@@ -270,6 +270,7 @@ export interface CatalogProvider {
 export interface ProviderModels {
   models: string[];
   visionModels: string[];
+  fetchedAt: string | null;
 }
 
 export interface NutritionProviderCheck {

@@ -49,7 +49,7 @@ export const FoodCard = ({ food, index, onLog, onEdit, onArchive, archiving }: F
         type="button"
         onClick={onLog}
         aria-label={t('logThisFood', { name: food.name })}
-        className="press border-border bg-surface hover:border-border-strong focus-visible:outline-ring flex h-full w-full flex-col rounded-lg border px-4 py-3 text-left hover:-translate-y-px hover:shadow-[var(--shadow-soft)] focus-visible:outline-2 focus-visible:outline-offset-2 sm:py-3.5"
+        className="press border-border bg-surface hover:border-border-strong focus-visible:border-accent focus-visible:ring-accent/20 flex h-full w-full flex-col rounded-lg border px-4 py-3 text-left hover:-translate-y-px hover:shadow-[var(--shadow-soft)] focus-visible:ring-3 focus-visible:outline-none sm:py-3.5"
       >
         <div className="flex w-full items-start justify-between gap-2 sm:min-h-9">
           <div className="min-w-0">

@@ -23,7 +23,7 @@ export const PasswordInput = ({ className, ...props }: InputHTMLAttributes<HTMLI
         type="button"
         onClick={() => setVisible((shown) => !shown)}
         aria-label={visible ? t('hidePassword') : t('showPassword')}
-        className="text-foreground-subtle hover:text-foreground focus-visible:outline-ring absolute inset-y-0 right-0 flex w-10 items-center justify-center rounded-r-md transition-colors duration-150 focus-visible:outline-2 focus-visible:-outline-offset-2"
+        className="text-foreground-subtle hover:text-foreground focus-visible:text-accent absolute inset-y-0 right-0 flex w-10 items-center justify-center rounded-r-md transition-colors duration-150 focus-visible:outline-none"
       >
         <Icon className="size-4" aria-hidden />
       </button>

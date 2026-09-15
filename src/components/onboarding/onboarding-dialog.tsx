@@ -16,7 +16,7 @@ import { Dialog } from '@/components/ui/dialog';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { NumberInput } from '@/components/ui/number-input';
-import { NativeSelect } from '@/components/ui/native-select';
+import { Combobox } from '@/components/ui/combobox';
 import { Select } from '@/components/ui/select';
 import { useToast } from '@/components/ui/toast';
 import { LOCALES, LOCALE_NAMES, type Locale } from '@/i18n/config';
@@ -427,17 +427,13 @@ export const OnboardingDialog = ({
 
             <Field label={settings('timezone')} hint={settings('timezoneHint')}>
               {(props) => (
-                <NativeSelect
+                <Combobox
                   {...props}
                   value={zone}
-                  onChange={(event) => setZone(event.target.value)}
-                >
-                  {listTimeZones(zone).map((name) => (
-                    <option key={name} value={name}>
-                      {name}
-                    </option>
-                  ))}
-                </NativeSelect>
+                  onChange={setZone}
+                  options={listTimeZones(zone)}
+                  aria-label={settings('timezone')}
+                />
               )}
             </Field>
 

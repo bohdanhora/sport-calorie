@@ -36,21 +36,25 @@ export const Select = <T extends string>({
       id={id}
       {...aria}
       className={cn(
-        'border-border-strong bg-surface text-foreground focus-visible:border-accent focus-visible:outline-ring data-[placeholder]:text-foreground-subtle aria-[invalid=true]:border-danger flex h-11 w-full items-center justify-between gap-2 rounded-md border px-3 text-sm transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-1 sm:h-10',
+        'group border-border-strong bg-surface text-foreground hover:border-foreground-subtle/60 focus-visible:border-accent focus-visible:ring-accent/20 data-[placeholder]:text-foreground-subtle aria-[invalid=true]:border-danger data-[state=open]:border-accent data-[state=open]:ring-accent/20 flex h-11 w-full items-center justify-between gap-2 rounded-md border px-3 text-left text-sm transition-[color,border-color,box-shadow] duration-150 focus-visible:ring-3 focus-visible:outline-none data-[state=open]:ring-3 sm:h-10',
         className,
       )}
     >
       <SelectPrimitive.Value placeholder={placeholder} />
       <SelectPrimitive.Icon>
-        <ChevronDown className="text-foreground-subtle size-4" aria-hidden />
+        <ChevronDown
+          className="text-foreground-subtle size-4 transition-transform duration-150 group-data-[state=open]:rotate-180"
+          aria-hidden
+        />
       </SelectPrimitive.Icon>
     </SelectPrimitive.Trigger>
 
     <SelectPrimitive.Portal>
       <SelectPrimitive.Content
         position="popper"
-        sideOffset={4}
-        className="border-border bg-surface-raised z-50 max-h-72 min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-md border shadow-lg"
+        sideOffset={6}
+        collisionPadding={12}
+        className="border-border bg-surface-raised z-[60] max-h-[min(20rem,var(--radix-select-content-available-height))] w-[var(--radix-select-trigger-width)] animate-[fade-in_140ms_ease-out] overflow-hidden rounded-lg border shadow-lg"
       >
         <SelectPrimitive.Viewport className="p-1">
           {options.map((option) => (

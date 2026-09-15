@@ -19,6 +19,7 @@ interface FieldProps {
   suffix?: string;
   className?: string;
   optional?: boolean;
+  action?: ReactNode;
 }
 
 export const Field = ({
@@ -29,6 +30,7 @@ export const Field = ({
   suffix,
   className,
   optional = false,
+  action,
 }: FieldProps) => {
   const common = useTranslations('common');
   const id = useId();
@@ -38,7 +40,7 @@ export const Field = ({
 
   return (
     <div className={cn('space-y-1.5', className)}>
-      <div className="flex items-baseline justify-between gap-2">
+      <div className={cn('flex justify-between gap-2', action ? 'items-center' : 'items-baseline')}>
         <LabelPrimitive.Root
           htmlFor={id}
           className="text-foreground-muted text-[0.8125rem] font-medium"
@@ -48,6 +50,7 @@ export const Field = ({
         {optional ? (
           <span className="text-foreground-subtle text-xs">{common('optional')}</span>
         ) : null}
+        {action}
       </div>
 
       <div className="relative">

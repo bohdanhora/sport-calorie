@@ -62,7 +62,7 @@ export const WeekStrip = ({ days, selected, onSelect, metric = 'intake' }: WeekS
                     onClick={() => onSelect(day.date)}
                     title={`${formatWeekdayDate(day.date, locale)} · ${format.kcal(value)}`}
                     aria-current={isSelected ? 'date' : undefined}
-                    className="press focus-visible:outline-ring flex h-full w-full max-w-8 items-end justify-center focus-visible:outline-2 focus-visible:outline-offset-2"
+                    className="press focus-visible:ring-ring/30 flex h-full w-full max-w-8 items-end justify-center rounded-sm focus-visible:ring-3 focus-visible:outline-none"
                   >
                     <span
                       className={cn(

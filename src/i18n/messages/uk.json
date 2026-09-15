@@ -13,6 +13,8 @@
     "main": "Основне"
   },
   "common": {
+    "noMatches": "Нічого не знайдено",
+    "useValue": "Використати «{value}»",
     "save": "Зберегти",
     "saving": "Зберігаємо",
     "cancel": "Скасувати",
@@ -460,7 +462,6 @@
     "baseUrl": "Базовий URL API",
     "baseUrlHint": "Будь-який сумісний з OpenAI ендпоінт, наприклад https://api.openai.com/v1",
     "model": "Модель",
-    "modelHint": "Наприклад gpt-4o-mini",
     "apiKey": "API-ключ",
     "apiKeyHint": "Зберігається зашифрованим, більше не показується і не залишає сервер.",
     "apiKeyStored": "Ключ збережено: {hint}",
@@ -484,7 +485,6 @@
     "customProvider": "Свій",
     "whereToGetKey": "Де взяти ключ {provider}",
     "keyOptional": "Залиште порожнім, щоб зберегти його.",
-    "typeItIn": "Ввести id вручну",
     "modelPlaceholder": "id моделі",
     "modelsUnavailable": "Провайдер не віддав список моделей, введіть id вручну.",
     "visionModel": "Модель для фото",
@@ -492,7 +492,13 @@
     "visionUnknown": "Застосунок не знає {model} як модель, що приймає фото. Цей список наш, і він відстає від нових релізів.",
     "visionOff": "Фото вимкнено",
     "visionOverrideLabel": "Вона приймає фото, використати попри це",
-    "visionReady": "Розбір фотографій увімкнено."
+    "visionReady": "Розбір фотографій увімкнено.",
+    "modelSearch": "Знайти модель",
+    "modelsAfterConnect": "Список моделей підтягнеться після підключення. Поки що id можна вписати вручну.",
+    "modelsLoading": "Завантажуємо список моделей",
+    "modelsCount": "{count, plural, one {# модель} few {# моделі} many {# моделей} other {# моделі}} у провайдера. Немає потрібної? Впишіть id у пошук.",
+    "refreshModels": "Оновити список",
+    "modelsRefreshFailed": "Не вдалося оновити список моделей"
   },
   "errors": {
     "loadFailed": "Не вдалося завантажити",

@@ -13,6 +13,8 @@
     "main": "Main"
   },
   "common": {
+    "noMatches": "Nothing found",
+    "useValue": "Use “{value}”",
     "save": "Save",
     "saving": "Saving",
     "cancel": "Cancel",
@@ -460,7 +462,6 @@
     "baseUrl": "API base URL",
     "baseUrlHint": "Any OpenAI compatible endpoint, for example https://api.openai.com/v1",
     "model": "Model",
-    "modelHint": "For example gpt-4o-mini",
     "apiKey": "API key",
     "apiKeyHint": "Stored encrypted. It is never shown again and never leaves the server.",
     "apiKeyStored": "Key stored: {hint}",
@@ -484,7 +485,6 @@
     "customProvider": "Custom",
     "whereToGetKey": "Where to get a key for {provider}",
     "keyOptional": "Leave empty to keep it.",
-    "typeItIn": "Type an id by hand",
     "modelPlaceholder": "model id",
     "modelsUnavailable": "The provider would not list its models; type the id by hand.",
     "visionModel": "Model for photos",
@@ -492,7 +492,13 @@
     "visionOff": "Photos off",
     "visionUnknown": "This app does not know {model} as a model that accepts photos. The list here is ours and trails new releases.",
     "visionOverrideLabel": "It does accept photos, use it anyway",
-    "visionReady": "Photo scanning is on."
+    "visionReady": "Photo scanning is on.",
+    "modelSearch": "Search models",
+    "modelsAfterConnect": "The model list loads once the provider is connected. Until then, type the id by hand.",
+    "modelsLoading": "Loading the model list",
+    "modelsCount": "{count, plural, one {# model} other {# models}} from the provider. Not listed? Type the id into the search.",
+    "refreshModels": "Refresh list",
+    "modelsRefreshFailed": "Could not refresh the model list"
   },
   "errors": {
     "loadFailed": "Could not load this",
