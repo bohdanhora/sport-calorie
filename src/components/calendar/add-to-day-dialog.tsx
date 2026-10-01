@@ -1,11 +1,12 @@
 'use client';
 
 import { useMutation } from '@tanstack/react-query';
-import { Dumbbell, PencilLine, Plus } from 'lucide-react';
+import { Dumbbell, PencilLine, Plus, Search } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 
 import { Dialog } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/toast';
 import { plansApi, type PlanInput } from '@/lib/api/endpoints';
 import type { SavedExercise, Workout } from '@/lib/api/types';
@@ -71,6 +72,12 @@ export const AddToDayDialog = ({
   const invalidateDay = useInvalidateDay();
   const { showToast } = useToast();
 
+  useEffect(() => {
+    if (date) {
+      setSearch('');
+    }
+  }, [date]);
+
   const add = useMutation({
     mutationFn: (input: PlanInput) => plansApi.create(input),
     onSuccess: async (plan) => {
@@ -81,7 +88,21 @@ export const AddToDayDialog = ({
     onError: () => showToast({ title: t('saveFailed'), tone: 'danger' }),
   });
 
+  const [search, setSearch] = useState('');
+
   const kcal = (value: number): string => `${format.kcal(value)} ${units('kcal')}`;
+
+  const tokens = search.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const matches = (text: string): boolean =>
+    tokens.every((token) => text.toLowerCase().includes(token));
+  const shownWorkouts = workouts.filter((workout) =>
+    matches([workout.name, ...workout.exercises.map((exercise) => exercise.name)].join(' ')),
+  );
+  const shownExercises = exercises.filter((exercise) =>
+    matches(`${exercise.name} ${activityName(exercise.activityType)}`),
+  );
+  const nothingFound =
+    tokens.length > 0 && shownWorkouts.length === 0 && shownExercises.length === 0;
 
   return (
     <Dialog
@@ -93,11 +114,36 @@ export const AddToDayDialog = ({
     >
       {date ? (
         <div className="space-y-5">
-          {workouts.length > 0 ? (
+          {workouts.length + exercises.length > 0 ? (
+            <div className="relative">
+              <Search
+                className="text-foreground-subtle pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2"
+                aria-hidden
+              />
+              <Input
+                type="search"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder={t('searchLibrary')}
+                aria-label={t('searchLibrary')}
+                autoComplete="off"
+                spellCheck={false}
+                className="pl-9 font-sans [&::-webkit-search-cancel-button]:appearance-none"
+              />
+            </div>
+          ) : null}
+
+          {nothingFound ? (
+            <p className="text-foreground-subtle py-4 text-center text-[0.8125rem]">
+              {t('nothingFound')}
+            </p>
+          ) : null}
+
+          {shownWorkouts.length > 0 ? (
             <section className="space-y-2">
               <h3 className="label-caps">{library('workouts')}</h3>
               <ul className="space-y-1.5">
-                {workouts.map((workout) => (
+                {shownWorkouts.map((workout) => (
                   <OptionRow
                     key={workout.id}
                     icon={<Dumbbell className="text-accent size-4 shrink-0" aria-hidden />}
@@ -112,11 +158,11 @@ export const AddToDayDialog = ({
             </section>
           ) : null}
 
-          {exercises.length > 0 ? (
+          {shownExercises.length > 0 ? (
             <section className="space-y-2">
               <h3 className="label-caps">{library('exercises')}</h3>
               <ul className="space-y-1.5">
-                {exercises.map((exercise) => (
+                {shownExercises.map((exercise) => (
                   <OptionRow
                     key={exercise.id}
                     icon={

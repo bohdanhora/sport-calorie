@@ -17,7 +17,7 @@ import {
   type DragStartEvent,
 } from '@dnd-kit/core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Check, Dumbbell, GripVertical, PencilLine, Plus, Trash2 } from 'lucide-react';
+import { Check, Dumbbell, GripVertical, PencilLine, Plus, Search, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useRef, useState, type ReactNode } from 'react';
 
@@ -33,6 +33,7 @@ import {
   type Placement,
 } from '@/lib/calendar/placement';
 import { formatDayOfMonth, formatWeekdayShort } from '@/lib/format/dates';
+import { useActivityTypeName } from '@/lib/format/use-activity-name';
 import { useFormat } from '@/lib/format/use-format';
 import { useInvalidateDay } from '@/lib/query/use-day-mutations';
 import { cn } from '@/lib/utils/cn';
@@ -312,29 +313,33 @@ export const PlanBoard = ({
       onDragCancel={reset}
       autoScroll={{ threshold: { x: 0, y: 0.15 } }}
     >
-      <Palette
-        workouts={workouts}
-        exercises={exercises}
-        onCustom={() => onCustom({ date: today })}
-      />
+      <p className="text-foreground-subtle mb-3 text-xs 2xl:hidden">{t('boardHint')}</p>
 
-      <div className="space-y-2 xl:grid xl:grid-cols-7 xl:gap-2 xl:space-y-0">
-        {days.map((date) => (
-          <DayColumn
-            key={date}
-            date={date}
-            today={today}
-            plans={plansForDay(calendar.plans, date)}
-            logged={calendar.activities.filter((entry) => entry.date === date)}
-            over={over}
-            dragging={active !== null}
-            movingId={active?.kind === 'plan' ? active.plan.id : undefined}
-            onOpenPlan={openPlan}
-            onToggleDone={(plan) => toggleDone.mutate(plan)}
-            onRemoveEntry={(entry) => removeEntry.mutate(entry)}
-            onAdd={() => onAddToDay(date)}
-          />
-        ))}
+      <div className="2xl:grid 2xl:grid-cols-[15rem_minmax(0,1fr)] 2xl:items-start 2xl:gap-4">
+        <Library
+          workouts={workouts}
+          exercises={exercises}
+          onCustom={() => onCustom({ date: today })}
+        />
+
+        <div className="space-y-2 xl:grid xl:grid-cols-7 xl:gap-2 xl:space-y-0">
+          {days.map((date) => (
+            <DayColumn
+              key={date}
+              date={date}
+              today={today}
+              plans={plansForDay(calendar.plans, date)}
+              logged={calendar.activities.filter((entry) => entry.date === date)}
+              over={over}
+              dragging={active !== null}
+              movingId={active?.kind === 'plan' ? active.plan.id : undefined}
+              onOpenPlan={openPlan}
+              onToggleDone={(plan) => toggleDone.mutate(plan)}
+              onRemoveEntry={(entry) => removeEntry.mutate(entry)}
+              onAdd={() => onAddToDay(date)}
+            />
+          ))}
+        </div>
       </div>
 
       <DragOverlay dropAnimation={null}>
@@ -355,13 +360,24 @@ const DragPreview = ({ source, today }: { source: DragSource; today: string }) =
     );
   }
 
-  return <ChipBody source={source} lifted />;
+  return <LibraryRowBody source={source} lifted />;
 };
 
-const ChipBody = ({ source, lifted = false }: { source: DragSource; lifted?: boolean }) => {
+const matchesSearch = (text: string, tokens: string[]): boolean => {
+  const haystack = text.toLowerCase();
+
+  return tokens.every((token) => haystack.includes(token));
+};
+
+const LibraryRowBody = ({ source, lifted = false }: { source: DragSource; lifted?: boolean }) => {
   const t = useTranslations('calendar');
   const units = useTranslations('units');
   const format = useFormat();
+  const activityName = useActivityTypeName();
+
+  if (source.kind === 'plan') {
+    return null;
+  }
 
   const label =
     source.kind === 'workout'
@@ -369,6 +385,14 @@ const ChipBody = ({ source, lifted = false }: { source: DragSource; lifted?: boo
       : source.kind === 'exercise'
         ? source.exercise.name
         : t('oneOff');
+
+  const detail =
+    source.kind === 'workout'
+      ? t('exerciseCountShort', { count: source.workout.exercises.length })
+      : source.kind === 'exercise' &&
+          source.exercise.name !== activityName(source.exercise.activityType)
+        ? activityName(source.exercise.activityType)
+        : null;
 
   const kcal =
     source.kind === 'workout'
@@ -380,19 +404,25 @@ const ChipBody = ({ source, lifted = false }: { source: DragSource; lifted?: boo
   return (
     <span
       className={cn(
-        'border-border bg-surface flex h-10 max-w-56 items-center gap-1.5 rounded-full border pr-3.5 pl-2 text-[0.8125rem] whitespace-nowrap select-none sm:h-9',
-        lifted ? 'cursor-grabbing shadow-[0_8px_24px_rgb(0_0_0/0.16)]' : 'cursor-grab',
-        source.kind === 'workout' && 'border-accent/30 bg-accent-soft',
+        'flex min-h-11 w-full items-center gap-2 rounded-md px-2 py-1.5 text-left select-none',
+        lifted
+          ? 'border-border bg-surface-raised cursor-grabbing border shadow-[0_8px_24px_rgb(0_0_0/0.16)]'
+          : 'cursor-grab',
       )}
     >
-      {source.kind === 'custom' ? (
-        <PencilLine className="text-foreground-subtle size-4 shrink-0" aria-hidden />
-      ) : source.kind === 'workout' ? (
+      {source.kind === 'workout' ? (
         <Dumbbell className="text-accent size-4 shrink-0" aria-hidden />
+      ) : source.kind === 'custom' ? (
+        <PencilLine className="text-foreground-subtle size-4 shrink-0" aria-hidden />
       ) : (
         <GripVertical className="text-foreground-subtle size-4 shrink-0" aria-hidden />
       )}
-      <span className="min-w-0 truncate font-medium">{label}</span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-[0.8125rem] font-medium">{label}</span>
+        {detail ? (
+          <span className="text-foreground-subtle block truncate text-xs">{detail}</span>
+        ) : null}
+      </span>
       {kcal !== null ? (
         <span className="numeric text-foreground-subtle shrink-0 text-xs">
           {format.kcal(kcal)} {units('kcal')}
@@ -402,7 +432,7 @@ const ChipBody = ({ source, lifted = false }: { source: DragSource; lifted?: boo
   );
 };
 
-const PaletteChip = ({ id, source }: { id: string; source: DragSource }) => {
+const LibraryRow = ({ id, source }: { id: string; source: DragSource }) => {
   const { setNodeRef, listeners, isDragging } = useDraggable({ id, data: source });
 
   return (
@@ -410,37 +440,38 @@ const PaletteChip = ({ id, source }: { id: string; source: DragSource }) => {
       ref={setNodeRef}
       {...listeners}
       className={cn(
-        'shrink-0 touch-manipulation [-webkit-touch-callout:none]',
+        'hover:bg-surface-muted touch-manipulation rounded-md transition-colors duration-150 [-webkit-touch-callout:none]',
         isDragging && 'opacity-40',
       )}
     >
-      <ChipBody source={source} />
+      <LibraryRowBody source={source} />
     </li>
   );
 };
 
-const CustomChip = ({ onClick }: { onClick: () => void }) => {
+const CustomRow = ({ onClick }: { onClick: () => void }) => {
   const { setNodeRef, listeners, isDragging } = useDraggable({
     id: 'custom',
     data: { kind: 'custom' } satisfies DragSource,
   });
 
   return (
-    <li className={cn('shrink-0', isDragging && 'opacity-40')}>
-      <button
-        ref={setNodeRef}
-        type="button"
-        {...listeners}
-        onClick={onClick}
-        className="press focus-visible:ring-ring/30 block touch-manipulation rounded-full [-webkit-touch-callout:none] focus-visible:ring-3 focus-visible:outline-none"
-      >
-        <ChipBody source={{ kind: 'custom' }} />
-      </button>
-    </li>
+    <button
+      ref={setNodeRef}
+      type="button"
+      {...listeners}
+      onClick={onClick}
+      className={cn(
+        'hover:bg-surface-muted focus-visible:ring-ring/30 block w-full touch-manipulation rounded-md transition-colors duration-150 [-webkit-touch-callout:none] focus-visible:ring-3 focus-visible:outline-none',
+        isDragging && 'opacity-40',
+      )}
+    >
+      <LibraryRowBody source={{ kind: 'custom' }} />
+    </button>
   );
 };
 
-const Palette = ({
+const Library = ({
   workouts,
   exercises,
   onCustom,
@@ -450,28 +481,101 @@ const Palette = ({
   onCustom: () => void;
 }) => {
   const t = useTranslations('calendar');
+  const library = useTranslations('library');
+  const activityName = useActivityTypeName();
+  const [search, setSearch] = useState('');
+
+  const tokens = search.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const shownWorkouts = workouts.filter((workout) =>
+    matchesSearch(
+      [workout.name, ...workout.exercises.map((exercise) => exercise.name)].join(' '),
+      tokens,
+    ),
+  );
+  const shownExercises = exercises.filter((exercise) =>
+    matchesSearch(`${exercise.name} ${activityName(exercise.activityType)}`, tokens),
+  );
+  const isEmpty = workouts.length === 0 && exercises.length === 0;
+  const nothingFound = !isEmpty && shownWorkouts.length === 0 && shownExercises.length === 0;
 
   return (
-    <section aria-label={t('palette')} className="mb-4 space-y-2">
-      <p className="text-foreground-subtle text-xs">{t('paletteHint')}</p>
-      <ul className="-mx-5 flex [scrollbar-width:none] gap-2 overflow-x-auto px-5 pb-1 lg:-mx-8 lg:px-8 xl:mx-0 xl:flex-wrap xl:overflow-visible xl:px-0 [&::-webkit-scrollbar]:hidden">
-        {workouts.map((workout) => (
-          <PaletteChip
-            key={workout.id}
-            id={`workout:${workout.id}`}
-            source={{ kind: 'workout', workout }}
-          />
-        ))}
-        {exercises.map((exercise) => (
-          <PaletteChip
-            key={exercise.id}
-            id={`exercise:${exercise.id}`}
-            source={{ kind: 'exercise', exercise }}
-          />
-        ))}
-        <CustomChip onClick={onCustom} />
-      </ul>
-    </section>
+    <aside
+      aria-label={t('palette')}
+      className="border-border bg-surface sticky top-4 hidden max-h-[calc(100dvh-2rem)] flex-col overflow-hidden rounded-lg border 2xl:flex"
+    >
+      <div className="border-border space-y-2 border-b p-3">
+        <div>
+          <h2 className="text-sm font-medium">{t('library')}</h2>
+          <p className="text-foreground-subtle text-xs">{t('paletteHint')}</p>
+        </div>
+        {!isEmpty ? (
+          <div className="relative">
+            <Search
+              className="text-foreground-subtle pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2"
+              aria-hidden
+            />
+            <input
+              type="search"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder={t('searchLibrary')}
+              aria-label={t('searchLibrary')}
+              autoComplete="off"
+              spellCheck={false}
+              className="border-border-strong bg-surface placeholder:text-foreground-subtle focus-visible:border-accent focus-visible:ring-accent/20 h-9 w-full rounded-md border pr-2.5 pl-8 text-[0.8125rem] transition-[border-color,box-shadow] duration-150 focus-visible:ring-3 focus-visible:outline-none [&::-webkit-search-cancel-button]:appearance-none"
+            />
+          </div>
+        ) : null}
+      </div>
+
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-1.5">
+        {isEmpty ? (
+          <p className="text-foreground-muted px-2 py-6 text-center text-xs leading-relaxed">
+            {t('libraryEmpty')}
+          </p>
+        ) : null}
+
+        {nothingFound ? (
+          <p className="text-foreground-subtle px-2 py-6 text-center text-xs">
+            {t('nothingFound')}
+          </p>
+        ) : null}
+
+        {shownWorkouts.length > 0 ? (
+          <section className="pb-1">
+            <h3 className="label-caps px-2 pt-1.5 pb-1">{library('workouts')}</h3>
+            <ul>
+              {shownWorkouts.map((workout) => (
+                <LibraryRow
+                  key={workout.id}
+                  id={`workout:${workout.id}`}
+                  source={{ kind: 'workout', workout }}
+                />
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
+        {shownExercises.length > 0 ? (
+          <section className="pb-1">
+            <h3 className="label-caps px-2 pt-1.5 pb-1">{library('exercises')}</h3>
+            <ul>
+              {shownExercises.map((exercise) => (
+                <LibraryRow
+                  key={exercise.id}
+                  id={`exercise:${exercise.id}`}
+                  source={{ kind: 'exercise', exercise }}
+                />
+              ))}
+            </ul>
+          </section>
+        ) : null}
+      </div>
+
+      <div className="border-border border-t p-1.5">
+        <CustomRow onClick={onCustom} />
+      </div>
+    </aside>
   );
 };
 

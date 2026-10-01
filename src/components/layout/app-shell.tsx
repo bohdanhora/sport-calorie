@@ -123,7 +123,7 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
           className={cn(
             'animate-rise mx-auto w-full max-w-3xl px-5 pt-5 pb-28 lg:px-8 lg:pt-8 lg:pb-16',
             WIDE_ROUTES.some((route) => pathname.startsWith(route))
-              ? 'xl:max-w-[96rem]'
+              ? 'xl:max-w-none'
               : 'xl:max-w-6xl',
           )}
         >

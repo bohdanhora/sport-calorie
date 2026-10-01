@@ -370,7 +370,7 @@
     "title": "Calendar",
     "subtitle": "Plan your week and drag routines between days.",
     "palette": "Routines and exercises to plan",
-    "paletteHint": "Drag onto a day, or press + on a day.",
+    "paletteHint": "Drag onto a day.",
     "oneOff": "One-off activity",
     "oneOffHint": "Any activity, for example treadmill 8 km at 5 km/h",
     "weekDone": "Done {value}",
@@ -413,7 +413,12 @@
     "markNotDone": "Mark {name} as not done",
     "markDoneNamed": "Mark {name} as done",
     "entryRemoved": "Activity removed",
-    "removeEntry": "Remove {name}"
+    "removeEntry": "Remove {name}",
+    "library": "Library",
+    "searchLibrary": "Search",
+    "libraryEmpty": "Save exercises or routines on the Activity page to plan them here.",
+    "nothingFound": "Nothing found",
+    "boardHint": "Press + on a day to add to it; plans can be dragged between days."
   },
   "library": {
     "workouts": "Routines",
