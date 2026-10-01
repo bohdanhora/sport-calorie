@@ -7,17 +7,26 @@ import { useEffect, useId, useMemo, useState, type KeyboardEvent } from 'react';
 
 import { cn } from '@/lib/utils/cn';
 
+export interface ComboboxOption {
+  value: string;
+  label: string;
+  hint?: string;
+  group?: string;
+}
+
 interface ComboboxItem {
   key: string;
   value: string;
   label: string;
+  hint?: string;
+  group?: string;
   kind: 'empty' | 'custom' | 'option';
 }
 
 interface ComboboxProps {
   value: string;
   onChange: (value: string) => void;
-  options: readonly string[];
+  options: readonly (string | ComboboxOption)[];
   placeholder?: string;
   searchPlaceholder?: string;
   emptyLabel?: string;
@@ -31,8 +40,11 @@ interface ComboboxProps {
   'aria-label'?: string;
 }
 
-const matches = (option: string, tokens: string[]) => {
-  const text = option.toLowerCase();
+const toOption = (option: string | ComboboxOption): ComboboxOption =>
+  typeof option === 'string' ? { value: option, label: option } : option;
+
+const matches = (option: ComboboxOption, tokens: string[]) => {
+  const text = `${option.label} ${option.hint ?? ''}`.toLowerCase();
 
   return tokens.every((token) => text.includes(token));
 };
@@ -58,6 +70,7 @@ export const Combobox = ({
   const [activeKey, setActiveKey] = useState<string | null>(null);
 
   const query = search.trim();
+  const normalized = useMemo(() => options.map(toOption), [options]);
 
   const items = useMemo(() => {
     const tokens = query.toLowerCase().split(/\s+/).filter(Boolean);
@@ -67,7 +80,7 @@ export const Combobox = ({
       list.push({ key: 'empty', value: '', label: emptyLabel, kind: 'empty' });
     }
 
-    if (allowCustom && query !== '' && !options.includes(query)) {
+    if (allowCustom && query !== '' && !normalized.some((option) => option.value === query)) {
       list.push({
         key: 'custom',
         value: query,
@@ -76,14 +89,14 @@ export const Combobox = ({
       });
     }
 
-    for (const option of options) {
+    for (const option of normalized) {
       if (matches(option, tokens)) {
-        list.push({ key: `option:${option}`, value: option, label: option, kind: 'option' });
+        list.push({ ...option, key: `option:${option.value}`, kind: 'option' });
       }
     }
 
     return list;
-  }, [allowCustom, common, emptyLabel, options, query]);
+  }, [allowCustom, common, emptyLabel, normalized, query]);
 
   const activeIndex = Math.max(
     0,
@@ -128,7 +141,10 @@ export const Combobox = ({
     }
   };
 
-  const shown = value !== '' ? value : (emptyLabel ?? placeholder ?? '');
+  const shown =
+    value !== ''
+      ? (normalized.find((option) => option.value === value)?.label ?? value)
+      : (emptyLabel ?? placeholder ?? '');
 
   return (
     <PopoverPrimitive.Root
@@ -220,26 +236,42 @@ export const Combobox = ({
             className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-1"
           >
             {items.map((item, index) => (
-              <div
-                key={item.key}
-                id={optionId(index)}
-                role="option"
-                aria-selected={isSelected(item)}
-                onPointerMove={() => setActiveKey(item.key)}
-                onMouseDown={(event) => event.preventDefault()}
-                onClick={() => choose(item)}
-                className={cn(
-                  'flex cursor-default items-center justify-between gap-2 rounded-sm px-2.5 py-2.5 text-sm select-none sm:py-2',
-                  index === activeIndex && 'bg-surface-muted',
-                  item.kind === 'option' && 'text-foreground',
-                  item.kind === 'empty' && 'text-foreground-muted',
-                  item.kind === 'custom' && 'text-accent font-medium',
-                )}
-              >
-                <span className="min-w-0 truncate">{item.label}</span>
-                {isSelected(item) ? (
-                  <Check className="text-accent size-4 shrink-0" aria-hidden />
+              <div key={item.key} role="presentation">
+                {item.group && item.group !== items[index - 1]?.group ? (
+                  <p
+                    role="presentation"
+                    className={cn('label-caps px-2.5 pt-2 pb-1', index > 0 && 'mt-1')}
+                  >
+                    {item.group}
+                  </p>
                 ) : null}
+                <div
+                  id={optionId(index)}
+                  role="option"
+                  aria-selected={isSelected(item)}
+                  onPointerMove={() => setActiveKey(item.key)}
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={() => choose(item)}
+                  className={cn(
+                    'flex cursor-default items-center gap-2 rounded-sm px-2.5 py-2.5 text-sm select-none sm:py-2',
+                    index === activeIndex && 'bg-surface-muted',
+                    item.kind === 'option' && 'text-foreground',
+                    item.kind === 'empty' && 'text-foreground-muted',
+                    item.kind === 'custom' && 'text-accent font-medium',
+                  )}
+                >
+                  <span className="min-w-0 flex-1 truncate">{item.label}</span>
+                  {item.hint ? (
+                    <span className="numeric text-foreground-subtle shrink-0 text-xs">
+                      {item.hint}
+                    </span>
+                  ) : null}
+                  {isSelected(item) ? (
+                    <Check className="text-accent size-4 shrink-0" aria-hidden />
+                  ) : (
+                    <span aria-hidden className="size-4 shrink-0" />
+                  )}
+                </div>
               </div>
             ))}
 
