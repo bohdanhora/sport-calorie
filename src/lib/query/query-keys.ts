@@ -10,6 +10,10 @@ export const queryKeys = {
   foodEntries: (date: string) => ['food-entries', date] as const,
   activityTypes: ['activity-types'] as const,
   activityEntries: (date: string) => ['activity-entries', date] as const,
+  recentActivities: ['activity-entries', 'recent'] as const,
+  savedExercises: ['saved-exercises'] as const,
+  workouts: ['workouts'] as const,
+  calendar: (from: string, to: string) => ['calendar', from, to] as const,
   weight: (from?: string, to?: string) => ['weight', from ?? '', to ?? ''] as const,
   history: (from: string, to: string) => ['history', from, to] as const,
   progress: (from: string, to: string) => ['progress', from, to] as const,
@@ -22,4 +26,7 @@ export const DAY_SCOPED_KEYS = [
   'food-entries',
   'activity-entries',
   'weight',
+  'saved-exercises',
+  'workouts',
+  'calendar',
 ] as const;

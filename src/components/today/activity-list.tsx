@@ -16,7 +16,16 @@ import type { AppFormat } from '@/lib/format/use-format';
 
 type ActivityTexts = ReturnType<typeof useTranslations<'activityForm'>>;
 
-const describeActivity = (entry: ActivityEntry, format: AppFormat, t: ActivityTexts): string => {
+type DescribedActivity = Pick<
+  ActivityEntry,
+  'durationSec' | 'distanceM' | 'avgSpeedKmh' | 'inclinePercent' | 'sets' | 'reps'
+>;
+
+export const describeActivity = (
+  entry: DescribedActivity,
+  format: AppFormat,
+  t: ActivityTexts,
+): string => {
   const parts: string[] = [];
 
   if (entry.durationSec) {

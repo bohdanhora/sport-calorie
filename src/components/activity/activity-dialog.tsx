@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Sparkle } from 'lucide-react';
+import { Bookmark, History, Sparkle } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm, type DefaultValues } from 'react-hook-form';
@@ -21,9 +21,12 @@ import { ApiError } from '@/lib/api/client';
 import {
   activitiesApi,
   nutritionProviderApi,
+  plansApi,
+  savedExercisesApi,
   type ActivityEstimateInput,
+  type ActivityValuesInput,
 } from '@/lib/api/endpoints';
-import type { ActivityType, Intensity } from '@/lib/api/types';
+import type { ActivityEntry, ActivityType, Intensity, Plan, SavedExercise } from '@/lib/api/types';
 import {
   kilometresToMetres,
   metresToKilometres,
@@ -34,6 +37,7 @@ import { useActivityTypeName } from '@/lib/format/use-activity-name';
 import { useFormat } from '@/lib/format/use-format';
 import { queryKeys } from '@/lib/query/query-keys';
 import { useInvalidateDay } from '@/lib/query/use-day-mutations';
+import { cn } from '@/lib/utils/cn';
 import {
   optionalNumber,
   toDecimal,
@@ -43,6 +47,13 @@ import {
 } from '@/lib/validation/numbers';
 
 const ESTIMATE_DEBOUNCE_MS = 350;
+
+const SUCCESS_KEYS = { log: 'logged', exercise: 'exerciseSaved', plan: 'planSaved' } as const;
+const FAILURE_KEYS = {
+  log: 'logFailed',
+  exercise: 'exerciseSaveFailed',
+  plan: 'planSaveFailed',
+} as const;
 const INTENSITY_VALUES: Intensity[] = ['LOW', 'MODERATE', 'HIGH'];
 
 interface ActivityValues {
@@ -71,12 +82,68 @@ const EMPTY_VALUES: DefaultValues<ActivityValues> = {
 
 type DecimalField = 'durationMin' | 'distanceKm' | 'avgSpeedKmh' | 'inclinePercent';
 
+export type ActivityDialogTarget =
+  | { kind: 'log' }
+  | { kind: 'exercise'; exercise?: SavedExercise }
+  | { kind: 'plan'; plan?: Plan; position?: number };
+
 interface ActivityDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   date: string;
   preferCategory?: ActivityType['category'];
+  target?: ActivityDialogTarget;
 }
+
+const LOG_TARGET: ActivityDialogTarget = { kind: 'log' };
+
+const initialOf = (target: ActivityDialogTarget): SavedExercise | undefined =>
+  target.kind === 'exercise'
+    ? target.exercise
+    : target.kind === 'plan'
+      ? target.plan?.exercises[0]
+      : undefined;
+
+type ActivityTemplate = Pick<
+  SavedExercise,
+  | 'activityType'
+  | 'durationSec'
+  | 'distanceM'
+  | 'avgSpeedKmh'
+  | 'inclinePercent'
+  | 'sets'
+  | 'reps'
+  | 'intensity'
+  | 'notes'
+  | 'energyKcal'
+  | 'energySource'
+> & { name: string };
+
+interface QuickPick {
+  key: string;
+  label: string;
+  saved: boolean;
+  template: ActivityTemplate;
+}
+
+const fromEntry = (entry: ActivityEntry): ActivityTemplate => ({
+  ...entry,
+  name: entry.title ?? '',
+});
+
+const MAX_QUICK_PICKS = 12;
+
+const valuesOf = (exercise: ActivityTemplate): DefaultValues<ActivityValues> => ({
+  title: exercise.name,
+  durationMin: exercise.durationSec ? secondsToMinutes(exercise.durationSec) : undefined,
+  distanceKm: exercise.distanceM ? metresToKilometres(exercise.distanceM) : undefined,
+  avgSpeedKmh: exercise.avgSpeedKmh ?? undefined,
+  inclinePercent: exercise.inclinePercent ?? undefined,
+  sets: exercise.sets ?? Number.NaN,
+  reps: exercise.reps ?? Number.NaN,
+  energyKcal: exercise.energySource === 'MANUAL' ? exercise.energyKcal : Number.NaN,
+  notes: exercise.notes ?? '',
+});
 
 const useDebounced = <T,>(value: T, delayMs: number): T => {
   const [debounced, setDebounced] = useState(value);
@@ -95,6 +162,7 @@ export const ActivityDialog = ({
   onOpenChange,
   date,
   preferCategory,
+  target = LOG_TARGET,
 }: ActivityDialogProps) => {
   const t = useTranslations('activityForm');
   const common = useTranslations('common');
@@ -106,6 +174,10 @@ export const ActivityDialog = ({
   const [typeId, setTypeId] = useState<string>('');
   const [intensity, setIntensity] = useState<Intensity>('MODERATE');
   const [overrideEnergy, setOverrideEnergy] = useState(false);
+  const [saveAsExercise, setSaveAsExercise] = useState(false);
+  const [pickedKey, setPickedKey] = useState<string | null>(null);
+  const initial = initialOf(target);
+  const offersQuickPick = target.kind !== 'exercise' && !initial;
   const invalidateDay = useInvalidateDay();
   const { showToast } = useToast();
 
@@ -119,7 +191,10 @@ export const ActivityDialog = ({
   const schema = useMemo(
     () =>
       z.object({
-        title: z.string().trim().max(120),
+        title:
+          target.kind === 'exercise'
+            ? z.string().trim().min(1, t('nameRequired')).max(120)
+            : z.string().trim().max(120),
         durationMin: optionalNumber(t('durationNegative')),
         distanceKm: optionalNumber(t('distanceNegative')),
         avgSpeedKmh: optionalNumber(t('speedNegative')),
@@ -129,7 +204,7 @@ export const ActivityDialog = ({
         energyKcal: optionalNumber(t('caloriesNegative')),
         notes: z.string().trim().max(280),
       }),
-    [t],
+    [t, target.kind],
   );
 
   const locale = useLocale();
@@ -169,11 +244,17 @@ export const ActivityDialog = ({
       return;
     }
 
-    reset(EMPTY_VALUES);
-    setIntensity('MODERATE');
-    setOverrideEnergy(false);
+    reset(initial ? valuesOf(initial) : EMPTY_VALUES);
+    setIntensity(initial?.intensity ?? 'MODERATE');
+    setOverrideEnergy(initial?.energySource === 'MANUAL');
+    setSaveAsExercise(false);
+    setPickedKey(null);
     setDescription('');
-  }, [open, reset]);
+
+    if (initial) {
+      setTypeId(initial.activityType.id);
+    }
+  }, [open, reset, initial]);
 
   useEffect(() => {
     const types = typesQuery.data;
@@ -193,6 +274,56 @@ export const ActivityDialog = ({
     () => typesQuery.data?.find((type) => type.id === typeId) ?? null,
     [typesQuery.data, typeId],
   );
+
+  const savedQuery = useQuery({
+    queryKey: queryKeys.savedExercises,
+    queryFn: savedExercisesApi.list,
+    enabled: open && offersQuickPick,
+  });
+
+  const recentQuery = useQuery({
+    queryKey: queryKeys.recentActivities,
+    queryFn: activitiesApi.recent,
+    enabled: open && offersQuickPick,
+  });
+
+  const quickPicks = useMemo<QuickPick[]>(() => {
+    const saved = (savedQuery.data ?? []).map((exercise) => ({
+      key: `saved:${exercise.id}`,
+      label: exercise.name,
+      saved: true,
+      template: exercise,
+    }));
+    const savedLabels = new Set(saved.map((pick) => pick.label.toLowerCase()));
+    const recent = (recentQuery.data ?? [])
+      .map((entry) => ({
+        key: `recent:${entry.id}`,
+        label: entry.title ?? activityName(entry.activityType),
+        saved: false,
+        template: fromEntry(entry),
+      }))
+      .filter((pick) => !savedLabels.has(pick.label.toLowerCase()));
+
+    return [...saved, ...recent].slice(0, MAX_QUICK_PICKS);
+  }, [savedQuery.data, recentQuery.data, activityName]);
+
+  const shortDetail = (template: ActivityTemplate): string =>
+    template.distanceM
+      ? `${format.distance(template.distanceM)} · `
+      : template.durationSec
+        ? `${format.duration(template.durationSec)} · `
+        : template.reps
+          ? `${template.reps}× · `
+          : '';
+
+  const applyPick = (pick: QuickPick): void => {
+    setPickedKey(pick.key);
+    setTypeId(pick.template.activityType.id);
+    reset(valuesOf(pick.template));
+    setIntensity(pick.template.intensity ?? 'MODERATE');
+    setOverrideEnergy(pick.template.energySource === 'MANUAL');
+    setSaveAsExercise(false);
+  };
 
   const values = watch();
   const durationMin = toValue(values.durationMin);
@@ -237,16 +368,46 @@ export const ActivityDialog = ({
     enabled: open && hasMeasurement && !overrideEnergy,
   });
 
-  const createEntry = useMutation({
-    mutationFn: activitiesApi.create,
+  const submit = useMutation({
+    mutationFn: async ({ name, values }: { name: string; values: ActivityValuesInput }) => {
+      const activityTypeId = activityType?.id ?? '';
+
+      if (target.kind === 'exercise') {
+        const input = { name, activityTypeId, ...values };
+
+        await (target.exercise
+          ? savedExercisesApi.update(target.exercise.id, input)
+          : savedExercisesApi.create(input));
+        return;
+      }
+
+      if (target.kind === 'plan') {
+        const input = { name: name || null, activityTypeId, ...values };
+
+        await (target.plan
+          ? plansApi.update(target.plan.id, input)
+          : plansApi.create({ ...input, date, position: target.position }));
+        return;
+      }
+
+      await activitiesApi.create({ activityTypeId, title: name || null, date, ...values });
+
+      if (saveAsExercise && activityType) {
+        await savedExercisesApi.create({
+          name: name || activityName(activityType),
+          activityTypeId,
+          ...values,
+        });
+      }
+    },
     onSuccess: async () => {
       await invalidateDay();
-      showToast({ title: t('logged') });
+      showToast({ title: t(SUCCESS_KEYS[target.kind]) });
       onOpenChange(false);
     },
     onError: (error: unknown) => {
       showToast({
-        title: t('logFailed'),
+        title: t(FAILURE_KEYS[target.kind]),
         description: error instanceof ApiError ? error.message : undefined,
         tone: 'danger',
       });
@@ -258,19 +419,19 @@ export const ActivityDialog = ({
       return;
     }
 
-    createEntry.mutate({
-      activityTypeId: activityType.id,
-      title: formValues.title.trim() || null,
-      durationSec: measurements.durationSec,
-      distanceM: measurements.distanceM,
-      avgSpeedKmh: measurements.avgSpeedKmh,
-      inclinePercent: measurements.inclinePercent,
-      sets: measurements.sets,
-      reps: measurements.reps,
-      intensity: asksIntensity ? intensity : null,
-      energyKcal: overrideEnergy ? toValue(formValues.energyKcal) : null,
-      notes: formValues.notes.trim() || null,
-      date,
+    submit.mutate({
+      name: formValues.title.trim(),
+      values: {
+        durationSec: measurements.durationSec,
+        distanceM: measurements.distanceM,
+        avgSpeedKmh: measurements.avgSpeedKmh,
+        inclinePercent: measurements.inclinePercent,
+        sets: measurements.sets,
+        reps: measurements.reps,
+        intensity: asksIntensity ? intensity : null,
+        energyKcal: overrideEnergy ? toValue(formValues.energyKcal) : null,
+        notes: formValues.notes.trim() || null,
+      },
     });
   });
 
@@ -304,14 +465,82 @@ export const ActivityDialog = ({
     },
   });
 
+  const dialogTitle =
+    target.kind === 'exercise'
+      ? t(target.exercise ? 'editExercise' : 'newExercise')
+      : target.kind === 'plan'
+        ? t(target.plan ? 'editPlan' : 'planActivity')
+        : t('title');
+
+  const submitLabel =
+    target.kind === 'exercise'
+      ? common('save')
+      : target.kind === 'plan'
+        ? t(target.plan ? 'savePlan' : 'addToCalendar')
+        : t('title');
+
   const intensityOptions = INTENSITY_VALUES.map((value) => ({
     value,
     label: intensityNames(value),
   }));
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange} title={t('title')}>
+    <Dialog open={open} onOpenChange={onOpenChange} title={dialogTitle}>
       <form onSubmit={onSubmit} noValidate className="space-y-4">
+        {offersQuickPick && quickPicks.length > 0 ? (
+          <div className="space-y-2">
+            <p className="text-foreground-muted text-[0.8125rem] font-medium">{t('quickPick')}</p>
+            <ul className="-mx-5 flex [scrollbar-width:none] gap-2 overflow-x-auto px-5 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 [&::-webkit-scrollbar]:hidden">
+              {quickPicks.map((pick) => {
+                const picked = pick.key === pickedKey;
+
+                return (
+                  <li key={pick.key} className="shrink-0">
+                    <button
+                      type="button"
+                      aria-pressed={picked}
+                      onClick={() => applyPick(pick)}
+                      className={cn(
+                        'press focus-visible:ring-ring/30 flex h-11 max-w-60 items-center gap-1.5 rounded-full border px-3.5 text-[0.8125rem] whitespace-nowrap transition-colors duration-150 focus-visible:ring-3 focus-visible:outline-none sm:h-9',
+                        picked
+                          ? 'border-accent bg-accent text-accent-foreground'
+                          : pick.saved
+                            ? 'border-accent/30 bg-accent-soft text-foreground hover:border-accent/60'
+                            : 'border-border bg-surface text-foreground hover:bg-surface-muted',
+                      )}
+                    >
+                      {pick.saved ? (
+                        <Bookmark
+                          className={cn('size-3.5 shrink-0', picked ? '' : 'text-accent')}
+                          aria-hidden
+                        />
+                      ) : (
+                        <History
+                          className={cn(
+                            'size-3.5 shrink-0',
+                            picked ? '' : 'text-foreground-subtle',
+                          )}
+                          aria-hidden
+                        />
+                      )}
+                      <span className="min-w-0 truncate font-medium">{pick.label}</span>
+                      <span
+                        className={cn(
+                          'numeric shrink-0 text-xs',
+                          picked ? 'text-accent-foreground/80' : 'text-foreground-subtle',
+                        )}
+                      >
+                        {shortDetail(pick.template)}
+                        {format.kcal(pick.template.energyKcal)}
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ) : null}
+
         {provider.data?.isConfigured ? (
           <div className="border-border bg-surface-muted space-y-2 rounded-md border p-3">
             <div className="flex gap-2">
@@ -355,9 +584,19 @@ export const ActivityDialog = ({
           )}
         </Field>
 
-        <Field label={t('label')} optional hint={t('labelHint')}>
-          {(props) => <Input {...props} {...register('title')} className="font-sans" />}
-        </Field>
+        {target.kind === 'exercise' ? (
+          <Field
+            label={t('exerciseName')}
+            error={errors.title?.message}
+            hint={t('exerciseNameHint')}
+          >
+            {(props) => <Input {...props} {...register('title')} className="font-sans" />}
+          </Field>
+        ) : (
+          <Field label={t('label')} optional hint={t('labelHint')}>
+            {(props) => <Input {...props} {...register('title')} className="font-sans" />}
+          </Field>
+        )}
 
         <div className="grid grid-cols-2 gap-3">
           {activityType?.tracksDuration ? (
@@ -529,14 +768,31 @@ export const ActivityDialog = ({
           {(props) => <Textarea {...props} {...register('notes')} className="font-sans" />}
         </Field>
 
-        <div className="bg-surface-raised border-border sticky bottom-0 -mx-5 mt-1 border-t px-5 pt-3 pb-1">
+        {target.kind === 'log' ? (
+          <label className="border-border hover:bg-surface-muted/60 flex min-h-11 cursor-pointer items-center gap-3 rounded-md border px-3 py-2.5 transition-colors duration-150">
+            <input
+              type="checkbox"
+              checked={saveAsExercise}
+              onChange={(event) => setSaveAsExercise(event.target.checked)}
+              className="accent-accent size-4 shrink-0"
+            />
+            <span className="min-w-0">
+              <span className="block text-[0.8125rem] font-medium">{t('saveAsExercise')}</span>
+              <span className="text-foreground-subtle block text-xs">
+                {t('saveAsExerciseHint')}
+              </span>
+            </span>
+          </label>
+        ) : null}
+
+        <div className="bg-surface-raised border-border sticky -bottom-[max(1rem,env(safe-area-inset-bottom))] -mx-5 mt-1 -mb-[max(1rem,env(safe-area-inset-bottom))] border-t px-5 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
           <Button
             type="submit"
             size="lg"
             className="w-full"
-            disabled={createEntry.isPending || !hasMeasurement}
+            disabled={submit.isPending || !(hasMeasurement || overrideEnergy)}
           >
-            {createEntry.isPending ? common('saving') : t('title')}
+            {submit.isPending ? common('saving') : submitLabel}
           </Button>
         </div>
       </form>

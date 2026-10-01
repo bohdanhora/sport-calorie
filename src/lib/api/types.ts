@@ -142,6 +142,57 @@ export interface ActivityEntry {
   notes: string | null;
   performedAt: string;
   date: string;
+  plannedSessionId: string | null;
+}
+
+export interface SavedExercise {
+  id: string;
+  name: string;
+  activityType: ActivityType;
+  durationSec: number | null;
+  distanceM: number | null;
+  avgSpeedKmh: number | null;
+  inclinePercent: number | null;
+  sets: number | null;
+  reps: number | null;
+  intensity: Intensity | null;
+  notes: string | null;
+  energyKcal: number;
+  energySource: EnergySource;
+  effectiveDurationSec: number;
+  lastUsedAt: string | null;
+}
+
+export interface Workout {
+  id: string;
+  name: string;
+  notes: string | null;
+  exercises: SavedExercise[];
+  energyKcal: number;
+  durationSec: number;
+  lastUsedAt: string | null;
+}
+
+export type PlanKind = 'WORKOUT' | 'EXERCISE' | 'ACTIVITY';
+
+export interface Plan {
+  id: string;
+  date: string;
+  position: number;
+  kind: PlanKind;
+  name: string;
+  workoutId: string | null;
+  exerciseId: string | null;
+  exercises: SavedExercise[];
+  energyKcal: number;
+  durationSec: number;
+  completedAt: string | null;
+  entries: ActivityEntry[];
+}
+
+export interface Calendar {
+  plans: Plan[];
+  activities: ActivityEntry[];
 }
 
 export interface ActivityEnergyEstimate {

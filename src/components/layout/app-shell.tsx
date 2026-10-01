@@ -3,6 +3,7 @@
 import {
   Activity,
   CalendarDays,
+  CalendarRange,
   History,
   LineChart,
   LogOut,
@@ -21,7 +22,7 @@ import { ThemeToggle } from '@/components/layout/theme-toggle';
 import { useAuth } from '@/lib/auth/auth-provider';
 import { cn } from '@/lib/utils/cn';
 
-type NavKey = 'today' | 'food' | 'activity' | 'progress' | 'history' | 'settings';
+type NavKey = 'today' | 'food' | 'activity' | 'calendar' | 'progress' | 'history' | 'settings';
 
 interface NavItem {
   href: Route;
@@ -34,12 +35,15 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/', key: 'today', icon: CalendarDays, inBottomNav: true },
   { href: '/food', key: 'food', icon: UtensilsCrossed, inBottomNav: true },
   { href: '/activity', key: 'activity', icon: Activity, inBottomNav: true },
+  { href: '/calendar', key: 'calendar', icon: CalendarRange, inBottomNav: true },
   { href: '/progress', key: 'progress', icon: LineChart, inBottomNav: true },
   { href: '/history', key: 'history', icon: History, inBottomNav: false },
   { href: '/settings', key: 'settings', icon: Settings, inBottomNav: true },
 ];
 
 const BOTTOM_NAV_ITEMS = NAV_ITEMS.filter((item) => item.inBottomNav);
+
+const WIDE_ROUTES = ['/calendar'];
 
 const isActive = (pathname: string, href: string): boolean =>
   href === '/' ? pathname === '/' : pathname.startsWith(href);
@@ -116,7 +120,12 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
       <div className="min-w-0 flex-1">
         <main
           key={pathname}
-          className="animate-rise mx-auto w-full max-w-3xl px-5 pt-5 pb-28 lg:px-8 lg:pt-8 lg:pb-16 xl:max-w-6xl"
+          className={cn(
+            'animate-rise mx-auto w-full max-w-3xl px-5 pt-5 pb-28 lg:px-8 lg:pt-8 lg:pb-16',
+            WIDE_ROUTES.some((route) => pathname.startsWith(route))
+              ? 'xl:max-w-[96rem]'
+              : 'xl:max-w-6xl',
+          )}
         >
           {children}
         </main>

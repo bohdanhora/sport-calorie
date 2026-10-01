@@ -206,7 +206,7 @@ export const FoodFormDialog = ({ open, onOpenChange, food }: FoodFormDialogProps
           </Field>
         </fieldset>
 
-        <div className="bg-surface-raised border-border sticky bottom-0 -mx-5 mt-1 border-t px-5 pt-3 pb-1">
+        <div className="bg-surface-raised border-border sticky -bottom-[max(1rem,env(safe-area-inset-bottom))] -mx-5 mt-1 -mb-[max(1rem,env(safe-area-inset-bottom))] border-t px-5 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
           <Button type="submit" size="lg" className="w-full" disabled={save.isPending}>
             {save.isPending ? common('saving') : food ? t('saveChanges') : t('saveFood')}
           </Button>

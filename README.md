@@ -26,6 +26,8 @@ The interface is mobile-first, theme-aware, and localized for English, Russian, 
 - **Fast logging** - four quick-add actions, bottom sheets on mobile with the primary action pinned within reach, recently used foods, and smart defaults everywhere.
 - **Reusable food library** - a card grid of saved and catalog foods with calories and macros on the face of each card; one click opens the portion form already filled in with that food.
 - **Walking and treadmill first** - enter any two of duration, distance, and speed, and the third is derived; incline is part of the estimate.
+- **Saved exercises and routines** - keep the exercises you repeat, group them into routines such as Routine A with their total calories and time, and log either in one tap. The activity sheet offers saved exercises and recent sessions to log again, so nothing has to be typed twice.
+- **Weekly calendar** - drag routines, saved exercises, or a one-off activity such as treadmill 8 km at 5 km/h onto a day, move plans between days, and tick a plan done to log it; logged activities appear on their day too.
 - **Live energy estimates** - the calorie burn updates as the activity form is filled, is labelled as an estimate, and can be replaced with a measured value.
 - **Automatic calorie estimation** - describe a dish in words, or photograph it with the camera or from the picture library, and get a pre-filled draft you confirm before it reaches the diary.
 - **Progress and history** - weight trend, calorie and activity charts, walking distance, weekly averages, an activity breakdown, and every logged day one tap away.
@@ -73,7 +75,8 @@ Three rules the code follows:
 | --------------------- | --------------------------------------------------------------------------------- |
 | `/`                   | Today: calorie balance, macros, walking, meals, activities, weight, quick add     |
 | `/food`               | The day's diary and the reusable food library                                     |
-| `/activity`           | Walking sessions and workouts for a day                                           |
+| `/activity`           | Walking sessions, workouts, routines, and saved exercises for a day               |
+| `/calendar`           | The week as columns of days to plan, move, and tick off routines and activities   |
 | `/progress`           | Trends and averages over 7, 30, or 90 days                                        |
 | `/history`            | Every logged day, opening into that day                                           |
 | `/settings`           | Body data, calorie goal, automatic estimation, language, timezone, theme, account |
@@ -204,7 +207,8 @@ sport-calorie/
     │   ├── layout/       # App shell, navigation, date and theme controls
     │   ├── today/        # Calorie, macro, walking, meal, activity blocks
     │   ├── food/         # Food sheet and reusable food form
-    │   ├── activity/     # Activity sheet with a live energy estimate
+    │   ├── activity/     # Activity sheet, saved exercises, routines
+    │   ├── calendar/     # Week board, drag and drop, plan sheets
     │   ├── weight/       # Weight sheet
     │   ├── settings/     # Provider configuration
     │   ├── charts/       # Chart wrappers and tooltip
@@ -214,6 +218,7 @@ sport-calorie/
     │   ├── api/          # Typed client, endpoints, API contracts
     │   ├── auth/         # Session provider
     │   ├── query/        # Query client, keys, invalidation
+    │   ├── calendar/     # Where a dropped plan lands within a day
     │   ├── format/       # Units, dates, locale-bound formatters
     │   ├── nutrition/    # Portion preview
     │   ├── validation/   # Shared numeric form rules

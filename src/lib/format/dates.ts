@@ -118,3 +118,17 @@ export const formatTime = (isoInstant: string, timeZone: string, locale = DEFAUL
 
 export const detectTimeZone = (): string =>
   Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+
+export const startOfWeek = (date: string, weekStartsOn: 0 | 1): string =>
+  addDays(date, -((parseDate(date).getUTCDay() - weekStartsOn + 7) % 7));
+
+export const formatDateRange = (from: string, to: string, locale = DEFAULT_LOCALE): string =>
+  new Intl.DateTimeFormat(locale, {
+    timeZone: 'UTC',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  }).formatRange(parseDate(from), parseDate(to));
+
+export const formatWeekdayShort = (date: string, locale = DEFAULT_LOCALE): string =>
+  new Intl.DateTimeFormat(locale, { timeZone: 'UTC', weekday: 'short' }).format(parseDate(date));

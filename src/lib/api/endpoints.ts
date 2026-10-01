@@ -4,6 +4,7 @@ import type {
   ActivityEntry,
   ActivityType,
   AuthResponse,
+  Calendar,
   DailySummary,
   DailyTarget,
   DayOverview,
@@ -15,6 +16,9 @@ import type {
   NutritionProvider,
   NutritionProviderCheck,
   ParsedActivity,
+  Plan,
+  SavedExercise,
+  Workout,
   ProviderModels,
   Paginated,
   ParsedFood,
@@ -197,6 +201,7 @@ export type ActivityEstimateInput = Omit<ActivityEntryInput, 'title' | 'notes' |
 export const activitiesApi = {
   types: () => apiRequest<ActivityType[]>('/activity-types'),
   list: (date: string) => apiRequest<ActivityEntry[]>('/activity-entries', { query: { date } }),
+  recent: () => apiRequest<ActivityEntry[]>('/activity-entries/recent'),
   parse: (text: string, locale: string) =>
     apiRequest<ParsedActivity>('/activity-entries/parse', {
       method: 'POST',
@@ -212,6 +217,63 @@ export const activitiesApi = {
   update: (id: string, input: Partial<ActivityEntryInput>) =>
     apiRequest<ActivityEntry>(`/activity-entries/${id}`, { method: 'PATCH', body: input }),
   remove: (id: string) => apiRequest<void>(`/activity-entries/${id}`, { method: 'DELETE' }),
+};
+
+export type ActivityValuesInput = Omit<ActivityEntryInput, 'activityTypeId' | 'title' | 'date'>;
+
+export interface SavedExerciseInput extends ActivityValuesInput {
+  name: string;
+  activityTypeId: string;
+}
+
+export const savedExercisesApi = {
+  list: () => apiRequest<SavedExercise[]>('/saved-exercises'),
+  create: (input: SavedExerciseInput) =>
+    apiRequest<SavedExercise>('/saved-exercises', { method: 'POST', body: input }),
+  update: (id: string, input: Partial<SavedExerciseInput>) =>
+    apiRequest<SavedExercise>(`/saved-exercises/${id}`, { method: 'PATCH', body: input }),
+  remove: (id: string) => apiRequest<void>(`/saved-exercises/${id}`, { method: 'DELETE' }),
+  log: (id: string, date: string) =>
+    apiRequest<ActivityEntry>(`/saved-exercises/${id}/log`, { method: 'POST', body: { date } }),
+};
+
+export interface WorkoutInput {
+  name: string;
+  notes?: string | null;
+  exerciseIds: string[];
+}
+
+export const workoutsApi = {
+  list: () => apiRequest<Workout[]>('/workouts'),
+  create: (input: WorkoutInput) =>
+    apiRequest<Workout>('/workouts', { method: 'POST', body: input }),
+  update: (id: string, input: Partial<WorkoutInput>) =>
+    apiRequest<Workout>(`/workouts/${id}`, { method: 'PATCH', body: input }),
+  remove: (id: string) => apiRequest<void>(`/workouts/${id}`, { method: 'DELETE' }),
+  log: (id: string, date: string) =>
+    apiRequest<ActivityEntry[]>(`/workouts/${id}/log`, { method: 'POST', body: { date } }),
+};
+
+export interface PlanInput extends ActivityValuesInput {
+  date: string;
+  position?: number;
+  workoutId?: string;
+  exerciseId?: string;
+  activityTypeId?: string;
+  name?: string | null;
+}
+
+export type PlanUpdateInput = Partial<Omit<PlanInput, 'workoutId' | 'exerciseId'>>;
+
+export const plansApi = {
+  calendar: (from: string, to: string) =>
+    apiRequest<Calendar>('/calendar', { query: { from, to } }),
+  create: (input: PlanInput) => apiRequest<Plan>('/plans', { method: 'POST', body: input }),
+  update: (id: string, input: PlanUpdateInput) =>
+    apiRequest<Plan>(`/plans/${id}`, { method: 'PATCH', body: input }),
+  remove: (id: string) => apiRequest<void>(`/plans/${id}`, { method: 'DELETE' }),
+  complete: (id: string) => apiRequest<Plan>(`/plans/${id}/complete`, { method: 'POST' }),
+  reopen: (id: string) => apiRequest<Plan>(`/plans/${id}/reopen`, { method: 'POST' }),
 };
 
 export const weightApi = {

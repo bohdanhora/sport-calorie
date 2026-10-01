@@ -5,7 +5,9 @@ import { Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Suspense, useState } from 'react';
 
-import { ActivityDialog } from '@/components/activity/activity-dialog';
+import { ActivityDialog, type ActivityDialogTarget } from '@/components/activity/activity-dialog';
+import { ExercisesSection, WorkoutsSection } from '@/components/activity/exercise-library';
+import { WorkoutDialog } from '@/components/activity/workout-dialog';
 import { Column, Columns } from '@/components/layout/columns';
 import { DateHeading, DateNav } from '@/components/layout/date-nav';
 import { ErrorState } from '@/components/states/error-state';
@@ -16,7 +18,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useSelectedDate } from '@/hooks/use-selected-date';
 import { summaryApi } from '@/lib/api/endpoints';
-import type { ActivityCategory } from '@/lib/api/types';
+import type { ActivityCategory, Workout } from '@/lib/api/types';
 import { useAuth } from '@/lib/auth/auth-provider';
 import { addDays } from '@/lib/format/dates';
 import { useFormat } from '@/lib/format/use-format';
@@ -28,9 +30,17 @@ const ActivityView = () => {
   const { timezone } = useAuth();
   const format = useFormat();
   const [date, setDate] = useSelectedDate(timezone);
-  const [dialog, setDialog] = useState<{ open: boolean; category?: ActivityCategory }>({
+  const [dialog, setDialog] = useState<{
+    open: boolean;
+    category?: ActivityCategory;
+    target?: ActivityDialogTarget;
+  }>({ open: false });
+  const [workoutDialog, setWorkoutDialog] = useState<{ open: boolean; workout?: Workout }>({
     open: false,
   });
+
+  const openExercise = (target: ActivityDialogTarget): void =>
+    setDialog({ open: true, category: 'STRENGTH', target });
 
   const dashboard = useQuery({
     queryKey: queryKeys.dashboard(date),
@@ -54,7 +64,11 @@ const ActivityView = () => {
         <div className="space-y-0.5">
           <div className="flex items-center justify-between gap-3">
             <h1 className="page-title truncate">{t('title')}</h1>
-            <Button size="sm" className="shrink-0" onClick={() => setDialog({ open: true })}>
+            <Button
+              size="sm"
+              className="shrink-0"
+              onClick={() => setDialog({ open: true, target: { kind: 'log' } })}
+            >
               <Plus className="size-4" aria-hidden />
               {t('logActivity')}
             </Button>
@@ -105,6 +119,18 @@ const ActivityView = () => {
               activities={otherSessions}
               onAdd={() => setDialog({ open: true, category: 'STRENGTH' })}
             />
+
+            <WorkoutsSection
+              date={date}
+              onCreate={() => setWorkoutDialog({ open: true })}
+              onEdit={(workout) => setWorkoutDialog({ open: true, workout })}
+            />
+
+            <ExercisesSection
+              date={date}
+              onCreate={() => openExercise({ kind: 'exercise' })}
+              onEdit={(exercise) => openExercise({ kind: 'exercise', exercise })}
+            />
           </Column>
         </Columns>
       )}
@@ -114,6 +140,14 @@ const ActivityView = () => {
         onOpenChange={(open) => setDialog((current) => ({ ...current, open }))}
         date={date}
         preferCategory={dialog.category}
+        target={dialog.target}
+      />
+
+      <WorkoutDialog
+        open={workoutDialog.open}
+        onOpenChange={(open) => setWorkoutDialog((current) => ({ ...current, open }))}
+        workout={workoutDialog.workout}
+        onCreateExercise={() => openExercise({ kind: 'exercise' })}
       />
     </div>
   );
