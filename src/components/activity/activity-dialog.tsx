@@ -2,13 +2,14 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Bookmark, History, Sparkle } from 'lucide-react';
+import { Sparkle } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm, type DefaultValues } from 'react-hook-form';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
+import { Combobox } from '@/components/ui/combobox';
 import { Dialog } from '@/components/ui/dialog';
 import { Field } from '@/components/ui/field';
 import { Input, Textarea } from '@/components/ui/input';
@@ -37,7 +38,6 @@ import { useActivityTypeName } from '@/lib/format/use-activity-name';
 import { useFormat } from '@/lib/format/use-format';
 import { queryKeys } from '@/lib/query/query-keys';
 import { useInvalidateDay } from '@/lib/query/use-day-mutations';
-import { cn } from '@/lib/utils/cn';
 import {
   optionalNumber,
   toDecimal,
@@ -130,8 +130,6 @@ const fromEntry = (entry: ActivityEntry): ActivityTemplate => ({
   ...entry,
   name: entry.title ?? '',
 });
-
-const MAX_QUICK_PICKS = 12;
 
 const valuesOf = (exercise: ActivityTemplate): DefaultValues<ActivityValues> => ({
   title: exercise.name,
@@ -304,7 +302,7 @@ export const ActivityDialog = ({
       }))
       .filter((pick) => !savedLabels.has(pick.label.toLowerCase()));
 
-    return [...saved, ...recent].slice(0, MAX_QUICK_PICKS);
+    return [...saved, ...recent];
   }, [savedQuery.data, recentQuery.data, activityName]);
 
   const shortDetail = (template: ActivityTemplate): string =>
@@ -315,6 +313,13 @@ export const ActivityDialog = ({
         : template.reps
           ? `${template.reps}× · `
           : '';
+
+  const quickPickOptions = quickPicks.map((pick) => ({
+    value: pick.key,
+    label: pick.label,
+    hint: `${shortDetail(pick.template)}${format.kcal(pick.template.energyKcal)} ${units('kcal')}`,
+    group: pick.saved ? t('quickPickSaved') : t('quickPickRecent'),
+  }));
 
   const applyPick = (pick: QuickPick): void => {
     setPickedKey(pick.key);
@@ -488,57 +493,25 @@ export const ActivityDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange} title={dialogTitle}>
       <form onSubmit={onSubmit} noValidate className="space-y-4">
         {offersQuickPick && quickPicks.length > 0 ? (
-          <div className="space-y-2">
-            <p className="text-foreground-muted text-[0.8125rem] font-medium">{t('quickPick')}</p>
-            <ul className="-mx-5 flex [scrollbar-width:none] gap-2 overflow-x-auto px-5 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 [&::-webkit-scrollbar]:hidden">
-              {quickPicks.map((pick) => {
-                const picked = pick.key === pickedKey;
+          <Field label={t('quickPick')} hint={t('quickPickHint')}>
+            {(props) => (
+              <Combobox
+                {...props}
+                value={pickedKey ?? ''}
+                onChange={(key) => {
+                  const pick = quickPicks.find((item) => item.key === key);
 
-                return (
-                  <li key={pick.key} className="shrink-0">
-                    <button
-                      type="button"
-                      aria-pressed={picked}
-                      onClick={() => applyPick(pick)}
-                      className={cn(
-                        'press focus-visible:ring-ring/30 flex h-11 max-w-60 items-center gap-1.5 rounded-full border px-3.5 text-[0.8125rem] whitespace-nowrap transition-colors duration-150 focus-visible:ring-3 focus-visible:outline-none sm:h-9',
-                        picked
-                          ? 'border-accent bg-accent text-accent-foreground'
-                          : pick.saved
-                            ? 'border-accent/30 bg-accent-soft text-foreground hover:border-accent/60'
-                            : 'border-border bg-surface text-foreground hover:bg-surface-muted',
-                      )}
-                    >
-                      {pick.saved ? (
-                        <Bookmark
-                          className={cn('size-3.5 shrink-0', picked ? '' : 'text-accent')}
-                          aria-hidden
-                        />
-                      ) : (
-                        <History
-                          className={cn(
-                            'size-3.5 shrink-0',
-                            picked ? '' : 'text-foreground-subtle',
-                          )}
-                          aria-hidden
-                        />
-                      )}
-                      <span className="min-w-0 truncate font-medium">{pick.label}</span>
-                      <span
-                        className={cn(
-                          'numeric shrink-0 text-xs',
-                          picked ? 'text-accent-foreground/80' : 'text-foreground-subtle',
-                        )}
-                      >
-                        {shortDetail(pick.template)}
-                        {format.kcal(pick.template.energyKcal)}
-                      </span>
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
+                  if (pick) {
+                    applyPick(pick);
+                  }
+                }}
+                options={quickPickOptions}
+                placeholder={t('quickPickPlaceholder')}
+                searchPlaceholder={t('quickPickSearch')}
+                aria-label={t('quickPick')}
+              />
+            )}
+          </Field>
         ) : null}
 
         {provider.data?.isConfigured ? (

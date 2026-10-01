@@ -359,7 +359,12 @@
     "exerciseNameHint": "Как оно будет в списке, например Утренняя дорожка",
     "saveAsExercise": "Сохранить в мои упражнения",
     "saveAsExerciseHint": "Чтобы потом записывать его в одно касание",
-    "quickPick": "Записать снова"
+    "quickPick": "Записать снова",
+    "quickPickHint": "Заполнит форму из сохранённого упражнения или недавней записи",
+    "quickPickPlaceholder": "Выберите упражнение",
+    "quickPickSearch": "Найти упражнение",
+    "quickPickSaved": "Мои упражнения",
+    "quickPickRecent": "Недавние"
   },
   "calendar": {
     "title": "Календарь",

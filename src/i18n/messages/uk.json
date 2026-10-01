@@ -359,7 +359,12 @@
     "exerciseNameHint": "Як вона буде у списку, наприклад Ранкова доріжка",
     "saveAsExercise": "Зберегти в мої вправи",
     "saveAsExerciseHint": "Щоб потім записувати її одним дотиком",
-    "quickPick": "Записати знову"
+    "quickPick": "Записати знову",
+    "quickPickHint": "Заповнить форму зі збереженої вправи або недавнього запису",
+    "quickPickPlaceholder": "Оберіть вправу",
+    "quickPickSearch": "Знайти вправу",
+    "quickPickSaved": "Мої вправи",
+    "quickPickRecent": "Недавні"
   },
   "calendar": {
     "title": "Календар",

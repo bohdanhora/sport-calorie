@@ -359,7 +359,12 @@
     "exerciseNameHint": "How it shows in your list, for example Morning treadmill",
     "saveAsExercise": "Save to my exercises",
     "saveAsExerciseHint": "Log it again later in one tap",
-    "quickPick": "Log again"
+    "quickPick": "Log again",
+    "quickPickHint": "Fills the form in from a saved exercise or a recent session",
+    "quickPickPlaceholder": "Pick an exercise",
+    "quickPickSearch": "Search exercises",
+    "quickPickSaved": "My exercises",
+    "quickPickRecent": "Recent"
   },
   "calendar": {
     "title": "Calendar",
