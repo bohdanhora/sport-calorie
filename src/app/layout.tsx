@@ -12,10 +12,21 @@ const inter = Inter({
   variable: '--font-inter',
 });
 
+const description = 'Track calories, food, walking and workouts in one place.';
+
 export const metadata: Metadata = {
+  metadataBase: new URL('https://sport-calorie.vercel.app'),
   title: 'Sport Calorie',
-  description: 'Track calories, food, walking and workouts in one place.',
+  description,
   applicationName: 'Sport Calorie',
+  openGraph: {
+    type: 'website',
+    url: '/',
+    siteName: 'Sport Calorie',
+    title: 'Sport Calorie',
+    description,
+  },
+  twitter: { card: 'summary_large_image', title: 'Sport Calorie', description },
 };
 
 export const viewport: Viewport = {
