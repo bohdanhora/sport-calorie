@@ -31,15 +31,6 @@ const AuthLayout = ({ children }: { children: ReactNode }) => {
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[1.1fr_1fr]">
       <aside className="border-border bg-surface relative hidden overflow-hidden border-r p-12 lg:flex lg:flex-col lg:justify-between">
-        <div
-          aria-hidden
-          className="bg-accent pointer-events-none absolute -top-32 -left-24 size-[28rem] rounded-full opacity-[0.07] blur-3xl"
-        />
-        <div
-          aria-hidden
-          className="bg-chart-2 pointer-events-none absolute -right-32 -bottom-40 size-[26rem] rounded-full opacity-[0.06] blur-3xl"
-        />
-
         <Logo name={app('name')} className="relative" />
 
         <div className="relative max-w-md space-y-8">

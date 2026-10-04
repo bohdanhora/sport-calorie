@@ -1,17 +1,9 @@
 import { cn } from '@/lib/utils/cn';
 
 export const LogoMark = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" fill="none" aria-hidden className={cn('size-[1.375rem]', className)}>
-    <circle
-      cx="12"
-      cy="12"
-      r="9"
-      stroke="currentColor"
-      strokeWidth="3.25"
-      strokeLinecap="round"
-      strokeDasharray="43 57"
-      transform="rotate(-90 12 12)"
-    />
+  <svg viewBox="0 0 24 24" aria-hidden className={cn('size-5.5', className)}>
+    <rect width="24" height="24" className="fill-foreground" />
+    <rect x="13" y="13" width="6" height="6" className="fill-accent" />
   </svg>
 );
 
@@ -25,10 +17,14 @@ export const Logo = ({
   className?: string;
 }) => (
   <div className={cn('flex items-center gap-2.5', className)}>
-    <LogoMark className="text-accent shrink-0" />
+    <LogoMark className="shrink-0" />
     <div className="min-w-0">
-      <p className="text-[0.9375rem] leading-tight font-semibold tracking-tight">{name}</p>
-      {tagline ? <p className="text-foreground-subtle mt-0.5 text-xs">{tagline}</p> : null}
+      <p className="font-display text-sm leading-tight font-semibold tracking-tight uppercase">
+        {name}
+      </p>
+      {tagline ? (
+        <p className="text-foreground-subtle text-2xs mt-0.5 font-mono uppercase">{tagline}</p>
+      ) : null}
     </div>
   </div>
 );
