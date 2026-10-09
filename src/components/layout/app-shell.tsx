@@ -59,7 +59,7 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
     <div className="min-h-dvh lg:flex">
       <aside className="border-border sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r px-3 py-5 lg:flex">
         <div className="px-3 pb-6">
-          <Logo name={app('name')} tagline={app('tagline')} />
+          <Logo name={app('name')} />
         </div>
 
         <nav aria-label={t('main')} className="flex-1">
