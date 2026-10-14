@@ -11,6 +11,8 @@ import { Section } from '@/components/ui/section';
 import { useToast } from '@/components/ui/toast';
 import { foodEntriesApi } from '@/lib/api/endpoints';
 import type { FoodEntry, MealSummary, MealType } from '@/lib/api/types';
+import { useAuth } from '@/lib/auth/auth-provider';
+import { todayIn } from '@/lib/format/dates';
 import { useFormat } from '@/lib/format/use-format';
 import { cn } from '@/lib/utils/cn';
 import { useInvalidateDay } from '@/lib/query/use-day-mutations';
@@ -171,7 +173,19 @@ const FoodEntryRow = ({
   const mealNames = useTranslations('meals');
   const units = useTranslations('units');
   const format = useFormat();
+  const { timezone } = useAuth();
   const [movePickerOpen, setMovePickerOpen] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+
+  const writtenSameDay = todayIn(timezone, new Date(entry.createdAt)) === entry.date;
+  const writtenAt = writtenSameDay
+    ? format.time(entry.createdAt, timezone)
+    : `${format.shortDate(todayIn(timezone, new Date(entry.createdAt)))}, ${format.time(entry.createdAt, timezone)}`;
+  const macros = [
+    { label: today('protein'), value: entry.proteinG },
+    { label: today('carbs'), value: entry.carbsG },
+    { label: today('fat'), value: entry.fatG },
+  ].filter((macro): macro is { label: string; value: number } => macro.value !== null);
 
   const unitLabels: Record<FoodEntry['unit'], string> = {
     GRAM: units('gram'),
@@ -182,18 +196,44 @@ const FoodEntryRow = ({
 
   return (
     <li
-      className="group animate-row hover:bg-surface-muted/60 flex items-center gap-3 px-4 py-2.5 pl-5 transition-colors duration-150"
+      className={cn(
+        'group animate-row hover:bg-surface-muted/60 flex gap-3 px-4 py-2.5 pl-5 transition-colors duration-150',
+        expanded ? 'items-start' : 'items-center',
+      )}
       style={{ animationDelay: `${Math.min(index, 6) * 30}ms` }}
     >
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm">{entry.name}</p>
+      <button
+        type="button"
+        aria-expanded={expanded}
+        aria-label={
+          expanded ? t('hideDetails', { name: entry.name }) : t('showDetails', { name: entry.name })
+        }
+        onClick={() => setExpanded((open) => !open)}
+        className="min-w-0 flex-1 cursor-pointer text-left focus-visible:outline-none"
+      >
+        <p className={cn('text-sm', expanded ? 'break-words' : 'truncate')}>{entry.name}</p>
         <p className="numeric text-foreground-subtle mt-0.5 text-xs">
+          {writtenSameDay ? `${writtenAt} · ` : ''}
           {entry.amount} {unitLabels[entry.unit]}
           {entry.proteinG !== null
             ? ` · ${Math.round(entry.proteinG)} ${units('gram')} ${today('proteinInline')}`
             : ''}
         </p>
-      </div>
+
+        {expanded ? (
+          <div className="text-foreground-muted mt-2 space-y-1 text-xs">
+            {macros.length > 0 ? (
+              <p className="numeric">
+                {macros
+                  .map((macro) => `${macro.label} ${format.decimal(macro.value)} ${units('gram')}`)
+                  .join(' · ')}
+              </p>
+            ) : null}
+            {entry.notes ? <p className="break-words">{entry.notes}</p> : null}
+            <p className="numeric text-foreground-subtle">{t('writtenAt', { when: writtenAt })}</p>
+          </div>
+        ) : null}
+      </button>
 
       <span className="numeric text-sm">{format.kcal(entry.energyKcal)}</span>
 

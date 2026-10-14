@@ -268,7 +268,10 @@
     "pickPhoto": "Choose from gallery",
     "scanning": "Reading the photo…",
     "estimateOrPhotoHint": "Describe the portion, or photograph it. Anything you type is used as a hint for the photo.",
-    "photoUnavailable": "Photos are off: the model you chose does not accept them. Pick one for photos in settings."
+    "photoUnavailable": "Photos are off: the model you chose does not accept them. Pick one for photos in settings.",
+    "showDetails": "Show details: {name}",
+    "hideDetails": "Hide details: {name}",
+    "writtenAt": "Written down: {when}"
   },
   "foodForm": {
     "newTitle": "New food",

@@ -109,6 +109,7 @@ export interface FoodEntry {
   notes: string | null;
   consumedAt: string;
   date: string;
+  createdAt: string;
 }
 
 export interface ActivityType {
