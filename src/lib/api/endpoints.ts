@@ -3,6 +3,9 @@ import type {
   ActivityEnergyEstimate,
   ActivityEntry,
   ActivityType,
+  AssistantAnswer,
+  AssistantDetail,
+  AssistantMessage,
   AuthResponse,
   Calendar,
   DailySummary,
@@ -290,4 +293,17 @@ export const summaryApi = {
     apiRequest<DayOverview[]>('/history', { query: { from, to } }),
   progress: (from: string, to: string) =>
     apiRequest<Progress>('/progress', { query: { from, to } }),
+};
+
+export interface AskAssistantInput {
+  messages: AssistantMessage[];
+  from: string;
+  to: string;
+  locale: string;
+  detail: AssistantDetail;
+}
+
+export const assistantApi = {
+  ask: (input: AskAssistantInput) =>
+    apiRequest<AssistantAnswer>('/assistant/ask', { method: 'POST', body: input }),
 };

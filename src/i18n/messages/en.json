@@ -11,7 +11,8 @@
     "history": "History",
     "settings": "Settings",
     "main": "Main",
-    "calendar": "Calendar"
+    "calendar": "Calendar",
+    "assistant": "Assistant"
   },
   "common": {
     "noMatches": "Nothing found",
@@ -494,7 +495,8 @@
     "burned": "Burned",
     "distance": "Distance",
     "vsPrevious": "vs previous period",
-    "daysLogged": "{logged} of {total} days logged"
+    "daysLogged": "{logged} of {total} days logged",
+    "askAssistant": "Ask the assistant"
   },
   "history": {
     "title": "History",
@@ -642,5 +644,35 @@
     "enter": "Enter weight",
     "enterAnother": "Enter another number",
     "notToday": "Not today"
+  },
+  "assistant": {
+    "title": "Assistant",
+    "subtitle": "Looks through your food and activity log with your connected model.",
+    "period": "Period",
+    "year": "Year",
+    "detail": "Data sent",
+    "detailAuto": "Auto",
+    "detailFull": "Everything",
+    "detailAutoHint": "Totals for every day, and the full log only where it matters: days over target, late snacks, questions about training. Fewer tokens.",
+    "detailFullHint": "Every food and activity entry of the period. Best for a full review, but a year of it can be a lot of tokens.",
+    "noProvider": "No model connected",
+    "noProviderHint": "The assistant uses the same key as food recognition. Connect a provider in settings.",
+    "openSettings": "Open settings",
+    "tryAsking": "Try asking",
+    "suggestions": {
+      "analyseMonth": "Analyse my last month",
+      "lapses": "When did I overeat, and what led to it?",
+      "improve": "What should I improve in my diet?",
+      "protein": "Am I getting enough protein?"
+    },
+    "you": "You",
+    "assistant": "Assistant",
+    "thinking": "Thinking",
+    "failed": "Could not get an answer",
+    "retry": "Try again",
+    "placeholder": "Ask about your food or training",
+    "send": "Send",
+    "clear": "New conversation",
+    "tokens": "{sent} tokens sent · {received} received"
   }
 }

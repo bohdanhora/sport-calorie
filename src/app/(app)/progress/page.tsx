@@ -1,6 +1,8 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { MessageSquareText } from 'lucide-react';
+import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
@@ -10,6 +12,7 @@ import { ActivityBreakdown } from '@/components/progress/activity-breakdown';
 import { PeriodStats } from '@/components/progress/period-stats';
 import { EmptyState } from '@/components/states/empty-state';
 import { ErrorState } from '@/components/states/error-state';
+import { Button } from '@/components/ui/button';
 import { Section } from '@/components/ui/section';
 import { Segmented } from '@/components/ui/segmented';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -60,9 +63,17 @@ const ProgressPage = () => {
   return (
     <div className="space-y-7">
       <header className="space-y-4">
-        <div>
-          <h1 className="page-title">{t('title')}</h1>
-          <p className="text-foreground-subtle mt-0.5 text-[0.8125rem]">{t('subtitle')}</p>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h1 className="page-title">{t('title')}</h1>
+            <p className="text-foreground-subtle mt-0.5 text-[0.8125rem]">{t('subtitle')}</p>
+          </div>
+          <Button asChild variant="secondary" size="sm" className="shrink-0">
+            <Link href="/assistant">
+              <MessageSquareText className="size-4" aria-hidden />
+              {t('askAssistant')}
+            </Link>
+          </Button>
         </div>
         <Segmented
           label={t('range')}

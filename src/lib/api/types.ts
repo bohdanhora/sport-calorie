@@ -364,3 +364,20 @@ export interface Progress {
   averages: ProgressAverages;
   activityBreakdown: ActivityBreakdown[];
 }
+
+export type AssistantRole = 'user' | 'assistant';
+
+export type AssistantDetail = 'auto' | 'full';
+
+export interface AssistantMessage {
+  role: AssistantRole;
+  content: string;
+}
+
+export interface AssistantAnswer {
+  answer: string;
+  from: string;
+  to: string;
+  promptTokens: number | null;
+  completionTokens: number | null;
+}

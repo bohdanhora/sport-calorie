@@ -7,6 +7,7 @@ import {
   History,
   LineChart,
   LogOut,
+  MessageSquareText,
   Settings,
   UtensilsCrossed,
 } from 'lucide-react';
@@ -22,7 +23,8 @@ import { ThemeToggle } from '@/components/layout/theme-toggle';
 import { useAuth } from '@/lib/auth/auth-provider';
 import { cn } from '@/lib/utils/cn';
 
-type NavKey = 'today' | 'food' | 'activity' | 'calendar' | 'progress' | 'history' | 'settings';
+type NavKey =
+  'today' | 'food' | 'activity' | 'calendar' | 'progress' | 'assistant' | 'history' | 'settings';
 
 interface NavItem {
   href: Route;
@@ -37,6 +39,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/activity', key: 'activity', icon: Activity, inBottomNav: true },
   { href: '/calendar', key: 'calendar', icon: CalendarRange, inBottomNav: true },
   { href: '/progress', key: 'progress', icon: LineChart, inBottomNav: true },
+  { href: '/assistant', key: 'assistant', icon: MessageSquareText, inBottomNav: false },
   { href: '/history', key: 'history', icon: History, inBottomNav: false },
   { href: '/settings', key: 'settings', icon: Settings, inBottomNav: true },
 ];

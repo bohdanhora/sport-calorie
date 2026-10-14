@@ -30,6 +30,7 @@ The interface is mobile-first, theme-aware, and localized for English, Russian, 
 - **Weekly calendar** - drag routines, saved exercises, or a one-off activity such as treadmill 8 km at 5 km/h onto a day, move plans between days, and tick a plan done to log it; logged activities appear on their day too.
 - **Live energy estimates** - the calorie burn updates as the activity form is filled, is labelled as an estimate, and can be replaced with a measured value.
 - **Automatic calorie estimation** - describe a dish in words, or photograph it with the camera or from the picture library, and get a pre-filled draft you confirm before it reaches the diary.
+- **Assistant** - ask the connected model about a week, a month or a year of your own log: when you overate, what led to it, what to change. Auto mode sends only what the question needs; Everything sends the whole period.
 - **Progress and history** - weight trend, calorie and activity charts, walking distance, weekly averages, an activity breakdown, and every logged day one tap away.
 - **Calorie goal you control** - estimated BMR and TDEE, a recommendation, and a manual target the system never overwrites.
 - **A guided first run** - a short guide and a four-step wizard collect body data, goal, language, and timezone once, then show the calorie target they produce.
@@ -77,7 +78,8 @@ Three rules the code follows:
 | `/food`               | The day's diary and the reusable food library                                     |
 | `/activity`           | Walking sessions, workouts, routines, and saved exercises for a day               |
 | `/calendar`           | The week as columns of days to plan, move, and tick off routines and activities   |
-| `/progress`           | Trends and averages over 7, 30, or 90 days                                        |
+| `/progress`           | Trends and averages over 7, 30, or 90 days, and a way into the assistant          |
+| `/assistant`          | Questions about the log of a period, answered by the connected model              |
 | `/history`            | Every logged day, opening into that day                                           |
 | `/settings`           | Body data, calorie goal, automatic estimation, language, timezone, theme, account |
 | `/login`, `/register` | Session, with email and Google                                                    |
@@ -109,6 +111,8 @@ Adding a language takes three steps: add it to `LOCALES` in `src/i18n/config.ts`
 When a provider is configured in settings, the food sheet gains a field where a dish can be described in words. If the chosen model accepts images, two buttons appear beside it: one opens the camera, the other the picture library, since a phone asked for the camera hides everything already taken. Either way the estimate fills the same form used for manual entry, is marked as an estimate, and nothing is written to the diary until it is confirmed. Without a configured provider the field is simply not shown.
 
 Settings offers the providers the API knows - OpenAI, Anthropic, Google Gemini, xAI, Groq and OpenRouter - and any other OpenAI-compatible endpoint can be typed in. Choosing one fills in its base URL, the shape its keys have, a link to where they are issued, and a default model. The model list is loaded from the provider only after it is connected, is kept on the server between sessions, and can be refreshed with one button. The picker has a search field, so a long list never has to be scrolled, and whatever is typed there can be used as the model id when it is not in the list. A separate model can be chosen for photos, or photos left off entirely, in which case the camera never appears.
+
+The same provider powers the assistant, reached from the sidebar and from Progress. It picks a period of 7, 30, 90 or 365 days and how much to send: Auto sends each day's totals and the full log only where the question needs it, Everything sends every entry. Each answer shows the tokens the provider counted, and the conversation stays in the browser until it is cleared.
 
 The API key is entered in settings and stored encrypted on the server. The browser never receives it back, only a mask such as `sk-...4f2a`.
 
