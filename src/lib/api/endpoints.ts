@@ -174,7 +174,7 @@ export const nutritionProviderApi = {
 export const foodEntriesApi = {
   parse: (text: string, locale: string) =>
     apiRequest<ParsedFood>('/food-entries/parse', { method: 'POST', body: { text, locale } }),
-  scan: (input: { image: string; hint?: string; locale: string }) =>
+  scan: (input: { images: string[]; hint?: string; locale: string }) =>
     apiRequest<ParsedFood>('/food-entries/scan', { method: 'POST', body: input }),
   list: (date: string) => apiRequest<FoodEntry[]>('/food-entries', { query: { date } }),
   create: (input: FoodEntryInput) =>

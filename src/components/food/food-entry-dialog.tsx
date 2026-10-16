@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Camera, ChevronLeft, Images, Search, Sparkle } from 'lucide-react';
+import { Camera, ChevronLeft, Images, ScanSearch, Search, Sparkle, X } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 import { useForm } from 'react-hook-form';
@@ -36,6 +36,8 @@ import {
   type Submitted,
 } from '@/lib/validation/numbers';
 
+const MAX_PHOTOS = 4;
+
 const MEAL_VALUES: MealType[] = ['BREAKFAST', 'LUNCH', 'DINNER', 'SNACK'];
 const UNIT_VALUES: FoodUnit[] = ['GRAM', 'MILLILITER', 'PIECE', 'SERVING'];
 
@@ -52,6 +54,12 @@ const UNIT_SHORT_KEYS = {
   PIECE: 'piece',
   SERVING: 'serving',
 } as const;
+
+interface StagedPhoto {
+  id: string;
+  file: File;
+  preview: string;
+}
 
 interface UnitOption {
   value: FoodUnit;
@@ -86,8 +94,31 @@ export const FoodEntryDialog = ({
   const [selected, setSelected] = useState<Food | null>(null);
   const [manual, setManual] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  const [photos, setPhotos] = useState<StagedPhoto[]>([]);
+  const [photoNote, setPhotoNote] = useState('');
   const invalidateDay = useInvalidateDay();
   const { showToast } = useToast();
+
+  const photosRef = useRef<StagedPhoto[]>([]);
+
+  useEffect(() => {
+    photosRef.current = photos;
+  }, [photos]);
+
+  useEffect(
+    () => () => {
+      photosRef.current.forEach((photo) => URL.revokeObjectURL(photo.preview));
+    },
+    [],
+  );
+
+  const clearPhotos = useCallback(() => {
+    setPhotos((current) => {
+      current.forEach((photo) => URL.revokeObjectURL(photo.preview));
+      return [];
+    });
+    setPhotoNote('');
+  }, []);
 
   useEffect(() => {
     if (open) {
@@ -97,8 +128,9 @@ export const FoodEntryDialog = ({
       setSelected(defaultFood);
       setManual(false);
       setNotice(null);
+      clearPhotos();
     }
-  }, [open, defaultMeal, defaultFood]);
+  }, [open, defaultMeal, defaultFood, clearPhotos]);
 
   const photoInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
@@ -165,24 +197,53 @@ export const FoodEntryDialog = ({
   });
 
   const scan = useMutation({
-    mutationFn: async (file: File) =>
+    mutationFn: async (files: File[]) =>
       foodEntriesApi.scan({
-        image: await downscaleImage(file),
-        hint: description.trim() || undefined,
+        images: await Promise.all(files.map(downscaleImage)),
+        hint: photoNote.trim() || description.trim() || undefined,
         locale,
       }),
-    onSuccess: applyEstimate,
+    onSuccess: (parsed) => {
+      clearPhotos();
+      applyEstimate(parsed);
+    },
     onError: reportEstimateFailure,
   });
 
   const onPhotoChosen = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+    const files = Array.from(event.target.files ?? []);
     event.target.value = '';
 
-    if (file) {
-      scan.mutate(file);
+    if (files.length === 0) {
+      return;
+    }
+
+    setPhotos((current) => [
+      ...current,
+      ...files.slice(0, MAX_PHOTOS - current.length).map((file) => ({
+        id: crypto.randomUUID(),
+        file,
+        preview: URL.createObjectURL(file),
+      })),
+    ]);
+
+    if (photos.length + files.length > MAX_PHOTOS) {
+      showToast({ title: t('photoLimit', { count: MAX_PHOTOS }), tone: 'danger' });
     }
   };
+
+  const removePhoto = (id: string) =>
+    setPhotos((current) =>
+      current.filter((photo) => {
+        if (photo.id === id) {
+          URL.revokeObjectURL(photo.preview);
+        }
+
+        return photo.id !== id;
+      }),
+    );
+
+  const canAddPhoto = photos.length < MAX_PHOTOS && !scan.isPending;
 
   const createEntry = useMutation({
     mutationFn: foodEntriesApi.create,
@@ -291,7 +352,7 @@ export const FoodEntryDialog = ({
                         className="size-11 shrink-0 sm:size-10"
                         aria-label={t('scanPhoto')}
                         title={t('scanPhoto')}
-                        disabled={scan.isPending}
+                        disabled={!canAddPhoto}
                         onClick={() => photoInputRef.current?.click()}
                       >
                         <Camera className="size-4" aria-hidden />
@@ -302,7 +363,7 @@ export const FoodEntryDialog = ({
                         className="size-11 shrink-0 sm:size-10"
                         aria-label={t('pickPhoto')}
                         title={t('pickPhoto')}
-                        disabled={scan.isPending}
+                        disabled={!canAddPhoto}
                         onClick={() => galleryInputRef.current?.click()}
                       >
                         <Images className="size-4" aria-hidden />
@@ -324,9 +385,71 @@ export const FoodEntryDialog = ({
                   ref={galleryInputRef}
                   type="file"
                   accept="image/jpeg,image/png,image/webp"
+                  multiple
                   hidden
                   onChange={onPhotoChosen}
                 />
+
+                {photos.length > 0 ? (
+                  <div className="border-border space-y-2 border-t pt-3">
+                    <p className="label-caps">
+                      {t('photosStaged', { count: photos.length, max: MAX_PHOTOS })}
+                    </p>
+                    <ul className="grid grid-cols-4 gap-2">
+                      {photos.map((photo, index) => (
+                        <li key={photo.id} className="relative aspect-square">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={photo.preview}
+                            alt={t('photoAlt', { index: index + 1 })}
+                            className="border-border size-full rounded-md border object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removePhoto(photo.id)}
+                            disabled={scan.isPending}
+                            aria-label={t('removePhoto', { index: index + 1 })}
+                            title={t('removePhoto', { index: index + 1 })}
+                            className="press group absolute top-0 right-0 flex size-10 items-start justify-end p-1 disabled:opacity-50"
+                          >
+                            <span className="bg-surface border-border-strong text-foreground group-hover:bg-surface-muted flex size-6 items-center justify-center rounded-md border">
+                              <X className="size-3.5" aria-hidden />
+                            </span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                    <Input
+                      value={photoNote}
+                      onChange={(event) => setPhotoNote(event.target.value)}
+                      placeholder={t('photoNotePlaceholder')}
+                      aria-label={t('photoNote')}
+                      autoComplete="off"
+                      maxLength={500}
+                      disabled={scan.isPending}
+                      className="bg-surface font-sans"
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter') {
+                          event.preventDefault();
+                          scan.mutate(photos.map((photo) => photo.file));
+                        }
+                      }}
+                    />
+                    <div className="flex gap-2">
+                      <Button
+                        className="flex-1"
+                        disabled={scan.isPending}
+                        onClick={() => scan.mutate(photos.map((photo) => photo.file))}
+                      >
+                        <ScanSearch className="size-4" aria-hidden />
+                        {scan.isPending ? t('scanning') : t('scanPhotos')}
+                      </Button>
+                      <Button variant="secondary" disabled={scan.isPending} onClick={clearPhotos}>
+                        {t('clearPhotos')}
+                      </Button>
+                    </div>
+                  </div>
+                ) : null}
 
                 <p className="text-foreground-subtle text-xs">
                   {scan.isPending
