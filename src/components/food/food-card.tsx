@@ -49,7 +49,7 @@ export const FoodCard = ({ food, index, onLog, onEdit, onArchive, archiving }: F
         type="button"
         onClick={onLog}
         aria-label={t('logThisFood', { name: food.name })}
-        className="press border-border bg-surface hover:border-border-strong focus-visible:border-accent focus-visible:ring-accent/20 flex h-full w-full flex-col rounded-lg border px-4 py-3 text-left hover:-translate-y-px hover:shadow-[var(--shadow-soft)] focus-visible:ring-3 focus-visible:outline-none sm:py-3.5"
+        className="press border-border bg-surface hover:border-border-strong focus-visible:border-accent-ink focus-visible:ring-accent-ink/20 flex h-full w-full flex-col rounded-lg border px-4 py-3 text-left hover:-translate-y-px hover:shadow-[var(--shadow-soft)] focus-visible:ring-3 focus-visible:outline-none sm:py-3.5"
       >
         <div className="flex w-full items-start justify-between gap-2 sm:min-h-9">
           <div className="min-w-0">
@@ -60,7 +60,7 @@ export const FoodCard = ({ food, index, onLog, onEdit, onArchive, archiving }: F
           </div>
 
           {food.isOwned ? (
-            <span className="bg-accent-soft text-accent shrink-0 rounded-full px-2 py-0.5 text-[0.6875rem] leading-5 transition-opacity duration-150 group-hover:opacity-0 max-sm:group-hover:opacity-100">
+            <span className="bg-accent-soft text-accent-ink shrink-0 rounded-full px-2 py-0.5 text-[0.6875rem] leading-5 transition-opacity duration-150 group-hover:opacity-0 max-sm:group-hover:opacity-100">
               {t('mine')}
             </span>
           ) : null}

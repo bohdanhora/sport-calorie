@@ -130,7 +130,7 @@ const HistoryPage = () => {
                       <div
                         className={cn(
                           'h-full rounded-full',
-                          isOver ? 'bg-danger/70' : 'bg-accent/70',
+                          isOver ? 'bg-danger/70' : 'bg-chart-1/70',
                         )}
                         style={{ width: `${consumedShare * 100}%` }}
                       />
@@ -140,7 +140,7 @@ const HistoryPage = () => {
                   <span
                     className={cn(
                       'numeric shrink-0 text-sm',
-                      isOver ? 'text-danger' : 'text-accent',
+                      isOver ? 'text-danger' : 'text-accent-ink',
                     )}
                   >
                     {format.signedKcal(balance)}

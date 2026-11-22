@@ -170,8 +170,8 @@ export const Combobox = ({
         disabled={disabled}
         {...aria}
         className={cn(
-          'border-border-strong bg-surface text-foreground hover:border-foreground-subtle/60 focus-visible:border-accent focus-visible:ring-accent/20 aria-[invalid=true]:border-danger flex h-11 w-full min-w-0 items-center justify-between gap-2 rounded-md border px-3 text-left text-sm transition-[color,border-color,box-shadow] duration-150 focus-visible:ring-3 focus-visible:outline-none disabled:opacity-60 sm:h-10',
-          open && 'border-accent ring-accent/20 ring-3',
+          'border-border-strong bg-surface text-foreground hover:border-foreground-subtle/60 focus-visible:border-accent-ink focus-visible:ring-accent-ink/20 aria-[invalid=true]:border-danger flex h-11 w-full min-w-0 items-center justify-between gap-2 rounded-md border px-3 text-left text-sm transition-[color,border-color,box-shadow] duration-150 focus-visible:ring-3 focus-visible:outline-none disabled:opacity-60 sm:h-10',
+          open && 'border-accent-ink ring-accent-ink/20 ring-3',
           className,
         )}
       >
@@ -257,7 +257,7 @@ export const Combobox = ({
                     index === activeIndex && 'bg-surface-muted',
                     item.kind === 'option' && 'text-foreground',
                     item.kind === 'empty' && 'text-foreground-muted',
-                    item.kind === 'custom' && 'text-accent font-medium',
+                    item.kind === 'custom' && 'text-accent-ink font-medium',
                   )}
                 >
                   <span className="min-w-0 flex-1 truncate">{item.label}</span>
@@ -267,7 +267,7 @@ export const Combobox = ({
                     </span>
                   ) : null}
                   {isSelected(item) ? (
-                    <Check className="text-accent size-4 shrink-0" aria-hidden />
+                    <Check className="text-accent-ink size-4 shrink-0" aria-hidden />
                   ) : (
                     <span aria-hidden className="size-4 shrink-0" />
                   )}

@@ -146,7 +146,7 @@ export const AddToDayDialog = ({
                 {shownWorkouts.map((workout) => (
                   <OptionRow
                     key={workout.id}
-                    icon={<Dumbbell className="text-accent size-4 shrink-0" aria-hidden />}
+                    icon={<Dumbbell className="text-accent-ink size-4 shrink-0" aria-hidden />}
                     title={workout.name}
                     meta={library('exerciseCount', { count: workout.exercises.length })}
                     kcal={kcal(workout.energyKcal)}

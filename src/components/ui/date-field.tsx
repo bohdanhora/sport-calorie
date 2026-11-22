@@ -42,7 +42,7 @@ export const DateField = ({
         type="button"
         {...aria}
         className={cn(
-          'border-border-strong bg-surface text-foreground hover:border-foreground-subtle/60 focus-visible:border-accent focus-visible:ring-accent/20 data-[state=open]:border-accent data-[state=open]:ring-accent/20 flex h-11 w-full items-center justify-between gap-2 rounded-md border px-3 text-sm transition-[color,border-color,box-shadow] duration-150 focus-visible:ring-3 focus-visible:outline-none data-[state=open]:ring-3 sm:h-10',
+          'border-border-strong bg-surface text-foreground hover:border-foreground-subtle/60 focus-visible:border-accent-ink focus-visible:ring-accent-ink/20 data-[state=open]:border-accent-ink data-[state=open]:ring-accent-ink/20 flex h-11 w-full items-center justify-between gap-2 rounded-md border px-3 text-sm transition-[color,border-color,box-shadow] duration-150 focus-visible:ring-3 focus-visible:outline-none data-[state=open]:ring-3 sm:h-10',
           'aria-[invalid=true]:border-danger',
           className,
         )}

@@ -3,70 +3,72 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #f0f1ee;
-  --surface: #f8f8f6;
-  --surface-muted: #e7e8e5;
-  --surface-raised: #f8f8f6;
+  --background: #eeefe7;
+  --surface: #fafbf5;
+  --surface-muted: #e4e5da;
+  --surface-raised: #fafbf5;
 
-  --border: #cdd0d1;
-  --border-strong: #8a8e93;
+  --border: #d6d9c8;
+  --border-strong: #9a9f88;
 
-  --foreground: #0c0d0e;
-  --foreground-muted: #42454a;
-  --foreground-subtle: #64686e;
-  --foreground-inverted: #f0f1ee;
+  --foreground: #1d2215;
+  --foreground-muted: #535a45;
+  --foreground-subtle: #6a705b;
+  --foreground-inverted: #eeefe7;
 
-  --accent: #2531e0;
-  --accent-hover: #1b25b8;
-  --accent-soft: #dfe1fb;
-  --accent-foreground: #ffffff;
+  --accent: #c8ea3c;
+  --accent-hover: #b9de25;
+  --accent-soft: #e6f2bd;
+  --accent-foreground: #1d2215;
+  --accent-ink: #5a7300;
 
-  --success: #2f7a5b;
-  --warning: #a3691c;
-  --danger: #b03a30;
-  --danger-soft: #fbeceb;
+  --success: #3f8a4a;
+  --warning: #b7791f;
+  --danger: #c0392b;
+  --danger-soft: #f8e6e1;
 
-  --chart-1: #2531e0;
-  --chart-2: #566a7a;
-  --chart-3: #a3691c;
-  --chart-4: #9c5341;
-  --chart-grid: #cdd0d1;
+  --chart-1: #84a913;
+  --chart-2: #3f8fb3;
+  --chart-3: #de8236;
+  --chart-4: #6b7a8f;
+  --chart-grid: #d6d9c8;
 
-  --ring: #2531e0;
+  --ring: #5a7300;
   --shadow-soft: none;
 }
 
 .dark {
-  --background: #0c0d0f;
-  --surface: #141519;
-  --surface-muted: #1b1c21;
-  --surface-raised: #17181c;
+  --background: #15170f;
+  --surface: #1d2016;
+  --surface-muted: #262a1d;
+  --surface-raised: #22261a;
 
-  --border: #2a2c31;
-  --border-strong: #4b4e54;
+  --border: #33392a;
+  --border-strong: #5a604b;
 
-  --foreground: #e8e9e5;
-  --foreground-muted: #a8abb0;
-  --foreground-subtle: #868a91;
-  --foreground-inverted: #0c0d0f;
+  --foreground: #eef0e2;
+  --foreground-muted: #adb29b;
+  --foreground-subtle: #8d927b;
+  --foreground-inverted: #15170f;
 
-  --accent: #8b95ff;
-  --accent-hover: #a3abff;
-  --accent-soft: #1c1f3d;
-  --accent-foreground: #0c0d0f;
+  --accent: #c8ea3c;
+  --accent-hover: #d6f25a;
+  --accent-soft: #2a3317;
+  --accent-foreground: #15170f;
+  --accent-ink: #c8ea3c;
 
-  --success: #52a685;
-  --warning: #c99442;
-  --danger: #d4675c;
-  --danger-soft: #2a1917;
+  --success: #7cc48a;
+  --warning: #e0a54a;
+  --danger: #f07a6a;
+  --danger-soft: #2e1a16;
 
-  --chart-1: #8b95ff;
-  --chart-2: #8098ab;
-  --chart-3: #c99442;
-  --chart-4: #c37e69;
-  --chart-grid: #2a2c31;
+  --chart-1: #c8ea3c;
+  --chart-2: #6ab8da;
+  --chart-3: #f19c55;
+  --chart-4: #9aa9bf;
+  --chart-grid: #33392a;
 
-  --ring: #8b95ff;
+  --ring: #c8ea3c;
   --shadow-soft: none;
 }
 
@@ -88,6 +90,7 @@
   --color-accent-hover: var(--accent-hover);
   --color-accent-soft: var(--accent-soft);
   --color-accent-foreground: var(--accent-foreground);
+  --color-accent-ink: var(--accent-ink);
 
   --color-success: var(--success);
   --color-warning: var(--warning);
@@ -369,7 +372,7 @@
     width: 0.42em;
     height: 0.72em;
     margin-left: 0.08em;
-    background-color: var(--accent);
+    background-color: var(--accent-ink);
   }
 
   .caret-blink {

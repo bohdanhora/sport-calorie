@@ -102,7 +102,7 @@ const LoginPage = () => {
         {t('noAccount')}{' '}
         <Link
           href="/register"
-          className="text-accent font-medium underline-offset-4 hover:underline"
+          className="text-accent-ink font-medium underline-offset-4 hover:underline"
         >
           {t('createOne')}
         </Link>

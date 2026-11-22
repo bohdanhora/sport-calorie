@@ -68,8 +68,8 @@ export const WeekStrip = ({ days, selected, onSelect, metric = 'intake' }: WeekS
                       className={cn(
                         'w-full rounded-t-sm transition-[height] duration-500 ease-out',
                         !logged && 'bg-surface-muted',
-                        logged && (isOver ? 'bg-danger/60' : 'bg-accent/55'),
-                        logged && isSelected && (isOver ? 'bg-danger' : 'bg-accent'),
+                        logged && (isOver ? 'bg-danger/60' : 'bg-chart-1/55'),
+                        logged && isSelected && (isOver ? 'bg-danger' : 'bg-chart-1'),
                       )}
                       style={{ height: logged ? `${(value / peak) * 100}%` : '3px' }}
                     />

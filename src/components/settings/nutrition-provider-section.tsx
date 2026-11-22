@@ -204,7 +204,9 @@ export const NutritionProviderSection = () => {
     <Section
       title={t('title')}
       action={
-        <span className={isConfigured ? 'text-accent text-xs' : 'text-foreground-subtle text-xs'}>
+        <span
+          className={isConfigured ? 'text-accent-ink text-xs' : 'text-foreground-subtle text-xs'}
+        >
           {isConfigured ? t('configured') : t('notConfigured')}
         </span>
       }
@@ -277,7 +279,7 @@ export const NutritionProviderSection = () => {
                 href={known.apiKeysUrl}
                 target="_blank"
                 rel="noreferrer noopener"
-                className="text-accent inline-flex items-center gap-1.5 text-[0.8125rem] font-medium underline-offset-4 hover:underline"
+                className="text-accent-ink inline-flex items-center gap-1.5 text-[0.8125rem] font-medium underline-offset-4 hover:underline"
               >
                 {t('whereToGetKey', { provider: known.label })}
                 <ExternalLink className="size-3.5" aria-hidden />
@@ -370,7 +372,7 @@ export const NutritionProviderSection = () => {
             ) : null}
 
             {visionModelName !== '' && (visionRecognised || visionOverride) ? (
-              <p className="text-accent text-xs">{t('visionReady')}</p>
+              <p className="text-accent-ink text-xs">{t('visionReady')}</p>
             ) : null}
 
             <div className="flex flex-wrap gap-2">

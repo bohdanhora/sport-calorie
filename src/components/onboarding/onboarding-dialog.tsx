@@ -254,7 +254,7 @@ export const OnboardingDialog = ({
                 aria-current={index === stepIndex ? 'step' : undefined}
                 className={
                   index <= stepIndex
-                    ? 'bg-accent h-1 flex-1 rounded-full'
+                    ? 'bg-accent-ink h-1 flex-1 rounded-full'
                     : 'bg-surface-muted h-1 flex-1 rounded-full'
                 }
               />
@@ -280,7 +280,7 @@ export const OnboardingDialog = ({
 
                 return (
                   <li key={point} className="flex gap-3">
-                    <span className="bg-surface-muted text-accent flex size-9 shrink-0 items-center justify-center rounded-md">
+                    <span className="bg-surface-muted text-accent-ink flex size-9 shrink-0 items-center justify-center rounded-md">
                       <Icon className="size-4" aria-hidden />
                     </span>
                     <div className="min-w-0">

@@ -81,11 +81,11 @@ export const AnswerText = ({ source }: { source: string }) => (
             {block.items.map((item, itemIndex) => (
               <li key={itemIndex} className="flex gap-2.5">
                 {block.ordered ? (
-                  <span className="numeric text-accent shrink-0 text-xs leading-relaxed">
+                  <span className="numeric text-accent-ink shrink-0 text-xs leading-relaxed">
                     {itemIndex + 1}.
                   </span>
                 ) : (
-                  <span aria-hidden className="bg-accent mt-2 size-1.5 shrink-0" />
+                  <span aria-hidden className="bg-accent-ink mt-2 size-1.5 shrink-0" />
                 )}
                 <span className="min-w-0 break-words">{renderInline(item)}</span>
               </li>

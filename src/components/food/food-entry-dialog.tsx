@@ -589,7 +589,7 @@ const SavedFoodForm = ({
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
       {notice ? (
-        <p className="bg-accent-soft text-accent animate-row rounded-md px-3 py-2 text-xs">
+        <p className="bg-accent-soft text-accent-ink animate-row rounded-md px-3 py-2 text-xs">
           {notice}
         </p>
       ) : null}

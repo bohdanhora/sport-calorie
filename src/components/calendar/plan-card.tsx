@@ -27,7 +27,7 @@ export const planStateOf = (plan: Pick<Plan, 'completedAt' | 'date'>, today: str
   plan.completedAt ? 'done' : plan.date < today ? 'missed' : 'planned';
 
 const CARD_STATES: Record<PlanState, string> = {
-  planned: 'border-accent/25 bg-accent-soft text-foreground',
+  planned: 'border-accent-ink/25 bg-accent-soft text-foreground',
   done: 'border-transparent bg-accent text-accent-foreground',
   missed: 'border-border-strong border-dashed bg-surface text-foreground-muted',
 };
@@ -87,7 +87,7 @@ export const LoggedRow = ({ entry, action }: { entry: ActivityEntry; action?: Re
 
   return (
     <div className="group bg-surface-muted text-foreground-muted flex items-start gap-1.5 rounded-md px-2.5 py-1.5">
-      <Check className="text-accent mt-0.5 size-3.5 shrink-0" strokeWidth={3} aria-hidden />
+      <Check className="text-accent-ink mt-0.5 size-3.5 shrink-0" strokeWidth={3} aria-hidden />
       <div className="min-w-0 flex-1">
         <p className="truncate text-xs leading-5">
           {entry.title ?? activityName(entry.activityType)}

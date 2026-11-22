@@ -85,7 +85,7 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
                     <span
                       aria-hidden
                       className={cn(
-                        'bg-accent absolute top-1/2 left-0 h-4 w-0.5 -translate-y-1/2 rounded-full transition-opacity duration-200',
+                        'bg-accent-ink absolute top-1/2 left-0 h-4 w-0.5 -translate-y-1/2 rounded-full transition-opacity duration-200',
                         active ? 'opacity-100' : 'opacity-0',
                       )}
                     />
@@ -149,7 +149,7 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
                   aria-current={active ? 'page' : undefined}
                   className={cn(
                     'press flex flex-col items-center gap-1 py-2.5 text-[0.6875rem] font-medium',
-                    active ? 'text-accent' : 'text-foreground-subtle',
+                    active ? 'text-accent-ink' : 'text-foreground-subtle',
                   )}
                 >
                   <span className="relative">
@@ -157,7 +157,7 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
                     <span
                       aria-hidden
                       className={cn(
-                        'bg-accent absolute -top-1.5 left-1/2 h-0.5 w-5 -translate-x-1/2 rounded-full transition-opacity duration-200',
+                        'bg-accent-ink absolute -top-1.5 left-1/2 h-0.5 w-5 -translate-x-1/2 rounded-full transition-opacity duration-200',
                         active ? 'opacity-100' : 'opacity-0',
                       )}
                     />

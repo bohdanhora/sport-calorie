@@ -411,7 +411,7 @@ const LibraryRowBody = ({ source, lifted = false }: { source: DragSource; lifted
       )}
     >
       {source.kind === 'workout' ? (
-        <Dumbbell className="text-accent size-4 shrink-0" aria-hidden />
+        <Dumbbell className="text-accent-ink size-4 shrink-0" aria-hidden />
       ) : source.kind === 'custom' ? (
         <PencilLine className="text-foreground-subtle size-4 shrink-0" aria-hidden />
       ) : (
@@ -522,7 +522,7 @@ const Library = ({
               aria-label={t('searchLibrary')}
               autoComplete="off"
               spellCheck={false}
-              className="border-border-strong bg-surface placeholder:text-foreground-subtle focus-visible:border-accent focus-visible:ring-accent/20 h-9 w-full rounded-md border pr-2.5 pl-8 text-[0.8125rem] transition-[border-color,box-shadow] duration-150 focus-visible:ring-3 focus-visible:outline-none [&::-webkit-search-cancel-button]:appearance-none"
+              className="border-border-strong bg-surface placeholder:text-foreground-subtle focus-visible:border-accent-ink focus-visible:ring-accent-ink/20 h-9 w-full rounded-md border pr-2.5 pl-8 text-[0.8125rem] transition-[border-color,box-shadow] duration-150 focus-visible:ring-3 focus-visible:outline-none [&::-webkit-search-cancel-button]:appearance-none"
             />
           </div>
         ) : null}
@@ -583,7 +583,7 @@ const InsertLine = ({ className }: { className?: string }) => (
   <span
     aria-hidden
     className={cn(
-      'bg-accent pointer-events-none absolute inset-x-0.5 h-0.5 rounded-full',
+      'bg-accent-ink pointer-events-none absolute inset-x-0.5 h-0.5 rounded-full',
       className,
     )}
   />
@@ -637,13 +637,13 @@ const DayColumn = ({
       ref={setNodeRef}
       className={cn(
         'border-border bg-surface flex gap-3 rounded-lg border p-2.5 transition-[background-color,border-color,box-shadow] duration-150 xl:min-h-80 xl:flex-col xl:gap-2 xl:p-2',
-        isToday && 'border-accent/40',
-        targeted && 'border-accent/60 bg-accent-soft/40 ring-accent/15 ring-3',
+        isToday && 'border-accent-ink/40',
+        targeted && 'border-accent-ink/60 bg-accent-soft/40 ring-accent-ink/15 ring-3',
       )}
     >
       <header className="flex w-12 shrink-0 flex-col items-center gap-1 pt-0.5 xl:w-auto xl:flex-row xl:items-center xl:justify-between xl:gap-2 xl:px-1 xl:pt-0">
         <div className="flex flex-col items-center gap-0.5 xl:flex-row xl:items-baseline xl:gap-2">
-          <span className={cn('label-caps leading-none', isToday && 'text-accent')}>
+          <span className={cn('label-caps leading-none', isToday && 'text-accent-ink')}>
             {formatWeekdayShort(date, format.locale)}
           </span>
           <span
@@ -708,7 +708,7 @@ const DayColumn = ({
           <p
             className={cn(
               'text-foreground-subtle flex min-h-10 flex-1 items-center text-xs transition-colors duration-150 xl:justify-center xl:text-center',
-              dragging && 'text-accent',
+              dragging && 'text-accent-ink',
             )}
           >
             {dragging ? t('dropHere') : t('nothingPlanned')}
@@ -807,7 +807,7 @@ const PlanSlot = ({
               'flex size-5 items-center justify-center rounded-full border-[1.5px] transition-colors duration-150',
               done
                 ? 'border-accent-foreground bg-accent-foreground text-accent'
-                : 'border-foreground-subtle group-hover/check:border-accent group-hover/check:text-accent text-transparent',
+                : 'border-foreground-subtle group-hover/check:border-accent-ink group-hover/check:text-accent-ink text-transparent',
             )}
           >
             <Check className="size-3" strokeWidth={3.5} />

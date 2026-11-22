@@ -153,7 +153,7 @@ export const WorkoutDialog = ({
             <ol className="divide-border border-border bg-surface divide-y overflow-hidden rounded-md border">
               {chosen.map((exercise, index) => (
                 <li key={exercise.id} className="flex items-center gap-2 py-1.5 pr-1.5 pl-3">
-                  <span className="bg-accent-soft text-accent numeric flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-medium">
+                  <span className="bg-accent-soft text-accent-ink numeric flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-medium">
                     {index + 1}
                   </span>
                   <span className="min-w-0 flex-1">
@@ -223,7 +223,7 @@ export const WorkoutDialog = ({
                       className={cn(
                         'press flex min-h-12 w-full items-center gap-3 rounded-md border px-3 py-2 text-left transition-colors duration-150',
                         isChosen
-                          ? 'border-accent/50 bg-accent-soft'
+                          ? 'border-accent-ink/50 bg-accent-soft'
                           : 'border-border bg-surface hover:bg-surface-muted',
                       )}
                     >

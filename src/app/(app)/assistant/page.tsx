@@ -238,7 +238,7 @@ const AssistantPage = () => {
                       onClick={() => send(t(`suggestions.${key}`))}
                       className="hover:bg-surface-muted focus-visible:bg-surface-muted flex min-h-11 w-full items-center gap-3 px-4 py-2.5 text-left text-sm transition-colors duration-150 focus-visible:outline-none"
                     >
-                      <span aria-hidden className="bg-accent size-1.5 shrink-0" />
+                      <span aria-hidden className="bg-accent-ink size-1.5 shrink-0" />
                       {t(`suggestions.${key}`)}
                     </button>
                   </li>
@@ -250,7 +250,7 @@ const AssistantPage = () => {
               {turns.map((turn, index) => (
                 <li key={index} className="animate-row space-y-2 px-4 py-4">
                   <p className="label-caps flex flex-wrap gap-x-2 gap-y-1">
-                    <span className={turn.role === 'assistant' ? 'text-accent' : undefined}>
+                    <span className={turn.role === 'assistant' ? 'text-accent-ink' : undefined}>
                       {turn.role === 'user' ? t('you') : t('assistant')}
                     </span>
                     {turn.role === 'assistant' ? (
@@ -269,7 +269,7 @@ const AssistantPage = () => {
 
               {ask.isPending ? (
                 <li className="space-y-2 px-4 py-4" aria-live="polite">
-                  <p className="label-caps text-accent">{t('assistant')}</p>
+                  <p className="label-caps text-accent-ink">{t('assistant')}</p>
                   <p className="text-foreground-muted text-sm">
                     {t('thinking')}
                     <span aria-hidden className="caret caret-blink" />

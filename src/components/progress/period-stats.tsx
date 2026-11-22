@@ -68,7 +68,7 @@ export const PeriodStats = ({ current, previous, rangeDays }: PeriodStatsProps) 
       current: current.avgBalanceKcal,
       previous: previous?.avgBalanceKcal,
       format: format.kcal,
-      tone: current.avgBalanceKcal > 0 ? 'text-danger' : 'text-accent',
+      tone: current.avgBalanceKcal > 0 ? 'text-danger' : 'text-accent-ink',
     },
     {
       key: 'walking',

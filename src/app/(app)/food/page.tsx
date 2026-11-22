@@ -140,7 +140,7 @@ const DiaryTab = ({
               <div
                 className={cn(
                   'h-full rounded-full transition-[width] duration-500 ease-out',
-                  dashboard.data.calories.remainingKcal < 0 ? 'bg-danger' : 'bg-accent',
+                  dashboard.data.calories.remainingKcal < 0 ? 'bg-danger' : 'bg-chart-1',
                 )}
                 style={{
                   width: `${

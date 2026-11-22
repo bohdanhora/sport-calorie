@@ -13,7 +13,7 @@ interface StatProps {
 
 const toneClasses: Record<NonNullable<StatProps['tone']>, string> = {
   default: 'text-foreground',
-  accent: 'text-accent',
+  accent: 'text-accent-ink',
   danger: 'text-danger',
   muted: 'text-foreground-muted',
 };

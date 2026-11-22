@@ -127,7 +127,10 @@ const RegisterPage = () => {
 
       <p className="text-foreground-muted border-border border-t pt-5 text-center text-[0.8125rem]">
         {t('haveAccount')}{' '}
-        <Link href="/login" className="text-accent font-medium underline-offset-4 hover:underline">
+        <Link
+          href="/login"
+          className="text-accent-ink font-medium underline-offset-4 hover:underline"
+        >
           {t('signIn')}
         </Link>
       </p>

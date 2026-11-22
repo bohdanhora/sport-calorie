@@ -105,7 +105,7 @@ export const PlanDialog = ({ plan, today, onOpenChange, onEdit }: PlanDialogProp
               className={cn(
                 'inline-flex h-6 items-center gap-1 rounded-full px-2.5 text-xs font-medium',
                 state === 'done' && 'bg-accent text-accent-foreground',
-                state === 'planned' && 'bg-accent-soft text-accent',
+                state === 'planned' && 'bg-accent-soft text-accent-ink',
                 state === 'missed' && 'bg-surface-muted text-foreground-muted',
               )}
             >

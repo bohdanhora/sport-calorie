@@ -41,7 +41,7 @@ const AuthLayout = ({ children }: { children: ReactNode }) => {
           <ul className="space-y-4">
             {points.map(({ icon: Icon, label }) => (
               <li key={label} className="flex items-start gap-3">
-                <span className="bg-accent-soft text-accent mt-px flex size-8 shrink-0 items-center justify-center rounded-md">
+                <span className="bg-accent-soft text-accent-ink mt-px flex size-8 shrink-0 items-center justify-center rounded-md">
                   <Icon className="size-4" aria-hidden />
                 </span>
                 <span className="text-foreground-muted pt-1.5 text-sm">{label}</span>

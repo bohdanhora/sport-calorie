@@ -146,7 +146,7 @@ export const Calendar = ({ value, onSelect, min, max, today }: CalendarProps) =>
             >
               {formatDayOfMonth(day, locale)}
               {isToday && !selected ? (
-                <span className="bg-accent absolute bottom-1 size-1 rounded-full" aria-hidden />
+                <span className="bg-accent-ink absolute bottom-1 size-1 rounded-full" aria-hidden />
               ) : null}
             </button>
           );

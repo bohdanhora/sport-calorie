@@ -30,7 +30,7 @@ export const CalorieSummary = ({ calories }: CalorieSummaryProps) => {
   const headline = useAnimatedNumber(Math.abs(calories.remainingKcal));
 
   const values = [
-    { key: 'consumed', value: calories.consumedKcal, tone: 'bg-accent' },
+    { key: 'consumed', value: calories.consumedKcal, tone: 'bg-chart-1' },
     { key: 'goal', value: calories.targetKcal, tone: 'bg-border-strong' },
     { key: 'activity', value: calories.activityKcal, tone: 'bg-chart-3' },
   ] as const;
@@ -72,7 +72,7 @@ export const CalorieSummary = ({ calories }: CalorieSummaryProps) => {
               cy={RING_SIZE / 2}
               r={RING_RADIUS}
               fill="none"
-              stroke={isOver ? 'var(--danger)' : 'var(--accent)'}
+              stroke={isOver ? 'var(--danger)' : 'var(--chart-1)'}
               strokeWidth={RING_STROKE}
               strokeLinecap="round"
               strokeDasharray={RING_LENGTH}

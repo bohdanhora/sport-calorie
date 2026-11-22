@@ -8,7 +8,7 @@ interface ProgressBarProps {
 }
 
 const toneClasses = {
-  accent: 'bg-accent',
+  accent: 'bg-chart-1',
   warning: 'bg-warning',
   danger: 'bg-danger',
 } as const;

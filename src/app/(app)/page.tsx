@@ -158,7 +158,7 @@ const TodayView = () => {
               <button
                 type="button"
                 onClick={() => setWeightDialogOpen(true)}
-                className="text-accent press -my-2 py-2 text-[0.8125rem] font-medium underline-offset-4 hover:underline"
+                className="text-accent-ink press -my-2 py-2 text-[0.8125rem] font-medium underline-offset-4 hover:underline"
               >
                 {dashboard.data.weight ? common('update') : common('record')}
               </button>
