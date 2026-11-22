@@ -21,7 +21,7 @@ export const Segmented = <T extends string>({
     role="radiogroup"
     aria-label={label}
     className={cn(
-      'border-border bg-surface-muted inline-flex w-full gap-0.5 rounded-md border p-0.5',
+      'border-border bg-surface-muted inline-flex w-full gap-0.5 rounded-full border p-0.5',
       className,
     )}
   >
@@ -36,7 +36,7 @@ export const Segmented = <T extends string>({
           aria-checked={selected}
           onClick={() => onChange(option.value)}
           className={cn(
-            'flex-1 rounded-[0.3rem] px-3 py-2.5 text-[0.8125rem] font-medium whitespace-nowrap transition-colors duration-150 sm:py-1.5',
+            'flex-1 rounded-full px-3 py-2.5 text-[0.8125rem] font-medium whitespace-nowrap transition-colors duration-150 sm:py-1.5',
             selected
               ? 'bg-surface text-foreground shadow-[var(--shadow-soft)]'
               : 'text-foreground-muted hover:text-foreground',

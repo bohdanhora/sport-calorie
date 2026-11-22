@@ -1,28 +1,15 @@
 import type { Metadata, Viewport } from 'next';
-import { IBM_Plex_Sans, Martian_Mono, Unbounded } from 'next/font/google';
+import { Rubik } from 'next/font/google';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
 
 import { Providers } from './providers';
 import './globals.css';
 
-const plex = IBM_Plex_Sans({
-  subsets: ['latin', 'cyrillic'],
-  weight: ['400', '500', '600'],
-  display: 'swap',
-  variable: '--font-plex',
-});
-
-const unbounded = Unbounded({
+const rubik = Rubik({
   subsets: ['latin', 'cyrillic'],
   display: 'swap',
-  variable: '--font-unbounded',
-});
-
-const martian = Martian_Mono({
-  subsets: ['latin', 'cyrillic'],
-  display: 'swap',
-  variable: '--font-martian',
+  variable: '--font-rubik',
 });
 
 const description = 'Track calories, food, walking and workouts in one place.';
@@ -56,11 +43,7 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
   const [locale, messages] = await Promise.all([getLocale(), getMessages()]);
 
   return (
-    <html
-      lang={locale}
-      suppressHydrationWarning
-      className={`${plex.variable} ${unbounded.variable} ${martian.variable}`}
-    >
+    <html lang={locale} suppressHydrationWarning className={rubik.variable}>
       <body>
         <NextIntlClientProvider locale={locale} messages={messages}>
           <Providers>{children}</Providers>

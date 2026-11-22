@@ -105,21 +105,21 @@
 
   --color-ring: var(--ring);
 
-  --font-sans: var(--font-plex), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-unbounded), var(--font-plex), ui-sans-serif, sans-serif;
-  --font-mono: var(--font-martian), ui-monospace, SFMono-Regular, monospace;
+  --font-sans: var(--font-rubik), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-rubik), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
 
   --text-2xs: 0.6875rem;
   --text-2xs--line-height: 1.4;
 
-  --radius-xs: 0;
-  --radius-sm: 0;
-  --radius-md: 0;
-  --radius-lg: 0;
-  --radius-xl: 0;
-  --radius-2xl: 0;
-  --radius-3xl: 0;
-  --radius-4xl: 0;
+  --radius-xs: 0.25rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.875rem;
+  --radius-xl: 1.125rem;
+  --radius-2xl: 1.375rem;
+  --radius-3xl: 1.75rem;
+  --radius-4xl: 2rem;
 
   --shadow-2xs: 0 0 #0000;
   --shadow-xs: 0 0 #0000;
@@ -237,11 +237,10 @@
 
   .page-title {
     font-family: var(--font-display);
-    font-size: 1.375rem;
-    line-height: 1.2;
+    font-size: 1.5rem;
+    line-height: 1.15;
     font-weight: 600;
     letter-spacing: -0.02em;
-    text-transform: uppercase;
   }
 
   .section-title {
