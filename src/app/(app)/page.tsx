@@ -109,34 +109,48 @@ const TodayView = () => {
           onRetry={() => void dashboard.refetch()}
         />
       ) : (
-        <Columns>
-          <Column>
-            <CalorieSummary calories={dashboard.data.calories} />
+        <Columns className="max-xl:flex max-xl:flex-col max-xl:gap-7 max-xl:space-y-0">
+          <Column className="max-xl:contents max-xl:space-y-0">
+            <div className="max-xl:order-1">
+              <CalorieSummary calories={dashboard.data.calories} />
+            </div>
 
-            <QuickAdd onSelect={handleQuickAction} />
+            <div className="max-xl:order-2">
+              <QuickAdd onSelect={handleQuickAction} />
+            </div>
 
-            <MacroSummary
-              consumed={dashboard.data.macros.consumed}
-              target={dashboard.data.macros.target}
-            />
+            <div className="max-xl:order-4">
+              <MacroSummary
+                consumed={dashboard.data.macros.consumed}
+                target={dashboard.data.macros.target}
+              />
+            </div>
 
-            <WalkingSummary walking={dashboard.data.walking} />
+            <div className="empty:hidden max-xl:order-6">
+              <WalkingSummary walking={dashboard.data.walking} />
+            </div>
 
-            <WeekStrip days={week.data ?? []} selected={date} onSelect={setDate} />
+            <div className="max-xl:order-8">
+              <WeekStrip days={week.data ?? []} selected={date} onSelect={setDate} />
+            </div>
           </Column>
 
-          <Column>
-            <MealList
-              meals={dashboard.data.meals}
-              onAdd={(meal) => setFoodDialog({ open: true, meal })}
-            />
+          <Column className="max-xl:contents max-xl:space-y-0">
+            <div className="max-xl:order-3">
+              <MealList
+                meals={dashboard.data.meals}
+                onAdd={(meal) => setFoodDialog({ open: true, meal })}
+              />
+            </div>
 
-            <ActivityList
-              activities={dashboard.data.activities}
-              onAdd={() => setActivityDialog({ open: true })}
-            />
+            <div className="max-xl:order-5">
+              <ActivityList
+                activities={dashboard.data.activities}
+                onAdd={() => setActivityDialog({ open: true })}
+              />
+            </div>
 
-            <section className="border-border bg-surface flex items-center justify-between gap-3 rounded-lg border px-4 py-3">
+            <section className="border-border bg-surface flex items-center justify-between gap-3 rounded-lg border px-4 py-3 max-xl:order-7">
               <div>
                 <p className="label-caps">{t('weight')}</p>
                 <p className="metric-md mt-1">
@@ -164,7 +178,7 @@ const TodayView = () => {
               </button>
             </section>
 
-            <p className="text-foreground-subtle text-xs">
+            <p className="text-foreground-subtle text-xs max-xl:order-9">
               {t('estimateNote')}{' '}
               <Link href="/settings" className="underline underline-offset-2">
                 {t('estimateLink')}
