@@ -19,6 +19,7 @@ export const metadata: Metadata = {
   title: 'Sport Calorie',
   description,
   applicationName: 'Sport Calorie',
+  appleWebApp: { capable: true, title: 'Sport Calorie', statusBarStyle: 'default' },
   openGraph: {
     type: 'website',
     url: '/',
