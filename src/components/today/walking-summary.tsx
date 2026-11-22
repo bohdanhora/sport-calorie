@@ -20,7 +20,9 @@ export const WalkingSummary = ({ walking }: WalkingSummaryProps) => {
   }
 
   const values = [
-    { key: 'distance', label: t('distance'), value: format.distance(walking.distanceM) },
+    ...(walking.distanceM > 0
+      ? [{ key: 'distance', label: t('distance'), value: format.distance(walking.distanceM) }]
+      : []),
     { key: 'time', label: t('time'), value: format.duration(walking.durationSec) },
     ...(walking.avgSpeedKmh !== null
       ? [
