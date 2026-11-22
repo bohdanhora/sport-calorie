@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { DailyAreaChart, DailyBarChart } from '@/components/charts/daily-chart';
 import { Columns } from '@/components/layout/columns';
 import { ActivityBreakdown } from '@/components/progress/activity-breakdown';
+import { Insights } from '@/components/progress/insights';
 import { PeriodStats } from '@/components/progress/period-stats';
 import { EmptyState } from '@/components/states/empty-state';
 import { ErrorState } from '@/components/states/error-state';
@@ -16,11 +17,12 @@ import { Button } from '@/components/ui/button';
 import { Section } from '@/components/ui/section';
 import { Segmented } from '@/components/ui/segmented';
 import { Skeleton } from '@/components/ui/skeleton';
-import { summaryApi } from '@/lib/api/endpoints';
+import { profileApi, summaryApi } from '@/lib/api/endpoints';
 import { useAuth } from '@/lib/auth/auth-provider';
 import { addDays, todayIn } from '@/lib/format/dates';
 import { metresToKilometres } from '@/lib/format/units';
 import { useFormat } from '@/lib/format/use-format';
+import { buildInsights } from '@/lib/insights/build-insights';
 import { queryKeys } from '@/lib/query/query-keys';
 
 const RANGES = [
@@ -57,6 +59,19 @@ const ProgressPage = () => {
     queryKey: queryKeys.progress(previousFrom, previousTo),
     queryFn: () => summaryApi.progress(previousFrom, previousTo),
   });
+
+  const profile = useQuery({ queryKey: queryKeys.profile, queryFn: profileApi.get });
+
+  const insights = progress.data
+    ? buildInsights({
+        days: progress.data.days,
+        weights: progress.data.weights,
+        today: to,
+        goal: profile.data?.goal ?? null,
+        tdeeKcal: profile.data?.energy.tdeeKcal ?? null,
+        targetWeightKg: profile.data?.targetWeightKg ?? null,
+      })
+    : [];
 
   const rangeOptions = RANGES.map(({ value, key }) => ({ value, label: t(key) }));
 
@@ -96,6 +111,10 @@ const ProgressPage = () => {
         <EmptyState title={t('nothingYet')} description={t('nothingYetHint')} />
       ) : (
         <>
+          <Section title={t('insights.title')}>
+            <Insights insights={insights} today={to} />
+          </Section>
+
           <Section title={t('averages')}>
             <PeriodStats
               current={progress.data.averages}

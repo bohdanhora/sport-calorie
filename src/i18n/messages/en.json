@@ -504,7 +504,51 @@
     "distance": "Distance",
     "vsPrevious": "vs previous period",
     "daysLogged": "{logged} of {total} days logged",
-    "askAssistant": "Ask the assistant"
+    "askAssistant": "Ask the assistant",
+    "insights": {
+      "title": "What the numbers say",
+      "tone": {
+        "good": "On track",
+        "neutral": "Worth a look",
+        "attention": "Needs attention"
+      },
+      "loggingTitle": "Logging",
+      "logging": "{logged} of {total} days logged. Current streak: {streak, plural, one {# day} other {# days}}.",
+      "loggingTipGood": "Steady logging keeps every estimate on this page honest.",
+      "loggingTip": "Log at least five days a week, weekends included, so the averages and forecasts reflect what you really eat.",
+      "goalTitle": "Daily goal",
+      "goal": "{onTarget} of {logged} logged days landed within 10% of the goal plus activity, {over} went above it.",
+      "goalTipGood": "Most days end close to the goal. Keep the same routine.",
+      "goalTipOver": "Days over the goal outweigh the rest. Plan dinner first and fit snacks around what is left.",
+      "goalTipUnder": "Many days end well below the goal. Check that every meal gets logged, or lower the goal if it feels too high.",
+      "paceTitle": "Pace",
+      "paceExpected": "Your average intake points to {kg} kg a week.",
+      "paceMeasured": "The scale shows {kg} kg a week.",
+      "paceTip": {
+        "loseUp": "This pace leads away from the goal. Trim 300 to 500 kcal a day or add a daily walk.",
+        "loseFast": "Losing over 1 kg a week costs muscle and energy. Eat 200 to 300 kcal more a day.",
+        "loseGood": "A loss of 0.2 to 1 kg a week is steady and sustainable.",
+        "loseSlow": "Loss is slow. About 300 kcal less a day adds roughly 0.3 kg a week.",
+        "gainShort": "Not enough to gain. Add 250 to 300 kcal a day, mostly from protein and carbs.",
+        "gainFast": "Gaining this fast is mostly fat. 0.25 to 0.5 kg a week is enough.",
+        "gainGood": "Gain stays in a lean range.",
+        "maintainGood": "Weight holds steady.",
+        "maintainDrift": "Weight drifts. Bring daily intake closer to the goal."
+      },
+      "forecastTitle": "Target weight",
+      "forecast": "{current} kg now, {target} kg target, moving {kg} kg a week.",
+      "forecastWeeks": "At this pace you get there in about {weeks, plural, one {# week} other {# weeks}}, around {date}.",
+      "forecastAway": "The trend moves away from the target. Review the goal in Settings.",
+      "forecastFar": "At this pace it would take over two years.",
+      "forecastDone": "You are at your target weight.",
+      "weekdayTitle": "Weekly pattern",
+      "weekday": "{weekday} is your heaviest day, {kcal} kcal above your average.",
+      "weekdayTip": "Plan that day ahead: a protein rich breakfast and a set dinner make it easier to hold.",
+      "activityTitle": "Activity",
+      "activity": "Active on {activeDays, plural, one {# day} other {# days}}, about {perWeek} a week.",
+      "activityTipGood": "Three or more active days a week is a solid base.",
+      "activityTip": "Aim for three active days a week. A brisk 30 minute walk burns about 150 kcal."
+    }
   },
   "history": {
     "title": "History",
