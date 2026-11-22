@@ -3,6 +3,8 @@ import { Rubik } from 'next/font/google';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
 
+import { ServiceWorker } from '@/components/layout/service-worker';
+
 import { Providers } from './providers';
 import './globals.css';
 
@@ -48,6 +50,7 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
       <body>
         <NextIntlClientProvider locale={locale} messages={messages}>
           <Providers>{children}</Providers>
+          <ServiceWorker />
         </NextIntlClientProvider>
       </body>
     </html>
